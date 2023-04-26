@@ -1,0 +1,75 @@
+.navbar {
+    font-family: 'Noto Sans', sans-serif;
+    background-color: white;
+
+    border-bottom-left-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+    
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+    width: 50rem; 
+    height: 2.5rem;
+    margin: auto;
+    padding: 0.5rem;
+}
+.flex_item {
+    text-align: center;
+    padding: 1rem;
+    flex: 1;
+}
+.flex_item:not(h2):first-of-type{
+    flex: 2;
+}
+.links li{
+    display: inline-block;
+    padding: 0 1rem;
+}
+.links a{
+    display: inline-block;
+    font-weight: 400;
+    text-decoration: none;
+    color : black;
+}
+
+.links a:hover ,a.active
+{
+    background-color: #F3F3F3;
+    color: #49A96E;
+    border-radius: 2rem;
+    padding: 1rem .5rem 1rem .5rem ;
+}
+.links span{
+    padding:1rem;
+    font-weight: 700;
+    color: #474747;
+}
+.profile li{
+    vertical-align:middle;
+    display: inline-block;
+    padding-left: 1rem;
+}
+.profile li:last-child{
+    padding-left: 1rem;
+}
+.profile li img{
+    width: 2rem;
+    padding: 0.5rem;
+}
+.profile li span{
+    display: block;
+}
+.bold{
+    font-weight: 700;
+    color: #474747;
+}
+.greytext{
+    font-weight: 400;
+    color: #979797;
+}
+.logo {
+    height: 2rem;
+}
+
+

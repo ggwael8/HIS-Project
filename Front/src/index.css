@@ -1,0 +1,14 @@
+html {
+    background-color: #DCEEDD;
+    font-size: 15px;
+}
+@media (max-width: 1024px){
+    html{
+        font-size: 10px;
+    }
+}
+@media (max-width: 638px){
+    html{
+        font-size: 5px;
+    }
+}
