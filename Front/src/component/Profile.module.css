@@ -1,0 +1,47 @@
+.profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  cursor: pointer;
+}
+.profile img {
+  width: 2rem;
+}
+.profile span {
+  margin-left: 0.5rem;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.bold {
+  font-weight: 700;
+  color: #474747;
+}
+.grey {
+  color: #979797;
+  font-weight: 400;
+}
+/* dropDown Styles*/
+.dropDown {
+  background-color: #fff;
+  border-radius: 1rem;
+  position: absolute;
+  padding: 1rem 1.5rem;
+}
+.display {
+  display: block;
+  transform: translateY(90%);
+  transition: 200ms all ease-in-out;
+}
+.displayNone {
+  opacity: 0%;
+  transform: translateY(0);
+}
+.arrow {
+  transform: rotate(180deg);
+}

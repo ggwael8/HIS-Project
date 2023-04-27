@@ -1,0 +1,36 @@
+/* links style */
+.links {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+.links a {
+  padding: 1rem;
+  gap: 16px;
+  display: flex;
+  font-weight: 400;
+  text-decoration: none;
+  color: black;
+}
+.links span {
+  font-weight: 700;
+  color: #474747;
+}
+a.active {
+  background-color: #f3f3f3;
+  color: #49a96e;
+  border-radius: 2rem;
+}
+a.active span {
+  color: #49a96e;
+}
+
+.titleDisplayNone {
+  display: none;
+}
+.titleDisplay {
+  display: none;
+}

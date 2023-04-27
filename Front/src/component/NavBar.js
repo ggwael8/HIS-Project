@@ -1,54 +1,18 @@
-import { NavLink } from "react-router-dom";
+import classes from './NavBar.module.css';
 
-import classes from "./NavBar.module.css";
-
-import logo from "../Images/SVG/Logo.svg";
-import photo from "../Images/SVG/Photo.svg";
-import appointmenticon from "../Images/SVG/appointment.svg";
-
-function NavBar() {
+import Logo from './Logo';
+import PagesLink from './PagesLink';
+import Profile from './Profile';
+function NavBar(props) {
   return (
-    <div>
-      <nav className={classes.navbar}>
-        <h2 className={classes.flex_item}>
-          <img src={logo} alt="logo" className={classes.logo} />
-        </h2>
-        <ul className={`${classes.links}  ${classes.flex_item}`}>
-          <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
-              <i class="fa-solid fa-house"></i>
-              <span>home</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/appointment"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
-              <i class="fa-solid fa-phone"></i>
-              <span>appointment</span>
-            </NavLink>
-          </li>
-        </ul>
-        <ul className={`${classes.profile}  ${classes.flex_item}`}>
-          <li>
-            <img src={photo} alt="pic" />
-          </li>
-          <li>
-            <span className={classes.bold}>Ahmed</span>
-            <span className={classes.greytext}>patient</span>
-          </li>
-          <li>
-            <i className="fa-solid fa-chevron-down"></i>
-          </li>
-        </ul>
+    <div className={classes.navbar}>
+      <nav className={classes.navbarcontainer}>
+        {/* logo */}
+        <Logo flex_item={classes.flex_item} />
+        {/* links */}
+        <PagesLink links={props.links} flex_item={classes.flex_item} />
+        {/* Profile*/}
+        <Profile flex_item={classes.flex_item} />
       </nav>
     </div>
   );
