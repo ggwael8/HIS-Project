@@ -21,13 +21,17 @@
 }
 a.active {
   background-color: #f3f3f3;
-  color: #49a96e;
   border-radius: 2rem;
 }
-a.active span {
+a.active span,
+a.active {
   color: #49a96e;
 }
 
+a:not(.active):hover {
+  background-color: #f3f3f3;
+  border-radius: 2rem;
+}
 .titleDisplayNone {
   display: none;
 }

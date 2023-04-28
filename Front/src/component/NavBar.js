@@ -2,7 +2,7 @@ import classes from './NavBar.module.css';
 
 import Logo from './Logo';
 import PagesLink from './PagesLink';
-import Profile from './Profile';
+import ProfileNavBar from './ProfileNavBar';
 function NavBar(props) {
   return (
     <div className={classes.navbar}>
@@ -12,7 +12,7 @@ function NavBar(props) {
         {/* links */}
         <PagesLink links={props.links} flex_item={classes.flex_item} />
         {/* Profile*/}
-        <Profile flex_item={classes.flex_item} />
+        <ProfileNavBar flex_item={classes.flex_item} />
       </nav>
     </div>
   );

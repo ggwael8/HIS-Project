@@ -63,7 +63,7 @@ function RootLayout() {
   ];
   return (
     <>
-      <NavBar links={links} />
+      <NavBar links={links} id='nav' />
       <Outlet />
     </>
   );

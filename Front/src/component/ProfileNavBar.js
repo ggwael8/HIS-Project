@@ -1,0 +1,104 @@
+import classes from './ProfileNavBar.module.css';
+import photo from '../Images/SVG/Photo.svg';
+import DropDownMenu from './DropDownMenu';
+import Profile from './Profile';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { useState, useEffect, useRef } from 'react';
+
+function ProfileNavBar(props) {
+  const [onDropDown, setOnDropDown] = useState(false);
+  const [onProfileOpen, setOnProfileOpen] = useState(false);
+
+  let dropDownRef = useRef();
+  let profileContainer = useRef();
+  let profileRef = useRef();
+
+  const SetProfilePageOn = () => {
+    setOnProfileOpen(!onProfileOpen);
+  };
+  const SetProfilePageClose = () => {
+    setOnProfileOpen(false);
+  };
+  useEffect(() => {
+    let SetDropDownFalse = e => {
+      if (
+        !dropDownRef.current.contains(e.target) &&
+        !profileContainer.current.contains(e.target) &&
+        onDropDown
+      ) {
+        setOnDropDown(false);
+      }
+    };
+    document.addEventListener('click', SetDropDownFalse);
+    return () => {
+      document.removeEventListener('click', SetDropDownFalse);
+    };
+  });
+  useEffect(() => {
+    let SetProfileDown = e => {
+      console.log(onProfileOpen);
+      if (
+        !profileRef.current.contains(e.target) &&
+        !dropDownRef.current.contains(e.target) &&
+        onProfileOpen
+      ) {
+        console.log('inside');
+        SetProfilePageClose();
+      }
+    };
+    document.addEventListener('click', SetProfileDown);
+    return () => {
+      document.removeEventListener('click', SetProfileDown);
+    };
+  });
+  return (
+    <>
+      <div className={props.flex_item}>
+        {/* Profile Container*/}
+        <div
+          className={classes.profile}
+          onMouseDown={() => {
+            setOnDropDown(!onDropDown);
+          }}
+          ref={profileContainer}
+        >
+          <div>
+            <img src={photo} alt='pic' />
+          </div>
+          <div className={classes.title}>
+            <h3 className={classes.bold}>ahmed</h3>
+            <h3 className={classes.grey}>patient</h3>
+          </div>
+          <div>
+            <span className={classes.arrow}>
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                rotation={onDropDown ? 180 : 0}
+              />
+            </span>
+          </div>
+        </div>
+        {/* DropDown Menu */}
+        <div
+          className={`${classes.dropDown} ${
+            onDropDown ? classes.display : classes.displayNone
+          }`}
+          ref={dropDownRef}
+        >
+          <DropDownMenu setProfileOpen={SetProfilePageOn} />
+        </div>
+        {/* Profile Page */}
+        <div
+          className={`${classes.profilePage} ${
+            onProfileOpen ? classes.display : classes.displayNone
+          } donotblur`}
+          ref={profileRef}
+        >
+          <Profile />
+        </div>
+      </div>
+    </>
+  );
+}
+export default ProfileNavBar;

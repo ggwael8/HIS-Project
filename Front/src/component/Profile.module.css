@@ -1,47 +1,49 @@
 .profile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  position: relative;
-  cursor: pointer;
-}
-.profile img {
-  width: 2rem;
-}
-.profile span {
-  margin-left: 0.5rem;
-}
-.title {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-}
-.bold {
-  font-weight: 700;
-  color: #474747;
-}
-.grey {
-  color: #979797;
-  font-weight: 400;
-}
-/* dropDown Styles*/
-.dropDown {
   background-color: #fff;
   border-radius: 1rem;
-  position: absolute;
-  padding: 1rem 1.5rem;
+  width: 50rem;
+  height: 50rem;
 }
-.display {
-  display: block;
-  transform: translateY(90%);
-  transition: 200ms all ease-in-out;
+.profile hr {
+  background-color: black;
+  width: 50%;
 }
-.displayNone {
-  opacity: 0%;
-  transform: translateY(0);
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5rem;
+  gap: 2rem;
+  cursor: pointer;
 }
-.arrow {
-  transform: rotate(180deg);
+.header h2 {
+  width: 30%;
+  height: 50%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+.active {
+  color: #49a96e;
+  border-radius: 2rem;
+  font-weight: 700;
+  transition: 300ms all ease-in-out;
+}
+.header h2:not(.active):hover {
+  background-color: #f3f3f3;
+  border-radius: 2rem;
+}
+
+.header span {
+  display: inline-block;
+  background-color: black;
+  width: 1px;
+  height: 2rem;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* height: 50%; */
 }

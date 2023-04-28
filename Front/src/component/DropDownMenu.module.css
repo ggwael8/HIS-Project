@@ -1,17 +1,29 @@
+.DropDownMenu {
+  height: 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
 .DropDownMenu a {
+  width: 8rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-direction: row;
   color: #474747;
-  display: block;
   text-decoration: none;
   text-align: center;
-  padding: 0.5rem 0.5rem;
 }
 .DropDownMenu a:hover {
   border-radius: 0.5rem;
-  background-color: #f5f5f5;
-  color: #333333;
+  width: 85%;
+  background-color: #47474718;
+  color: #474747;
 }
 .DropDownMenu span {
   font-weight: 700;
   color: #474747;
-  padding: 0.5rem 0.5rem;
 }

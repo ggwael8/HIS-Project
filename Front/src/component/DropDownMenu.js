@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import classes from './DropDownMenu.module.css';
 
-function DropDownMenu() {
+function DropDownMenu(props) {
   return (
     <div className={classes.DropDownMenu}>
-      <NavLink to='/'>
+      <NavLink onClick={props.setProfileOpen}>
         <i class='fa-solid fa-user' style={{ color: '#474747' }}></i>
         <span>Profile</span>
       </NavLink>
