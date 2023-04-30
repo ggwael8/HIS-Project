@@ -6,12 +6,12 @@ function InformationCard(props) {
     if (key !== 'title')
       content[index] = (
         <h2>
-          {key} : <span>{props.card[key]}</span>
+          {key.toString().replace(/([A-Z])/g, ' $1')} :{' '}
+          <span>{props.card[key]}</span>
         </h2>
       );
     index++;
   }
-  console.log(content);
   return (
     <div className={classes.informationCard}>
       <h1 className={classes.title}>{props.card.title}</h1>

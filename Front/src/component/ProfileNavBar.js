@@ -1,25 +1,16 @@
 import classes from './ProfileNavBar.module.css';
 import photo from '../Images/SVG/Photo.svg';
 import DropDownMenu from './DropDownMenu';
-import Profile from './Profile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect, useRef } from 'react';
 
 function ProfileNavBar(props) {
   const [onDropDown, setOnDropDown] = useState(false);
-  const [onProfileOpen, setOnProfileOpen] = useState(false);
 
   let dropDownRef = useRef();
   let profileContainer = useRef();
-  let profileRef = useRef();
 
-  const SetProfilePageOn = () => {
-    setOnProfileOpen(!onProfileOpen);
-  };
-  const SetProfilePageClose = () => {
-    setOnProfileOpen(false);
-  };
   useEffect(() => {
     let SetDropDownFalse = e => {
       if (
@@ -35,23 +26,23 @@ function ProfileNavBar(props) {
       document.removeEventListener('click', SetDropDownFalse);
     };
   });
-  useEffect(() => {
-    let SetProfileDown = e => {
-      console.log(onProfileOpen);
-      if (
-        !profileRef.current.contains(e.target) &&
-        !dropDownRef.current.contains(e.target) &&
-        onProfileOpen
-      ) {
-        console.log('inside');
-        SetProfilePageClose();
-      }
-    };
-    document.addEventListener('click', SetProfileDown);
-    return () => {
-      document.removeEventListener('click', SetProfileDown);
-    };
-  });
+  const ProfileDropDown = [
+    {
+      id: 1,
+      type: 'link',
+      path: '/profile',
+      icon: <i class='fa-solid fa-user' style={{ color: '#474747' }}></i>,
+      body: 'profile',
+      activeEffect: true,
+    },
+    {
+      id: 2,
+      type: 'link',
+      path: '/',
+      icon: <i class='fa-solid fa-right-from-bracket '></i>,
+      body: 'logout',
+    },
+  ];
   return (
     <>
       <div className={props.flex_item}>
@@ -67,8 +58,8 @@ function ProfileNavBar(props) {
             <img src={photo} alt='pic' />
           </div>
           <div className={classes.title}>
-            <h3 className={classes.bold}>ahmed</h3>
-            <h3 className={classes.grey}>patient</h3>
+            <h3 className={classes.bold}>{props.firstname}</h3>
+            <h3 className={classes.grey}>{props.role}</h3>
           </div>
           <div>
             <span className={classes.arrow}>
@@ -86,16 +77,7 @@ function ProfileNavBar(props) {
           }`}
           ref={dropDownRef}
         >
-          <DropDownMenu setProfileOpen={SetProfilePageOn} />
-        </div>
-        {/* Profile Page */}
-        <div
-          className={`${classes.profilePage} ${
-            onProfileOpen ? classes.display : classes.displayNone
-          } donotblur`}
-          ref={profileRef}
-        >
-          <Profile />
+          <DropDownMenu content={ProfileDropDown} />
         </div>
       </div>
     </>

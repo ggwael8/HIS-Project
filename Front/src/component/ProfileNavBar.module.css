@@ -25,6 +25,8 @@
 }
 /* dropDown Styles*/
 .dropDown {
+  width: 8rem;
+  height: 6rem;
   position: absolute;
   background-color: #fff;
   border-radius: 1rem;
@@ -45,7 +47,8 @@
   transform: rotate(180deg);
 }
 
-.profilePage {
-  position: absolute;
-  transform: translate(-17rem, 30rem);
+@media (max-width: 750px) {
+  .title {
+    display: none;
+  }
 }

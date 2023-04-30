@@ -1,21 +1,27 @@
 .profile {
   background-color: #fff;
   border-radius: 1rem;
-  width: 50rem;
-  height: 50rem;
+  margin: 0 auto;
+  margin-top: 1rem;
+  width: 50%;
+  height: 90vh;
 }
+/* horizontal line */
 .profile hr {
   background-color: black;
   width: 50%;
 }
+/* Header Titles */
 .header {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 5rem;
+  width: 100%;
   gap: 2rem;
   cursor: pointer;
 }
+
 .header h2 {
   width: 30%;
   height: 50%;
@@ -33,17 +39,29 @@
   background-color: #f3f3f3;
   border-radius: 2rem;
 }
-
+/* line */
 .header span {
   display: inline-block;
   background-color: black;
   width: 1px;
   height: 2rem;
 }
+
+/* information cards */
 .content {
+  overflow-y: scroll;
+  width: 95%;
+  margin: auto;
+  height: 80%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  /* height: 50%; */
+  justify-content: flex-start;
+  gap: 5rem;
+}
+
+@media (max-width: 1200px) {
+  .header h2 {
+    width: 15%;
+  }
 }

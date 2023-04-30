@@ -12,7 +12,11 @@ function NavBar(props) {
         {/* links */}
         <PagesLink links={props.links} flex_item={classes.flex_item} />
         {/* Profile*/}
-        <ProfileNavBar flex_item={classes.flex_item} />
+        <ProfileNavBar
+          flex_item={classes.flex_item}
+          firstname={props.firstname}
+          role={props.role}
+        />
       </nav>
     </div>
   );

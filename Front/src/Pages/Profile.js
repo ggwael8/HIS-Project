@@ -1,41 +1,21 @@
 import classes from './Profile.module.css';
-import InformationCard from './InformationCard';
-import { useState } from 'react';
-function Profile() {
+import InformationCard from '../component/InformationCard';
+import { useEffect, useState, useContext } from 'react';
+import userEvent from '@testing-library/user-event';
+import UserContext from '../context/user-context';
+
+function Profile(props) {
   const [selectedHeader, SetSelectedHeader] = useState(1);
-  const headerList = [
+  const ctx = useContext(UserContext);
+  const [headerList, setHeaderList] = useState([
     [
       {
         content: 'Personal Information',
         id: 1,
         informationCards: [
-          {
-            title: 'Personal Information',
-            FirstName: 'Ahmed',
-            LastName: 'Ahmed',
-            Email: 'efpyi@example.com',
-            PhoneNumber: '+91-99999999999',
-            Address: '123',
-            City: 'Bangalore',
-          },
-          {
-            title: 'Personal Information',
-            FirstName: 'Ahmed',
-            LastName: 'Ahmed',
-            Email: 'efpyi@example.com',
-            PhoneNumber: '+91-99999999999',
-            Address: '123',
-            City: 'Bangalore',
-          },
-          {
-            title: 'Personal Information',
-            FirstName: 'Ahmed',
-            LastName: 'Ahmed',
-            Email: 'efpyi@example.com',
-            PhoneNumber: '+91-99999999999',
-            Address: '123',
-            City: 'Bangalore',
-          },
+          ctx.PersonalInformation,
+          ctx.ContactInformation,
+          ctx.AddressInformation,
         ],
       },
       { content: '', id: 0 },
@@ -54,7 +34,7 @@ function Profile() {
       },
     ],
     [{ content: 'Personal Information', id: 1 }],
-  ];
+  ]);
   const OnClickEvent = e => {
     SetSelectedHeader(e.target.id);
   };
@@ -76,6 +56,7 @@ function Profile() {
             <span key={p.index}> </span>
           )
         )}
+
         {/* <span></span> */}
       </div>
       <hr></hr>
@@ -85,9 +66,7 @@ function Profile() {
             p.id == selectedHeader &&
             p.informationCards.map(card => <InformationCard card={card} />)
         )}
-        {/* <InformationCard />
-        <InformationCard />
-        <InformationCard /> */}
+        {console.log(ctx)}
       </div>
     </div>
   );
