@@ -87,13 +87,13 @@ function RootLayout() {
         DateOfBirth: 'mstny te7a',
       },
       ContactInformation: {
-        title: 'Contact',
+        title: 'Contact Information',
         MobileNumber1: data.user.phone_1,
         MobileNumber2: data.user.phone_2,
         Email: data.user.email,
       },
       AddressInformation: {
-        title: 'Address',
+        title: 'Address Information',
         FullStreet: data.address.street,
         AppartmentNumber: data.address.appartment_number,
         City: data.address.city,
