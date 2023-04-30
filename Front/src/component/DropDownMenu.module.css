@@ -1,13 +1,27 @@
 .DropDownMenu {
-  height: 6rem;
+  height: 90%;
+  width: 90%;
+  margin: auto;
+  margin: 5% auto;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: space-evenly;
 }
-.DropDownMenu a {
-  width: 8rem;
-  height: 2rem;
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.scrollable {
+  justify-content: flex-start;
+
+  overflow-y: scroll;
+}
+a {
+  width: 100%;
+  height: 40%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,13 +31,66 @@
   text-decoration: none;
   text-align: center;
 }
-.DropDownMenu a:hover {
+card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #474747;
+  font-weight: 700;
+  padding: 1rem 0;
+}
+.search {
+  width: 80%;
+}
+.search input {
+  height: 2rem;
+  background-color: #f3f3f3;
+  border: none;
+  font-weight: 700;
+  color: #474747;
+  text-align: center;
+  border-radius: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.search input:focus {
+  outline: none;
+}
+hr {
+  width: 50%;
+}
+.whiteSpace {
+  display: none;
+}
+.whiteSpace:nth-of-type(1) {
+  display: block;
+  width: 0;
+  opacity: 0;
+}
+a:hover {
   border-radius: 0.5rem;
-  width: 85%;
+  width: 90%;
   background-color: #47474718;
   color: #474747;
 }
-.DropDownMenu span {
+h2 {
   font-weight: 700;
   color: #474747;
+}
+
+a.active h2,
+a.active i {
+  color: #49a96e !important;
+}
+
+.hoverEffect:hover {
+  border-radius: 0.5rem;
+  width: 90%;
+  height: 1rem;
+  background-color: #47474718;
+  color: #474747;
+  cursor: pointer;
 }

@@ -1,8 +1,29 @@
+/* Profile Conatiner */
+::-webkit-scrollbar-track {
+  background: #49a96e50;
+  border-radius: 1rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #34805150;
+  border-radius: 1rem;
+  border: 3px solid transparent;
+  border-radius: 9px;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #34805150;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  background: #ffffff;
+}
 html {
   background-color: #dceedd;
   font-size: 16px;
 }
-@media (max-width: 1000px) {
+@media (max-width: 1150px) {
   html {
     font-size: 14px;
   }

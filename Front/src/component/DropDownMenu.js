@@ -3,18 +3,53 @@ import classes from './DropDownMenu.module.css';
 
 function DropDownMenu(props) {
   return (
-    <div className={classes.DropDownMenu}>
-      <NavLink onClick={props.setProfileOpen}>
-        <i class='fa-solid fa-user' style={{ color: '#474747' }}></i>
-        <span>Profile</span>
-      </NavLink>
-      <NavLink to='/'>
-        <i
-          class='fa-solid fa-right-from-bracket '
-          style={{ color: '#DF5C5C' }}
-        ></i>
-        <span>Logout</span>
-      </NavLink>
+    <div
+      className={`${classes.DropDownMenu} ${
+        props.content[0].scrollable && classes.scrollable
+      }`}
+    >
+      {props.content.map(p => (
+        <>
+          {p.type === 'link' ? (
+            <NavLink
+              to={p.path}
+              className={({ isActive }) =>
+                isActive && p.activeEffect ? classes.active : undefined
+              }
+            >
+              <h2>{p.icon}</h2>
+              <h2>{p.body}</h2>
+            </NavLink>
+          ) : p.type === 'search' ? (
+            <div className={classes.search}>
+              <input
+                type='text'
+                id='search'
+                placeholder={p.body}
+                onChange={e => {
+                  props.searchstate(e.target.value);
+                }}
+              />
+            </div>
+          ) : (
+            p.type === 'text' && (
+              <>
+                <hr className={classes.whiteSpace}></hr>
+                <card
+                  onClick={() => {
+                    props.selectstate(p.id);
+                    props.next && props.next(0);
+                  }}
+                  className={p.hoverEffect && classes.hoverEffect}
+                >
+                  {p.body}
+                </card>
+                {p.horizontalLine && <hr></hr>}
+              </>
+            )
+          )}
+        </>
+      ))}
     </div>
   );
 }
