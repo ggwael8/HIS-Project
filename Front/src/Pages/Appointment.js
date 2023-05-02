@@ -37,6 +37,7 @@ function Appointment() {
   const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
   const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
     useState([
+      //Todo: Dummy
       {
         id: 1,
         Work: 1,
@@ -100,9 +101,12 @@ function Appointment() {
     setDoctorScheduleDoctor(null);
     setDoctorScheduleDayAndDuration([
       {
+        //Todo: Dummy
         id: 1,
         Work: 1,
         Day: 'Saturday',
+        StartTime: '11:00',
+        EndTime: '12:00',
         Duration: 0,
       },
       {
@@ -167,7 +171,8 @@ function Appointment() {
   //     time: '13:00',
   //   },
   // ];
-  /*from api*/
+
+  //Todo: Dummy
   const dropDownContent = [
     [
       {
@@ -295,8 +300,7 @@ function Appointment() {
       time: PatientAppointmentTime,
     },
   ];
-  /*from api*/
-  /*temp*/
+  //Todo: Dummy
   const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
     {
       id: 1,
@@ -337,6 +341,64 @@ function Appointment() {
       timasde: 'time',
     },
   ]);
+  const timeSlots = [
+    {
+      id: 1,
+      start: '11:00',
+      end: '12:00',
+    },
+    {
+      id: 2,
+      start: '13:00',
+      end: '14:00',
+    },
+    {
+      id: 3,
+      start: '15:00',
+      end: '16:00',
+    },
+    {
+      id: 4,
+      start: '17:00',
+      end: '18:00',
+    },
+    {
+      id: 5,
+      start: '19:00',
+      end: '20:00',
+    },
+    {
+      id: 6,
+      start: '11:00',
+      end: '12:00',
+    },
+    {
+      id: 7,
+      start: '13:00',
+      end: '14:00',
+    },
+    {
+      id: 8,
+      start: '15:00',
+      end: '16:00',
+    },
+    {
+      id: 9,
+      start: '17:00',
+      end: '18:00',
+    },
+    {
+      id: 10,
+      start: '19:00',
+      end: '20:00',
+    },
+    {
+      id: 11,
+      start: '11:00',
+      end: '12:00',
+    }
+  ];
+  //Book New Appointment Selection body content
   const selection = [
     {
       type: 'input',
@@ -369,16 +431,20 @@ function Appointment() {
       currentStep: PatientAppointmentSelectedStep,
     },
     {
-      type: 'dropDown',
+      type: 'selection',
       id: userctx.role === 'receptionist' ? 4 : 3,
+      DateAndTime: true,
       dropDownContent: dropDownContent[2],
-      selectstate: setPatientAppointmentDate,
-      searchstate: setPatientAppointmentSearchSelected,
-      title: 'Pick Date & Time',
+      DateSetState: setPatientAppointmentDate,
+      TimeSetState: setPatientAppointmentTime,
+      CurrentTime: PatientAppointmentTime,
+      TimeSlots: timeSlots,
+      title: 'Set Date & Time',
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
     },
   ];
+  //Doctor Schedule Selection body
   const doctorSelection = [
     {
       type: 'dropDown',
@@ -397,11 +463,12 @@ function Appointment() {
       dayAndDurationSetState: setDoctorScheduleDayAndDuration,
       currentDayAndDuration: doctorScheduleDayAndDuration,
       searchstate: setPatientAppointmentSearchSelected,
-      title: 'Pick Date & Time',
+      title: 'Set Day & Duration',
       setSelectedStep: setDoctorScheduleSelectedStep,
       currentStep: doctorScheduleSelectedStep,
     },
   ];
+
   return (
     <div className={classes.container}>
       {/* appointment NavBar */}

@@ -4,14 +4,16 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border: 1px solid #aaaaaa;
   border-radius: 1rem;
   width: 80%;
   height: 10%;
   gap: 1rem;
+  border: 1px solid #aaaaaa;
   box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.164);
 }
 .dropDownMenu {
+  transform: translateY(4rem);
+  position: absolute;
   width: 70%;
   height: 80%;
   background-color: #fff;
@@ -19,8 +21,9 @@
   box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.096);
 }
 .selectionBody {
+  position: relative;
   display: none;
-  width: 80%;
+  width: 90%;
   height: 100%;
   border-radius: 16px;
   padding: 16px;
@@ -71,7 +74,7 @@
   background-color: #49a96e;
   border: none;
   width: 50%;
-  height: 15%;
+  height: 10%;
   border-radius: 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
@@ -97,9 +100,11 @@
 }
 .dayAndDuration {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  overflow-y: scroll;
 }
 .eachDayAndDuration {
   height: 100%;
@@ -119,10 +124,11 @@
 .Duration {
   display: flex;
   align-items: center;
-  width: 80%;
+  height: 100%;
+  width: 50%;
 }
 .DurationInput {
-  height: 30%;
+  height: 50%;
   width: 40%;
   margin: auto;
   background-color: #f3f3f3;
@@ -139,6 +145,42 @@
   color: #49a96e;
   outline: none;
 }
+.DateAndTime {
+  width: 90%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 3rem;
+}
+.TimeSlots {
+  align-items: center;
+  padding: 1rem 0;
+  width: 50%;
+  height: 70%;
+  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow-y: scroll;
+}
+.Slot {
+  margin: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  gap: 0.5rem;
+  width: 80%;
+  border-radius: 1rem;
+  border: 1px solid #aaaaaa;
+  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.164);
+}
+.selected {
+  color: #49a96e;
+  border: 2px solid #49a96e;
+}
 @media (max-width: 680px) {
   .appointmentTypeRadioButtons {
     flex-direction: column;
@@ -149,12 +191,28 @@
     justify-content: flex-start;
   }
   .Input {
-    width: 50%;
-    margin-right: auto;
+    width: 80%;
+    margin: auto;
   }
   .Button {
+    width: 80%;
     margin: 0;
-    margin-right: auto;
     margin-top: auto;
+  }
+  .eachDayAndDuration {
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.5rem;
+    border-bottom: #47474742 solid 1px;
+  }
+  .Day,
+  .Duration {
+    padding-bottom: 0.5rem;
+  }
+  .DurationInput {
+    height: 80%;
+  }
+  .DurationInput::placeholder {
+    color: transparent;
   }
 }

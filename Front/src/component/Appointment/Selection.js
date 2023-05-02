@@ -7,6 +7,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenu from '../DropDownMenu';
 import { useState } from 'react';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 function Selection(props) {
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   return (
@@ -122,6 +124,7 @@ function Selection(props) {
             onClick={() => {
               setDropDownMenuActive(!dropDownMenuActive);
             }}
+            style={{ cursor: 'default' }}
           >
             <FontAwesomeIcon icon={faSquarePlus} style={{ color: '#68c11f' }} />
             <h2>{props.title}</h2>
@@ -129,7 +132,6 @@ function Selection(props) {
 
           {props.dayAndDuration && (
             <div className={classes.dayAndDuration}>
-              {/* //todo: map dublicates  */}
               {props.currentDayAndDuration.map((current, index) => {
                 return (
                   <div className={classes.eachDayAndDuration} key={index}>
@@ -189,6 +191,28 @@ function Selection(props) {
                   </div>
                 );
               })}
+            </div>
+          )}
+          {props.DateAndTime && (
+            <div className={classes.DateAndTime}>
+              <Calendar />
+              <div className={classes.TimeSlots}>
+                {props.TimeSlots.map(timeSlot => (
+                  <h2
+                    className={`${classes.Slot} ${
+                      timeSlot.id === props.CurrentTime && classes.selected
+                    }`}
+                    onClick={() => {
+                      props.TimeSetState(timeSlot.id);
+                    }}
+                  >
+                    {console.log(timeSlot.id, props.CurrentTime)}
+                    {timeSlot.start}
+                    <span>-</span>
+                    {timeSlot.end}
+                  </h2>
+                ))}
+              </div>
             </div>
           )}
           <button
