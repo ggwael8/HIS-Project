@@ -3,7 +3,7 @@ import classes from './pagesLinks.module.css';
 function PagesLink(props) {
   return (
     <ul className={`${classes.links}  ${props.flex_item}`}>
-      {props.links[0].map((p, index) => (
+      {props.links.map((p, index) => (
         <li key={index}>
           <NavLink
             to={p.to}

@@ -10,6 +10,8 @@
   width: 2rem;
 }
 .title {
+  width: 30%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -47,7 +49,7 @@
   transform: rotate(180deg);
 }
 
-@media (max-width: 750px) {
+@media (max-width: 805px) {
   .title {
     display: none;
   }

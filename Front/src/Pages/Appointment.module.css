@@ -1,36 +1,32 @@
 .container {
   font-family: 'Noto Sans', sans-serif;
   display: flex;
+  gap: 2rem;
   margin: auto;
   height: 80vh;
   width: 90%;
   border-radius: 1rem;
   background-color: white;
 }
-/* .first {
+.appointmentNav {
+  height: 100%;
+  width: 3%;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  align-items: center;
-  height: 100%;
-  width: 3%;
-  background-color: gray;
+  background-color: #f2f2f2;
 }
-.first div {
-  height: 50%;
+.appointmentNav hr {
+  width: 50%;
+  height: 1px;
+  background-color: #474747;
+}
+.appointmentNavButton {
+  height: 20%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
-.first button {
-  background-color: var(--background_1);
-  border: none;
-  outline: none;
-  cursor: pointer;
-  transition: 0.5s;
-} */
-
 /*appointment style*/
 .apointment {
   display: flex;
@@ -38,7 +34,7 @@
   justify-content: center;
   align-items: flex-start;
   height: 90%;
-  width: 80%;
+  width: 90%;
   gap: 5rem;
   margin: auto;
 }
@@ -47,7 +43,7 @@
   font-weight: 700;
 }
 .body {
-  height: 60%;
+  height: 80%;
   width: 100%;
   display: flex;
   justify-content: flex-start;
@@ -62,8 +58,6 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  /* background-color: var(--background_3); */
 }
 
 /*circle style*/
@@ -108,18 +102,12 @@
   display: none;
   transform: translateY(0);
 }
-/* 
-input[type='date'] {
-  width: 100%; 
-  height: 100%;
-  padding: 16px;
-  border: solid 1px gray; 
-  background-color: transparent;
-  font-size: 16px;
-  color: var(--textcolor);
-} */
+
 .dropDownMenuDisplay {
   display: flex;
+}
+.dropDownMenuNone {
+  display: none;
 }
 
 .confirmDisplay {
@@ -187,7 +175,7 @@ input[type='date'] {
   font-weight: 700;
   font-size: 1.1rem;
 }
-button:hover{
+button:hover {
   background-color: #4747473a;
   color: #49a96e;
   cursor: pointer;
@@ -195,6 +183,97 @@ button:hover{
 .confirm {
   background-color: #49a96e;
 }
+.cancel:hover {
+  color: #df5c5c;
+}
 .cancel {
   background-color: #df5c5c;
+}
+.allAppointment {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 95%;
+  width: 90%;
+  gap: 5rem;
+  margin-top: auto;
+}
+.allAppointmentContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1rem;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.096);
+  height: 70%;
+  padding: 1rem;
+}
+.allAppointmentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  width: 98%;
+  height: 2rem;
+}
+
+.allAppointmentHeader input {
+  height: 1.5rem;
+  background-color: #f3f3f3;
+  border: none;
+  font-weight: 700;
+  color: #474747;
+  text-align: center;
+  border-radius: 1rem;
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.allAppointmentHeader input:focus::placeholder,
+.allAppointmentHeader input:focus {
+  color: #49a96e;
+  outline: none;
+}
+.allAppointmentHeader span {
+  display: inline-block;
+  background-color: #49a96e;
+  width: 2px;
+  height: 0.5rem;
+}
+.allAppointmentHeader div {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+.toggleFilter h2 {
+  color: #49a96e;
+}
+.allAppointmentBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1rem;
+  height: 80%;
+  overflow-y: scroll;
+}
+.allAppointmentBodyContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  background-color: #fff;
+  border: 1px solid rgba(128, 128, 128, 0.438);
+  border-radius: 1rem;
+  box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.096);
+  width: 95%;
+  margin: 1rem auto;
+  padding: 1rem;
+}
+@media (max-width: 680px) {
+  .body {
+    gap: 2rem;
+  }
 }

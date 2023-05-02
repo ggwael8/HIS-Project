@@ -32,3 +32,8 @@
 .flex_item:not(h2, div):first-of-type {
   flex: 2;
 }
+@media (max-width: 680px) {
+  .navbar {
+    width: 95%;
+  }
+}

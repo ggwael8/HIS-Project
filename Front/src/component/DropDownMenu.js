@@ -38,7 +38,7 @@ function DropDownMenu(props) {
                 <card
                   onClick={() => {
                     props.selectstate(p.id);
-                    props.next && props.next(0);
+                    props.setSelectedStep(props.currentStep + 1);
                   }}
                   className={p.hoverEffect && classes.hoverEffect}
                 >

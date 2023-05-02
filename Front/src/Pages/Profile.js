@@ -9,6 +9,22 @@ function Profile(props) {
   const ctx = useContext(UserContext);
   const [headerList, setHeaderList] = useState([
     [
+      /* admin */
+    ],
+    [
+      /* Doctor */
+      {
+        content: 'Personal Information',
+        id: 1,
+        informationCards: [
+          ctx.PersonalInformation,
+          ctx.ContactInformation,
+          ctx.AddressInformation,
+        ],
+      },
+    ],
+    [
+      /* patient */
       {
         content: 'Personal Information',
         id: 1,
@@ -33,7 +49,18 @@ function Profile(props) {
         ],
       },
     ],
-    [{ content: 'Personal Information', id: 1 }],
+    [
+      /*Receptionist */
+      {
+        content: 'Personal Information',
+        id: 1,
+        informationCards: [
+          ctx.PersonalInformation,
+          ctx.ContactInformation,
+          ctx.AddressInformation,
+        ],
+      },
+    ],
   ]);
   const OnClickEvent = e => {
     SetSelectedHeader(e.target.id);
@@ -41,7 +68,7 @@ function Profile(props) {
   return (
     <div className={classes.profile}>
       <div className={classes.header}>
-        {headerList[0].map(p =>
+        {headerList[ctx.UserID].map(p =>
           p.id !== 0 ? (
             <h2
               // eslint-disable-next-line eqeqeq
@@ -61,12 +88,11 @@ function Profile(props) {
       </div>
       <hr></hr>
       <div className={classes.content}>
-        {headerList[0].map(
+        {headerList[ctx.UserID].map(
           p =>
             p.id == selectedHeader &&
             p.informationCards.map(card => <InformationCard card={card} />)
         )}
-        {console.log(ctx)}
       </div>
     </div>
   );
