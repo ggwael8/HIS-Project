@@ -39,13 +39,9 @@ function Profile(props) {
         content: 'Emergency Information',
         id: 2,
         informationCards: [
-          {
-            title: 'aybtngan',
-            aybtngan: 'aybtngan',
-            aybtngan1: 'aybtngan1',
-            aybtngan2: 'aybtngan2',
-            aybtngan3: 'aybtngan3',
-          },
+          ctx.PersonalInformation,
+          ctx.ContactInformation,
+          ctx.AddressInformation,
         ],
       },
     ],

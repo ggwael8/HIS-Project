@@ -10,6 +10,8 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 function Selection(props) {
+  const [value, onChange] = useState(new Date());
+
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   return (
     <div
@@ -195,10 +197,16 @@ function Selection(props) {
           )}
           {props.DateAndTime && (
             <div className={classes.DateAndTime}>
-              <Calendar />
+              <Calendar
+                onChange={onChange}
+                value={value}
+                onClickDay={value =>
+                  props.DateSetState(value.toDateString().toString().slice(4))
+                }
+              />
               <div className={classes.TimeSlots}>
                 {props.TimeSlots.map(timeSlot => (
-                  <h2
+                  <div
                     className={`${classes.Slot} ${
                       timeSlot.id === props.CurrentTime && classes.selected
                     }`}
@@ -206,11 +214,12 @@ function Selection(props) {
                       props.TimeSetState(timeSlot.id);
                     }}
                   >
-                    {console.log(timeSlot.id, props.CurrentTime)}
-                    {timeSlot.start}
-                    <span>-</span>
-                    {timeSlot.end}
-                  </h2>
+                    <h2>
+                      {timeSlot.start}
+                      <span>-</span>
+                      {timeSlot.end}
+                    </h2>
+                  </div>
                 ))}
               </div>
             </div>
