@@ -16,7 +16,6 @@
 }
 .scrollable {
   justify-content: flex-start;
-
   overflow-y: scroll;
 }
 a {
@@ -74,7 +73,8 @@ a:hover {
   border-radius: 0.5rem;
   width: 90%;
   background-color: #47474718;
-  color: #474747;
+  color: #49a96e;
+  cursor: pointer;
 }
 h2 {
   font-weight: 700;
@@ -85,12 +85,11 @@ a.active h2,
 a.active i {
   color: #49a96e !important;
 }
-
+/* todo: merge into one hover class */
 .hoverEffect:hover {
+  cursor: pointer;
   border-radius: 0.5rem;
   width: 90%;
-  height: 1rem;
   background-color: #47474718;
   color: #474747;
-  cursor: pointer;
 }

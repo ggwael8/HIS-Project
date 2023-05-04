@@ -3,6 +3,7 @@ import Dashboard from './Pages/Dashboard';
 import Appointment from './Pages/Appointment';
 import RootLayout from './Pages/RootLayout';
 import Profile from './Pages/Profile';
+
 const router = createBrowserRouter([
   {
     path: '/',

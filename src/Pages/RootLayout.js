@@ -3,17 +3,18 @@ import NavBar from '../component/navbar';
 import classes from './RootLayout.module.css';
 import { useState, useEffect } from 'react';
 import UserContext from '../context/user-context';
+
 function RootLayout() {
   const [userInfo, setUserInfo] = useState({
     UserID: 3,
-    role: 'receptionist',
+    role: 'patient',
     PersonalInformation: {
       title: 'Personal Information',
       FirstName: 'first_name',
       LastName: 'last_name',
       Gender: 'gender',
       NationalId: 'national_id',
-      // todo: DateOfBirth: 'mstny te7a',
+      DateOfBirth: '2023-04-28',
     },
     ContactInformation: {
       title: 'Contact Information',
@@ -29,72 +30,48 @@ function RootLayout() {
       Country: 'country',
     },
   });
-  const [dataFetched, setDataFetched] = useState(true);
+  const [dataFetched, setDataFetched] = useState(false);
+  //todo: fetch organization
   async function fetchUserHandler() {
     const response = await fetch(
-      'https://504f-156-193-43-93.ngrok-free.app/records/patient/me/'
+      'https://hospital-information-system-production-b18b.up.railway.app/auth/users/me/'
     );
     const data = await response.json();
+
     const transformedInfo = {
-      UserID: data.user.id,
-      role:
-        data.user.id === 0
-          ? 'admin'
-          : data.user.id === 1
-          ? 'doctor'
-          : 'patient',
+      role: data.role,
+      UserID: data.id,
       PersonalInformation: {
         title: 'Personal Information',
-        FirstName: data.user.first_name,
-        LastName: data.user.last_name,
-        Gender: data.user.gender,
-        NationalId: data.user.national_id,
-        //todo: waiting te7a to update this
-        DateOfBirth: 'mstny te7a',
+        FirstName: data.first_name,
+        LastName: data.last_name,
+        Gender: data.gender === 'M' ? 'Male' : 'Female',
+        NationalId: data.national_id,
+        DateOfBirth: data.birth_date,
       },
       ContactInformation: {
         title: 'Contact Information',
-        MobileNumber1: data.user.phone_1,
-        MobileNumber2: data.user.phone_2,
-        Email: data.user.email,
+        MobileNumber1: data.phone_1,
+        MobileNumber2: data.phone_2,
+        Email: data.email,
       },
-      AddressInformation: {
-        title: 'Address Information',
-        FullStreet: data.address.street,
-        AppartmentNumber: data.address.appartment_number,
-        City: data.address.city,
-        Country: data.address.country,
-      },
+      // AddressInformation: {
+      //   title: 'Address Information',
+      //   FullStreet: data.address.street,
+      //   AppartmentNumber: data.address.appartment_number,
+      //   City: data.address.city,
+      //   Country: data.address.country,
+      // },
     };
     setUserInfo(transformedInfo);
     setDataFetched(true);
   }
-  // useEffect(() => {
-  //   fetchUserHandler();
-  // }, []);
+  useEffect(() => {
+    fetchUserHandler();
+  }, []);
 
-  const links = [
-    [
-      /*Admin*/
-    ],
-    [
-      /*Doctor*/
-      {
-        to: '/appointment',
-        title: (
-          <h1>
-            <span>appointment</span>
-          </h1>
-        ),
-        icon: (
-          <h1>
-            <i class='fa-solid fa-phone'></i>
-          </h1>
-        ),
-      },
-    ],
-    [
-      /*Patient*/
+  const links = {
+    patient: [
       {
         to: '/',
         title: (
@@ -122,8 +99,7 @@ function RootLayout() {
         ),
       },
     ],
-    [
-      /*Receptionist*/
+    doctor: [
       {
         to: '/appointment',
         title: (
@@ -138,24 +114,55 @@ function RootLayout() {
         ),
       },
     ],
-  ];
-  return (
-    <UserContext.Provider value={userInfo}>
+    admin: [
       {
-        <>
-          {' '}
-          <NavBar
-            links={links[userInfo.UserID]}
-            id='nav'
-            firstname={userInfo.PersonalInformation.FirstName}
-            role={userInfo.role}
-          />
-          <div className={classes.outletBody}>
-            <Outlet />
-          </div>{' '}
-        </>
-      }
-    </UserContext.Provider>
+        to: '/',
+        title: (
+          <h1>
+            <span>home</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <i class='fa-solid fa-house'></i>
+          </h1>
+        ),
+      },
+    ],
+    receptionist: [
+      {
+        to: '/appointment',
+        title: (
+          <h1>
+            <span>appointment</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <i class='fa-solid fa-phone'></i>
+          </h1>
+        ),
+      },
+    ],
+  };
+  return (
+    dataFetched && (
+      <UserContext.Provider value={userInfo}>
+        {
+          <>
+            <NavBar
+              links={links[userInfo.role]}
+              id='nav'
+              firstname={userInfo.PersonalInformation.FirstName}
+              role={userInfo.role}
+            />
+            <div className={classes.outletBody}>
+              <Outlet />
+            </div>
+          </>
+        }
+      </UserContext.Provider>
+    )
   );
 }
 export default RootLayout;

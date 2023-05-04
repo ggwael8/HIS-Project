@@ -33,7 +33,7 @@
   color: #49a96e;
   border-radius: 2rem;
   font-weight: 700;
-  transition: 300ms all ease-in-out;
+  transition: 200ms all ease-in-out;
 }
 .header h2:not(.active):hover {
   background-color: #f3f3f3;

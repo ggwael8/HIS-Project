@@ -77,7 +77,10 @@ function ProfileNavBar(props) {
           }`}
           ref={dropDownRef}
         >
-          <DropDownMenu content={ProfileDropDown} />
+          <DropDownMenu
+            content={ProfileDropDown}
+            type={'link'}
+          />
         </div>
       </div>
     </>

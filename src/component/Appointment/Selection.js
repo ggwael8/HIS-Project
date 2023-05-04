@@ -36,11 +36,20 @@ function Selection(props) {
             }`}
           >
             <DropDownMenu
-              content={props.dropDownContent}
+              content={
+                props.specialist && props.specialtyList !== undefined
+                  ? props.specialtyList
+                  : props.doctors && props.doctorList !== undefined
+                  ? props.doctorList
+                  : props.dropDownContent
+              }
               selectstate={props.selectstate}
               searchstate={props.searchstate}
               setSelectedStep={props.setSelectedStep}
               currentStep={props.currentStep}
+              type={'text'}
+              search={true}
+              scrollable={true}
             />
           </div>
         </>
@@ -203,7 +212,9 @@ function Selection(props) {
                 onClickDay={value =>
                   props.DateSetState(value.toDateString().toString().slice(4))
                 }
+                // className={classes.react_calendar}
               />
+
               <div className={classes.TimeSlots}>
                 {props.TimeSlots.map(timeSlot => (
                   <div

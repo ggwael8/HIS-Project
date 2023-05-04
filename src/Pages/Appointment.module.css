@@ -70,7 +70,7 @@
 }
 /* change color of selected step*/
 .steps .selected {
-  background-color: green;
+  background-color: #49a96e;
   color: white;
   border: none;
 }

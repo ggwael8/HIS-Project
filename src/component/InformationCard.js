@@ -5,7 +5,7 @@ function InformationCard(props) {
   for (var key in props.card) {
     if (key !== 'title')
       content[index] = (
-        <h2>
+        <h2 key={index}>
           {key.toString().replace(/([A-Z])/g, ' $1')} :{' '}
           <span>{props.card[key]}</span>
         </h2>

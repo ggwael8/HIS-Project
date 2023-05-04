@@ -5,12 +5,24 @@ function DropDownMenu(props) {
   return (
     <div
       className={`${classes.DropDownMenu} ${
-        props.content[0].scrollable && classes.scrollable
+        props.scrollable && classes.scrollable
       }`}
     >
+      {props.search && (
+        <div className={classes.search}>
+          <input
+            type='text'
+            id='search'
+            placeholder='Search'
+            onChange={e => {
+              props.searchstate(e.target.value);
+            }}
+          />
+        </div>
+      )}
       {props.content.map(p => (
         <>
-          {p.type === 'link' ? (
+          {props.type === 'link' ? (
             <NavLink
               to={p.path}
               className={({ isActive }) =>
@@ -20,19 +32,8 @@ function DropDownMenu(props) {
               <h2>{p.icon}</h2>
               <h2>{p.body}</h2>
             </NavLink>
-          ) : p.type === 'search' ? (
-            <div className={classes.search}>
-              <input
-                type='text'
-                id='search'
-                placeholder={p.body}
-                onChange={e => {
-                  props.searchstate(e.target.value);
-                }}
-              />
-            </div>
           ) : (
-            p.type === 'text' && (
+            props.type === 'text' && (
               <>
                 <hr className={classes.whiteSpace}></hr>
                 <card
@@ -40,11 +41,11 @@ function DropDownMenu(props) {
                     props.selectstate(p.id);
                     props.setSelectedStep(props.currentStep + 1);
                   }}
-                  className={p.hoverEffect && classes.hoverEffect}
+                  className={classes.hoverEffect}
                 >
                   {p.body}
                 </card>
-                {p.horizontalLine && <hr></hr>}
+                {<hr></hr>}
               </>
             )
           )}
