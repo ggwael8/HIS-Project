@@ -6,6 +6,7 @@ function Profile(props) {
   const [isLoading, setIsLoading] = useState();
   const userctx = useContext(UserContext);
   const [patientAddress, setPatientAddress] = useState({});
+  const [patientEmergencyInfo, setPatientEmergencyInfo] = useState({});
   const [profileContent, setProfileContent] = useState({});
   //todo: fetch organization
   async function fetchPatientAddressHandler() {
@@ -28,17 +29,25 @@ function Profile(props) {
         City: patientAddressData.address.city,
         Country: patientAddressData.address.country,
       });
-      
-      const patientEmergencyInfo = await response[1].json();
-      setPatientAddress({
-        title: 'Address Information',
-        FullStreet: patientAddressData.address.street,
-        AppartmentNumber: patientAddressData.address.appartment_number,
-        City: patientAddressData.address.city,
-        Country: patientAddressData.address.country,
-      });
-      
-      console.log(patientAddress);
+
+      const patientEmergencyData = await response[1].json();
+      setPatientEmergencyInfo(
+        patientEmergencyData.results.map((info, index) => {
+          return {
+            title: info.relative_relation,
+            FirstName: info.first_name,
+            LastName: info.last_name,
+            NationalId: info.national_id,
+            Gender: info.gender === 'M' ? 'Male' : 'Female',
+            Email: info.email,
+            PhoneNumber1: info.phone_1,
+            PhoneNumber2: info.phone_2,
+            FullStreet: info.address.street,
+            AppartmentNumber: info.address.apartment_number,
+            City: info.address.city,
+          };
+        })
+      );
     }
     setIsLoading(false);
   }
@@ -56,7 +65,9 @@ function Profile(props) {
         userctx.ContactInformation,
         patientAddress,
       ],
-      EmergencyCards: [],
+      EmergencyCards: patientEmergencyInfo.map(info => {
+        return info;
+      }),
     });
   };
   if (isLoading) {
@@ -71,6 +82,7 @@ function Profile(props) {
         ) : (
           <>
             <div className={classes.header}>
+              {console.log('prf: ', profileContent)}
               <h2
                 className={
                   profileContent.PersonalInformationID === selectedHeader
