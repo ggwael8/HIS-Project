@@ -11,18 +11,33 @@ function Profile(props) {
   async function fetchPatientAddressHandler() {
     setIsLoading(true);
     if (userctx.role === 'patient') {
-      const response = await fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/hospital/patient/me/'
-      );
+      const response = await Promise.all([
+        fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/hospital/patient/me/'
+        ),
+        fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/records/emergency-contact/'
+        ),
+      ]);
       console.log(response);
-      const data = await response.json();
+      const patientAddressData = await response[0].json();
       setPatientAddress({
         title: 'Address Information',
-        FullStreet: data.address.street,
-        AppartmentNumber: data.address.appartment_number,
-        City: data.address.city,
-        Country: data.address.country,
+        FullStreet: patientAddressData.address.street,
+        AppartmentNumber: patientAddressData.address.appartment_number,
+        City: patientAddressData.address.city,
+        Country: patientAddressData.address.country,
       });
+      
+      const patientEmergencyInfo = await response[1].json();
+      setPatientAddress({
+        title: 'Address Information',
+        FullStreet: patientAddressData.address.street,
+        AppartmentNumber: patientAddressData.address.appartment_number,
+        City: patientAddressData.address.city,
+        Country: patientAddressData.address.country,
+      });
+      
       console.log(patientAddress);
     }
     setIsLoading(false);

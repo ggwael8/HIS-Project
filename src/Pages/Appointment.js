@@ -670,7 +670,8 @@ function Appointment() {
                 <div className={classes.allAppointmentBodyContent}>
                   {Object.keys(appointmentDetails).map(
                     a =>
-                      (a !== 'id' || a !== 'patient') && (
+                      a !== 'id' &&
+                      a !== 'patient' && (
                         <h4>
                           {a} : {appointmentDetails[a]}
                         </h4>
