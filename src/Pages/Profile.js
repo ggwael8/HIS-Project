@@ -6,7 +6,7 @@ function Profile(props) {
   const [isLoading, setIsLoading] = useState();
   const userctx = useContext(UserContext);
   const [patientAddress, setPatientAddress] = useState({});
-  const [patientEmergencyInfo, setPatientEmergencyInfo] = useState({});
+  const [patientEmergencyInfo, setPatientEmergencyInfo] = useState([]);
   const [profileContent, setProfileContent] = useState({});
   //todo: fetch organization
   async function fetchPatientAddressHandler() {
@@ -54,9 +54,7 @@ function Profile(props) {
   useEffect(() => {
     fetchPatientAddressHandler();
   }, []);
-
-  const [selectedHeader, SetSelectedHeader] = useState(1);
-  const setProfile = () => {
+  useEffect(() => {
     setProfileContent({
       PersonalInformationID: 1,
       EmergencyInformationID: 2,
@@ -67,11 +65,29 @@ function Profile(props) {
       ],
       EmergencyCards:
         userctx.role === 'patient' &&
-        patientEmergencyInfo.map(info => {
+        patientEmergencyInfo?.map(info => {
           return info;
         }),
     });
-  };
+  }, [patientAddress, patientEmergencyInfo]);
+
+  const [selectedHeader, SetSelectedHeader] = useState(1);
+  // const setProfile = () => {
+  //   setProfileContent({
+  //     PersonalInformationID: 1,
+  //     EmergencyInformationID: 2,
+  //     Personalcards: [
+  //       userctx.PersonalInformation,
+  //       userctx.ContactInformation,
+  //       patientAddress,
+  //     ],
+  //     EmergencyCards:
+  //       userctx.role === 'patient' &&
+  //       patientEmergencyInfo.map(info => {
+  //         return info;
+  //       }),
+  //   });
+  // };
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
@@ -79,9 +95,7 @@ function Profile(props) {
     isLoading === false && (
       <div className={classes.profile}>
         {console.log()}
-        {Object.keys(profileContent).length === 0 ? (
-          <>{setProfile()}</>
-        ) : (
+        {
           <>
             <div className={classes.header}>
               {console.log('prf: ', profileContent)}
@@ -97,14 +111,16 @@ function Profile(props) {
               >
                 Personal Information
               </h2>
-              <span style={{ display: userctx !== 'patient' && 'none' }}></span>
+              <span
+                style={{ display: userctx.role !== 'patient' && 'none' }}
+              ></span>
               <h2
                 className={
                   profileContent.EmergencyInformationID === selectedHeader
                     ? classes.active
                     : undefined
                 }
-                style={{ display: userctx !== 'patient' && 'none' }}
+                style={{ display: userctx.role !== 'patient' && 'none' }}
                 onClick={() => {
                   SetSelectedHeader(profileContent.EmergencyInformationID);
                 }}
@@ -123,7 +139,7 @@ function Profile(props) {
                   ))}
             </div>
           </>
-        )}
+        }
 
         {console.log(profileContent)}
       </div>

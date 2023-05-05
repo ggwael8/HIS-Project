@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useContext, useEffect } from 'react';
 import classes from './Appointment.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,10 +11,10 @@ import {
 import Selection from '../component/Appointment/Selection';
 import UserContext from '../context/user-context';
 function Appointment() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-
   const [isLoading, setIsLoading] = useState(false);
+  //context api to get user role
   const userctx = useContext(UserContext);
+  //lists got from api
   const [specialtyList, setSpecialityList] = useState();
   const [doctorsList, setDoctorsList] = useState();
   const [daysList, setDaysList] = useState();
@@ -35,14 +36,14 @@ function Appointment() {
   const [openWindow, setOpenWindow] = useState(
     userctx.role === 'doctor' ? 3 : 1
   );
-
+  //state for dropdowncontent on each step
   const [dropDownContent, setDropDownContent] = useState({
     specialty: specialtyList,
     doctor: doctorsList,
     days: daysList,
   });
-  const [dataUpdated, setDataUpdated] = useState();
-  //todo: error handling
+  //todo: error handling & optimization
+  //fetching data from api
   async function fetchDataHandler() {
     setIsLoading(true);
     const response = await Promise.all([
@@ -132,6 +133,7 @@ function Appointment() {
     }
     setIsLoading(false);
   }
+  //fetch data every change on these dependencies
   useEffect(() => {
     fetchDataHandler();
   }, [
@@ -139,7 +141,7 @@ function Appointment() {
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
   ]);
-
+  //update state that connected to api data
   useEffect(() => {
     setDropDownContent({
       specialty: specialtyList,
@@ -147,13 +149,13 @@ function Appointment() {
       days: daysList,
     });
   }, [specialtyList, doctorsList, daysList]);
-
-  //Todo: Dummy
-
+  //todo: search and filter unhandled
   const [
     PatientAppointmentSearchSelected,
     setPatientAppointmentSearchSelected,
   ] = useState();
+  const [toggleFilter, setToggleFilter] = useState(false);
+  //resets bookappointment page data
   const resetBookNewAppointment = () => {
     setPatientAppointmentSelectedStep(1);
     setPatient(0);
@@ -166,7 +168,10 @@ function Appointment() {
   };
   //Book New Appointment Selection body content
   const selection = [
+    //todo: using role isn't the best way
+    //role used for assigning first step content (on patient first step is 'pick specialization' and on receptionist first step is 'enter patient id')
     {
+      //this shows only on receptionist
       type: 'input',
       id: userctx.role === 'receptionist' ? 1 : 0,
       selectstate: setPatient,
@@ -216,12 +221,9 @@ function Appointment() {
       title: 'Set Date & Time',
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
-      currentDay: currentDate,
-      setCurrentDate: setCurrentDate,
     },
   ];
 
-  const [toggleFilter, setToggleFilter] = useState(false);
   /*Doctor Schedule States*/
   const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
     useState(1);
@@ -332,7 +334,8 @@ function Appointment() {
   };
 
   /*Booking Information */
-  /* todo: need optmizing */
+  //todo: need optimization
+  //all info of booking before posting to api
   const AppointmentDetailsPendingConfirmation = {
     id: 1,
     patient: patient,
@@ -353,6 +356,7 @@ function Appointment() {
     //todo: dummy
     status: 'pend',
   };
+
   //Todo: Dummy
   const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
     {
@@ -443,6 +447,7 @@ function Appointment() {
     <div className={classes.container}>
       {/* appointment NavBar */}
       <div className={classes.appointmentNav}>
+        {/* booking new appointment button */}
         <div
           className={classes.appointmentNavButton}
           onClick={() => {
@@ -464,6 +469,7 @@ function Appointment() {
         <hr
           style={{ display: userctx.role === 'receptionist' ? 'flex' : 'none' }}
         ></hr>
+        {/* doctor schedule button (only shows for receptionist) */}
         <div
           className={classes.appointmentNavButton}
           onClick={() => {
@@ -485,6 +491,7 @@ function Appointment() {
                 : 'none',
           }}
         ></hr>
+        {/* all appointment button */}
         <div
           className={classes.appointmentNavButton}
           onClick={() => {
@@ -508,6 +515,7 @@ function Appointment() {
             <h2 className={classes.title}>Book New Appointment</h2>
 
             <div className={classes.body}>
+              {/* steps count */}
               <div className={classes.steps}>
                 <h2 className={classes.selected}>1</h2>
                 <span></span>
@@ -561,6 +569,7 @@ function Appointment() {
                     <Selection key={index} {...select} />
                   );
                 })}
+                {/* confirmation  */}
                 <div
                   className={
                     userctx.role === 'receptionist'
@@ -577,6 +586,7 @@ function Appointment() {
                   <div className={classes.appointmentDetails}>
                     <h3>Appointment Details</h3>
                     <div className={classes.appointmentDetailsBody}>
+                      {/* showing appointmentdetails */}
                       {Object.keys(AppointmentDetailsPendingConfirmation).map(
                         a => {
                           return (
@@ -592,7 +602,10 @@ function Appointment() {
                           );
                         }
                       )}
+                      {/* confirm and cancel button */}
                       <div className={classes.appointmentDetailsBodyButtons}>
+                        {/*todo: not complete yet*/}
+                        {/* onclick send to api */}
                         <button
                           className={classes.confirm}
                           onClick={() => {
@@ -622,7 +635,6 @@ function Appointment() {
             </div>
           </div>
         )}
-
       {/* Add Doctor Schedule */}
       <div
         className={classes.apointment}

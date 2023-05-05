@@ -11,6 +11,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
 function Selection(props) {
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   return (
     <div
@@ -18,8 +19,11 @@ function Selection(props) {
         props.id === props.currentStep ? classes.display : classes.displaynone
       }`}
     >
+      {/* id used to only show selection if it's the current step */}
+      {/* dropdown is menu to select items from */}
       {props.type === 'dropDown' && (
         <>
+          {/* onclick toggle menu */}
           <div
             className={classes.selectionTitle}
             onClick={() => {
@@ -133,7 +137,7 @@ function Selection(props) {
             <FontAwesomeIcon icon={faSquarePlus} style={{ color: '#68c11f' }} />
             <h2>{props.title}</h2>
           </div>
-
+          {/* day and duration is different from date and time  */}
           {props.dayAndDuration && (
             <div className={classes.dayAndDuration}>
               {props.currentDayAndDuration.map((current, index) => {
@@ -200,8 +204,8 @@ function Selection(props) {
           {props.DateAndTime && (
             <div className={classes.DateAndTime}>
               <Calendar
-                onChange={props.setCurrentDate}
-                value={props.currentDate}
+                onChange={setCurrentDate}
+                value={currentDate}
                 onClickDay={value =>
                   props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
                 }
