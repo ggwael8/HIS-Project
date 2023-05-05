@@ -11,7 +11,6 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
 function Selection(props) {
-  const [value, onChange] = useState(new Date());
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   return (
     <div
@@ -35,15 +34,8 @@ function Selection(props) {
               dropDownMenuActive ? classes.display : classes.displaynone
             }`}
           >
-            {console.log('inside Selection: ', props.dropDownContent)}
             <DropDownMenu
-              content={
-                props.specialist && props.specialtyList !== undefined
-                  ? props.specialtyList
-                  : props.doctors && props.doctorList !== undefined
-                  ? props.doctorList
-                  : props.dropDownContent
-              }
+              content={props.dropDownContent}
               selectstate={props.selectstate}
               searchstate={props.searchstate}
               setSelectedStep={props.setSelectedStep}
@@ -208,31 +200,31 @@ function Selection(props) {
           {props.DateAndTime && (
             <div className={classes.DateAndTime}>
               <Calendar
-                onChange={onChange}
-                value={value}
+                onChange={props.setCurrentDate}
+                value={props.currentDate}
                 onClickDay={value =>
                   props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
                 }
                 // className={classes.react_calendar}
               />
-              <div className={classes.TimeSlots}>
-                {props.TimeSlots.map(timeSlot => (
-                  <div
-                    className={`${classes.Slot} ${
-                      timeSlot.id === props.CurrentTime && classes.selected
-                    }`}
-                    onClick={() => {
-                      props.TimeSetState(timeSlot.id);
-                    }}
-                  >
-                    <h2>
-                      {timeSlot.start}
-                      <span>-</span>
-                      {timeSlot.end}
-                    </h2>
+              {props.TimeSlots.length > 0 && (
+                <>
+                  <div className={classes.TimeSlots}>
+                    {props.TimeSlots.map(timeSlot => (
+                      <div
+                        className={`${classes.Slot} ${
+                          timeSlot.id === props.CurrentTime && classes.selected
+                        }`}
+                        onClick={() => {
+                          props.TimeSetState(timeSlot.id);
+                        }}
+                      >
+                        <h2>{timeSlot.body}</h2>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </div>
           )}
           <button

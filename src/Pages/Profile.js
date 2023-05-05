@@ -22,6 +22,7 @@ function Profile(props) {
       ]);
       console.log(response);
       const patientAddressData = await response[0].json();
+
       setPatientAddress({
         title: 'Address Information',
         FullStreet: patientAddressData.address.street,
@@ -29,7 +30,6 @@ function Profile(props) {
         City: patientAddressData.address.city,
         Country: patientAddressData.address.country,
       });
-
       const patientEmergencyData = await response[1].json();
       setPatientEmergencyInfo(
         patientEmergencyData.results.map((info, index) => {
