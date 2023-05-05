@@ -14,40 +14,8 @@ function Appointment() {
   const userctx = useContext(UserContext);
   const [specialtyList, setSpecialityList] = useState();
   const [doctorsList, setDoctorsList] = useState();
-  //todo: fetch organization
-  async function fetchDataHandler() {
-    setIsLoading(true);
-    const response = await Promise.all([
-      fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/hospital/specialty/'
-      ),
-      fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/hospital/doctor/'
-      ),
-    ]);
-    const specialty = await response[0].json();
-    setSpecialityList(
-      specialty.results.map(info => {
-        return {
-          id: info.id,
-          body: info.specialty,
-        };
-      })
-    );
-    const doctors = await response[1].json();
-    setDoctorsList(
-      doctors.results.map(info => {
-        return {
-          id: info.user.id,
-          body: info.user.first_name + ' ' + info.user.last_name,
-        };
-      })
-    );
-    setIsLoading(false);
-  }
-  useEffect(() => {
-    fetchDataHandler();
-  }, []);
+  const [daysList, setDaysList] = useState();
+  /*Appointment States */
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
   const [patient, setPatient] = useState(0);
@@ -56,235 +24,10 @@ function Appointment() {
     useState(null);
   const [PatientAppointmentDoctor, setPatientAppointmentDoctor] =
     useState(null);
+  const [PatientAppointmentDayOfWeek, setPatientAppointmentDayOfWeek] =
+    useState(null);
   const [PatientAppointmentDate, setPatientAppointmentDate] = useState(null);
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
-  const [openWindow, setOpenWindow] = useState(
-    userctx.role === 'doctor' ? 3 : 1
-  );
-  const [
-    PatientAppointmentSearchSelected,
-    setPatientAppointmentSearchSelected,
-  ] = useState();
-  const [toggleFilter, setToggleFilter] = useState(false);
-
-  const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
-    useState(1);
-  const [doctorScheduleSpecialist, setDoctorScheduleSpecialist] = useState(0);
-  const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
-  const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
-    useState([
-      //Todo: Dummy
-      {
-        id: 1,
-        Work: 1,
-        Day: 'Saturday',
-        Duration: 0,
-      },
-      {
-        id: 2,
-        Work: 0,
-        Day: 'Sunday',
-        Duration: 0,
-      },
-      {
-        id: 3,
-        Work: 1,
-        Day: 'Monday',
-        Duration: 0,
-      },
-      {
-        id: 4,
-        Work: 0,
-        Day: 'Tuesday',
-        Duration: 0,
-      },
-      {
-        id: 5,
-        Work: 0,
-        Day: 'Wednesday',
-        Duration: 0,
-      },
-      {
-        id: 6,
-        Work: 0,
-        Day: 'Thursday',
-        Duration: 0,
-      },
-      {
-        id: 7,
-        Work: 0,
-        Day: 'Friday',
-        Duration: 0,
-      },
-    ]);
-  const [doctorSchedulesearchSelected, setDoctorScheduleSearchSelected] =
-    useState();
-
-  const resetBookNewAppointment = () => {
-    setPatientAppointmentSelectedStep(1);
-    setPatient(0);
-    setAppointmentType(0);
-    setPatientAppointmentDoctor(null);
-    setPatientAppointmentDate(null);
-    setPatientAppointmentTime(null);
-    setOpenWindow(1);
-    setPatientAppointmentSearchSelected(null);
-  };
-  const resetDoctorSchedule = () => {
-    setDoctorScheduleSelectedStep(1);
-    setDoctorScheduleSpecialist(0);
-    setDoctorScheduleDoctor(null);
-    setDoctorScheduleDayAndDuration([
-      {
-        //Todo: Dummy
-        id: 1,
-        Work: 1,
-        Day: 'Saturday',
-        StartTime: '11:00',
-        EndTime: '12:00',
-        Duration: 0,
-      },
-      {
-        id: 2,
-        Work: 0,
-        Day: 'Sunday',
-        Duration: 0,
-      },
-      {
-        id: 3,
-        Work: 1,
-        Day: 'Monday',
-        Duration: 0,
-      },
-      {
-        id: 4,
-        Work: 0,
-        Day: 'Tuesday',
-        Duration: 0,
-      },
-      {
-        id: 5,
-        Work: 0,
-        Day: 'Wednesday',
-        Duration: 0,
-      },
-      {
-        id: 6,
-        Work: 0,
-        Day: 'Thursday',
-        Duration: 0,
-      },
-      {
-        id: 7,
-        Work: 0,
-        Day: 'Friday',
-        Duration: 0,
-      },
-    ]);
-    setOpenWindow(2);
-    setDoctorScheduleSearchSelected(null);
-  };
-  //   {
-  //     id: 1,
-  //     date: '2021-01-01',
-  //     time: '11:00',
-  //   },
-  //   {
-  //     id: 1,
-  //     date: '2021-01-02',
-  //     time: '12:00',
-  //   },
-  //   {
-  //     id: 1,
-  //     date: '2021-01-03',
-  //     time: '13:00',
-  //   },
-  //   {
-  //     id: 1,
-  //     date: '2021-01-04',
-  //     time: '13:00',
-  //   },
-  // ];
-
-  //Todo: Dummy
-  const dropDownContent = [
-    [
-      {
-        id: 0,
-        hrID: 22,
-        body: 'Dermatologists',
-      },
-    ],
-    [
-      {
-        id: 0,
-        hrID: 22,
-        body: 'Ahmed',
-      },
-    ],
-    [
-      {
-        id: 0,
-        hrID: 22,
-        body: 'Dermatologists',
-      },
-    ],
-  ];
-
-  const AppointmentDetailsPendingConfirmation = {
-    id: 1,
-    patient: patient,
-    specialist: specialtyList?.map(spec => {
-      return spec.id === PatientAppointmentSpecialist && spec.body;
-    }),
-    doctor: doctorsList?.map(doctor => {
-      return doctor.id === PatientAppointmentDoctor && doctor.body;
-    }),
-    price: '200',
-    date: PatientAppointmentDate,
-    time: PatientAppointmentTime,
-  };
-  //Todo: Dummy
-  const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
-    {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
-    },
-    {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
-    },
-    {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
-    },
-    {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
-      idas: 1,
-      spasdecialist: 'specialist',
-      docasdtor: 'doctor',
-      prisadce: '200',
-      datasde: 'date',
-      timasde: 'time',
-    },
-  ]);
   const timeSlots = [
     {
       id: 1,
@@ -342,6 +85,96 @@ function Appointment() {
       end: '12:00',
     },
   ];
+  const [openWindow, setOpenWindow] = useState(
+    userctx.role === 'doctor' ? 3 : 1
+  );
+
+  const [dropDownContent, setDropDownContent] = useState({
+    specialty: specialtyList,
+    doctor: doctorsList,
+    days: daysList,
+  });
+  //todo: error handling
+  async function fetchDataHandler() {
+    setIsLoading(true);
+    const response = await Promise.all([
+      fetch(
+        'https://hospital-information-system-production-b18b.up.railway.app/hospital/specialty/'
+      ),
+      fetch(
+        'https://hospital-information-system-production-b18b.up.railway.app/hospital/doctor/'
+      ),
+      PatientAppointmentDoctor !== null &&
+        fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/'
+        ),
+    ]);
+    const specialty = await response[0].json();
+    setSpecialityList(
+      specialty.results.map(info => {
+        return {
+          id: info.id,
+          body: info.specialty,
+        };
+      })
+    );
+    const doctors = await response[1].json();
+    setDoctorsList(
+      doctors.results.map(info => {
+        return {
+          id: info.user.id,
+          body: info.user.first_name + ' ' + info.user.last_name,
+        };
+      })
+    );
+    if (PatientAppointmentDoctor !== null) {
+      const Days = await response[2].json();
+      setDaysList(
+        Days.results
+          .filter(
+            info =>
+              info.doctor === PatientAppointmentDoctor &&
+              info.schedule_status === 'active'
+          )
+          .map(info => {
+            return {
+              id: info.id,
+              body: info.day_of_week,
+            };
+          })
+      );
+    }
+    setIsLoading(false);
+  }
+  useEffect(() => {
+    fetchDataHandler();
+  }, [PatientAppointmentDoctor]);
+
+  useEffect(() => {
+    setDropDownContent({
+      specialty: specialtyList,
+      doctor: doctorsList,
+      days: daysList,
+    });
+  }, [specialtyList, doctorsList, daysList]);
+
+  //Todo: Dummy
+ 
+
+  const [
+    PatientAppointmentSearchSelected,
+    setPatientAppointmentSearchSelected,
+  ] = useState();
+  const resetBookNewAppointment = () => {
+    setPatientAppointmentSelectedStep(1);
+    setPatient(0);
+    setAppointmentType(0);
+    setPatientAppointmentDoctor(null);
+    setPatientAppointmentDate(null);
+    setPatientAppointmentTime(null);
+    setOpenWindow(1);
+    setPatientAppointmentSearchSelected(null);
+  };
   //Book New Appointment Selection body content
   const selection = [
     {
@@ -356,9 +189,8 @@ function Appointment() {
     },
     {
       type: 'dropDown',
-      specialist: true,
       id: userctx.role === 'receptionist' ? 2 : 1,
-      dropDownContent: dropDownContent[2],
+      dropDownContent: dropDownContent.specialty,
       selectstate: setPatientAppointmentSpecialist,
       searchstate: setPatientAppointmentSearchSelected,
       title: 'Pick Specialization',
@@ -367,9 +199,8 @@ function Appointment() {
     },
     {
       type: 'dropDown',
-      doctors: true,
       id: userctx.role === 'receptionist' ? 3 : 2,
-      dropDownContent: dropDownContent[2],
+      dropDownContent: dropDownContent.doctor,
       selectstate: setPatientAppointmentDoctor,
       searchstate: setPatientAppointmentSearchSelected,
       title: 'Pick Doctor',
@@ -377,10 +208,18 @@ function Appointment() {
       currentStep: PatientAppointmentSelectedStep,
     },
     {
-      type: 'selection',
       id: userctx.role === 'receptionist' ? 4 : 3,
+      type: 'dropDown',
+      title: 'Pick Day',
+      dropDownContent: dropDownContent.days,
+      selectstate: setPatientAppointmentDayOfWeek,
+      setSelectedStep: setPatientAppointmentSelectedStep,
+      currentStep: PatientAppointmentSelectedStep,
+    },
+    {
+      type: 'selection',
+      id: userctx.role === 'receptionist' ? 5 : 4,
       DateAndTime: true,
-      dropDownContent: dropDownContent[2],
       DateSetState: setPatientAppointmentDate,
       TimeSetState: setPatientAppointmentTime,
       CurrentTime: PatientAppointmentTime,
@@ -390,12 +229,178 @@ function Appointment() {
       currentStep: PatientAppointmentSelectedStep,
     },
   ];
+
+  const [toggleFilter, setToggleFilter] = useState(false);
+  /*Doctor Schedule States*/
+  const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
+    useState(1);
+  const [doctorScheduleSpecialist, setDoctorScheduleSpecialist] = useState(0);
+  const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
+  const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
+    useState([
+      //Todo: Dummy
+      {
+        id: 1,
+        Work: 1,
+        Day: 'Saturday',
+        Duration: 0,
+      },
+      {
+        id: 2,
+        Work: 0,
+        Day: 'Sunday',
+        Duration: 0,
+      },
+      {
+        id: 3,
+        Work: 1,
+        Day: 'Monday',
+        Duration: 0,
+      },
+      {
+        id: 4,
+        Work: 0,
+        Day: 'Tuesday',
+        Duration: 0,
+      },
+      {
+        id: 5,
+        Work: 0,
+        Day: 'Wednesday',
+        Duration: 0,
+      },
+      {
+        id: 6,
+        Work: 0,
+        Day: 'Thursday',
+        Duration: 0,
+      },
+      {
+        id: 7,
+        Work: 0,
+        Day: 'Friday',
+        Duration: 0,
+      },
+    ]);
+  const [doctorSchedulesearchSelected, setDoctorScheduleSearchSelected] =
+    useState();
+
+  const resetDoctorSchedule = () => {
+    setDoctorScheduleSelectedStep(1);
+    setDoctorScheduleSpecialist(0);
+    setDoctorScheduleDoctor(null);
+    setDoctorScheduleDayAndDuration([
+      {
+        //Todo: Dummy
+        id: 1,
+        Work: 1,
+        Day: 'Saturday',
+        StartTime: '11:00',
+        EndTime: '12:00',
+        Duration: 0,
+      },
+      {
+        id: 2,
+        Work: 0,
+        Day: 'Sunday',
+        Duration: 0,
+      },
+      {
+        id: 3,
+        Work: 1,
+        Day: 'Monday',
+        Duration: 0,
+      },
+      {
+        id: 4,
+        Work: 0,
+        Day: 'Tuesday',
+        Duration: 0,
+      },
+      {
+        id: 5,
+        Work: 0,
+        Day: 'Wednesday',
+        Duration: 0,
+      },
+      {
+        id: 6,
+        Work: 0,
+        Day: 'Thursday',
+        Duration: 0,
+      },
+      {
+        id: 7,
+        Work: 0,
+        Day: 'Friday',
+        Duration: 0,
+      },
+    ]);
+    setOpenWindow(2);
+    setDoctorScheduleSearchSelected(null);
+  };
+
+  /*Booking Information */
+  const AppointmentDetailsPendingConfirmation = {
+    id: 1,
+    patient: patient,
+    specialist: specialtyList?.map(spec => {
+      return spec.id === PatientAppointmentSpecialist && spec.body;
+    }),
+    doctor: doctorsList?.map(doctor => {
+      return doctor.id === PatientAppointmentDoctor && doctor.body;
+    }),
+    price: '200',
+    date: PatientAppointmentDate,
+    time: PatientAppointmentTime,
+  };
+  //Todo: Dummy
+  const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
+    {
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
+    },
+    {
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
+    },
+    {
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
+    },
+    {
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
+      idas: 1,
+      spasdecialist: 'specialist',
+      docasdtor: 'doctor',
+      prisadce: '200',
+      datasde: 'date',
+      timasde: 'time',
+    },
+  ]);
   //Doctor Schedule Selection body
   const doctorSelection = [
     {
       type: 'dropDown',
       id: 1,
-      dropDownContent: dropDownContent[0],
+      dropDownContent: dropDownContent.doctor,
       selectstate: setDoctorScheduleDoctor,
       searchstate: setDoctorScheduleSearchSelected,
       title: 'Pick Doctor',
@@ -414,6 +419,7 @@ function Appointment() {
       currentStep: doctorScheduleSelectedStep,
     },
   ];
+  //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
     const response = await fetch(
       'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/',
@@ -445,6 +451,7 @@ function Appointment() {
                 : 'none',
           }}
         >
+          {console.log(dropDownContent)}
           <FontAwesomeIcon
             icon={faFileCirclePlus}
             size='xl'
@@ -516,6 +523,14 @@ function Appointment() {
                 >
                   3
                 </h2>
+                <span></span>
+                <h2
+                  className={
+                    PatientAppointmentSelectedStep >= 4 && classes.selected
+                  }
+                >
+                  4
+                </h2>
                 <span
                   style={{
                     display: userctx.role === 'receptionist' ? 'flex' : 'none',
@@ -526,41 +541,30 @@ function Appointment() {
                     display: userctx.role === 'receptionist' ? 'flex' : 'none',
                   }}
                   className={
-                    PatientAppointmentSelectedStep >= 4 && classes.selected
+                    PatientAppointmentSelectedStep >= 5 && classes.selected
                   }
                 >
-                  4
+                  5
                 </h2>
               </div>
               <div className={classes.stepContent}>
-                {/* //todo: need optimizing */}
-                <Selection
-                  {...selection[0]}
-                  specialtyList={specialtyList}
-                  doctorList={doctorsList}
-                />
-                <Selection
-                  {...selection[1]}
-                  specialtyList={specialtyList}
-                  doctorList={doctorsList}
-                />
-                <Selection
-                  {...selection[2]}
-                  specialtyList={specialtyList}
-                  doctorList={doctorsList}
-                />
-                <Selection
-                  {...selection[3]}
-                  specialtyList={specialtyList}
-                  doctorList={doctorsList}
-                />
+                {/* Each Step Selection */}
+                {selection.map((select, index) => {
+                  return select.type === 'dropDown' ? (
+                    select.dropDownContent !== undefined && (
+                      <Selection key={index} {...select} />
+                    )
+                  ) : (
+                    <Selection key={index} {...select} />
+                  );
+                })}
                 <div
                   className={
                     userctx.role === 'receptionist'
-                      ? PatientAppointmentSelectedStep === 5
+                      ? PatientAppointmentSelectedStep === 6
                         ? classes.confirmDisplay
                         : classes.displayNone
-                      : PatientAppointmentSelectedStep === 4
+                      : PatientAppointmentSelectedStep === 5
                       ? classes.confirmDisplay
                       : classes.displayNone
                   }
@@ -570,22 +574,19 @@ function Appointment() {
                   <div className={classes.appointmentDetails}>
                     <h3>Appointment Details</h3>
                     <div className={classes.appointmentDetailsBody}>
-                      {Object.keys(
-                        AppointmentDetailsPendingConfirmation
-                        // userctx.role === 'receptionist'
-                        //   ? AppointmentDetailsPendingConfirmation[0]
-                        //   : AppointmentDetailsPendingConfirmation[1]
-                      ).map(a => {
-                        return (
-                          a !== 'id' &&
-                          a !== 'patient' && (
-                            <h4>
-                              {a + ' : '}
-                              {AppointmentDetailsPendingConfirmation[a]}
-                            </h4>
-                          )
-                        );
-                      })}
+                      {Object.keys(AppointmentDetailsPendingConfirmation).map(
+                        a => {
+                          return (
+                            a !== 'id' &&
+                            a !== 'patient' && (
+                              <h4>
+                                {a + ' : '}
+                                {AppointmentDetailsPendingConfirmation[a]}
+                              </h4>
+                            )
+                          );
+                        }
+                      )}
                       <div className={classes.appointmentDetailsBodyButtons}>
                         <button
                           className={classes.confirm}
@@ -594,9 +595,6 @@ function Appointment() {
                             setAllAppointmentDetails([
                               ...AllAppointmentDetails,
                               AppointmentDetailsPendingConfirmation,
-                              // UserContext.role === 'receptionist'
-                              //   ? AppointmentDetailsPendingConfirmation[0]
-                              //   : AppointmentDetailsPendingConfirmation[1],
                             ]);
                             resetBookNewAppointment();
                           }}
@@ -635,8 +633,15 @@ function Appointment() {
             </h2>
           </div>
           <div className={classes.stepContent}>
-            <Selection {...doctorSelection[0]} />
-            <Selection {...doctorSelection[1]} />
+            {doctorSelection.map((select, index) => {
+              return select.type === 'dropDown' ? (
+                select.dropDownContent !== undefined && (
+                  <Selection key={index} {...select} />
+                )
+              ) : (
+                <Selection key={index} {...select} />
+              );
+            })}
             {doctorScheduleSelectedStep >= 3 && resetDoctorSchedule()}
           </div>
         </div>
@@ -676,7 +681,7 @@ function Appointment() {
                           {a} : {appointmentDetails[a]}
                         </h4>
                       )
-                  )}{' '}
+                  )}
                 </div>
               );
             })}

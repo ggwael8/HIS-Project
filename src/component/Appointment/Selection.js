@@ -9,9 +9,9 @@ import DropDownMenu from '../DropDownMenu';
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import dateFormat from 'dateformat';
 function Selection(props) {
   const [value, onChange] = useState(new Date());
-
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   return (
     <div
@@ -35,6 +35,7 @@ function Selection(props) {
               dropDownMenuActive ? classes.display : classes.displaynone
             }`}
           >
+            {console.log('inside Selection: ', props.dropDownContent)}
             <DropDownMenu
               content={
                 props.specialist && props.specialtyList !== undefined
@@ -210,11 +211,10 @@ function Selection(props) {
                 onChange={onChange}
                 value={value}
                 onClickDay={value =>
-                  props.DateSetState(value.toDateString().toString().slice(4))
+                  props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
                 }
                 // className={classes.react_calendar}
               />
-
               <div className={classes.TimeSlots}>
                 {props.TimeSlots.map(timeSlot => (
                   <div

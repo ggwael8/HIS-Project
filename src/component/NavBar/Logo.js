@@ -1,4 +1,4 @@
-import logo from '../Images/SVG/logo.svg';
+import logo from '../../Images/SVG/logo.svg';
 import classes from './Logo.module.css';
 
 function Logo(props) {

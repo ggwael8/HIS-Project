@@ -1,6 +1,6 @@
 import classes from './ProfileNavBar.module.css';
-import photo from '../Images/SVG/Photo.svg';
-import DropDownMenu from './DropDownMenu';
+import photo from '../../Images/SVG/Photo.svg';
+import DropDownMenu from './../DropDownMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect, useRef } from 'react';
@@ -77,10 +77,7 @@ function ProfileNavBar(props) {
           }`}
           ref={dropDownRef}
         >
-          <DropDownMenu
-            content={ProfileDropDown}
-            type={'link'}
-          />
+          <DropDownMenu content={ProfileDropDown} type={'link'} />
         </div>
       </div>
     </>

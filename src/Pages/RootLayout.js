@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import NavBar from '../component/navbar';
+import NavBar from '../component/NavBar/navbar';
 import classes from './RootLayout.module.css';
 import { useState, useEffect } from 'react';
 import UserContext from '../context/user-context';

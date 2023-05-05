@@ -1,5 +1,5 @@
 import classes from './Profile.module.css';
-import InformationCard from '../component/InformationCard';
+import InformationCard from '../component/NavBar/InformationCard';
 import { useEffect, useState, useContext } from 'react';
 import UserContext from '../context/user-context';
 function Profile(props) {
@@ -65,9 +65,11 @@ function Profile(props) {
         userctx.ContactInformation,
         patientAddress,
       ],
-      EmergencyCards: patientEmergencyInfo.map(info => {
-        return info;
-      }),
+      EmergencyCards:
+        userctx.role === 'patient' &&
+        patientEmergencyInfo.map(info => {
+          return info;
+        }),
     });
   };
   if (isLoading) {
@@ -95,13 +97,14 @@ function Profile(props) {
               >
                 Personal Information
               </h2>
-              <span></span>
+              <span style={{ display: userctx !== 'patient' && 'none' }}></span>
               <h2
                 className={
                   profileContent.EmergencyInformationID === selectedHeader
                     ? classes.active
                     : undefined
                 }
+                style={{ display: userctx !== 'patient' && 'none' }}
                 onClick={() => {
                   SetSelectedHeader(profileContent.EmergencyInformationID);
                 }}
