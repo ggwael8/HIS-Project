@@ -11,6 +11,7 @@ import {
 import Selection from '../component/Appointment/Selection';
 import UserContext from '../context/user-context';
 function Appointment() {
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   //context api to get user role
   const userctx = useContext(UserContext);
@@ -165,6 +166,8 @@ function Appointment() {
     setPatientAppointmentTime(null);
     setOpenWindow(1);
     setPatientAppointmentSearchSelected(null);
+    setCurrentDate(new Date());
+    setTimeSlots([]);
   };
   //Book New Appointment Selection body content
   const selection = [
@@ -175,6 +178,7 @@ function Appointment() {
       type: 'input',
       id: userctx.role === 'receptionist' ? 1 : 0,
       selectstate: setPatient,
+      patient: patient,
       title: 'Enter Patient ID',
       setAppointmentType: setAppointmentType,
       currentAppointmentType: appointmentType,
@@ -221,58 +225,53 @@ function Appointment() {
       title: 'Set Date & Time',
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
+      currentDate: currentDate,
+      setCurrentDate: setCurrentDate,
     },
   ];
 
   /*Doctor Schedule States*/
   const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
     useState(1);
+  //todo: connect specialist to doctor
   const [doctorScheduleSpecialist, setDoctorScheduleSpecialist] = useState(0);
   const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
   const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
     useState([
-      //Todo: Dummy
       {
         id: 1,
         Work: 1,
         Day: 'Saturday',
-        Duration: 0,
       },
       {
         id: 2,
         Work: 0,
         Day: 'Sunday',
-        Duration: 0,
       },
       {
         id: 3,
         Work: 1,
         Day: 'Monday',
-        Duration: 0,
       },
       {
         id: 4,
         Work: 0,
         Day: 'Tuesday',
-        Duration: 0,
       },
       {
         id: 5,
         Work: 0,
         Day: 'Wednesday',
-        Duration: 0,
       },
       {
         id: 6,
         Work: 0,
         Day: 'Thursday',
-        Duration: 0,
       },
       {
         id: 7,
         Work: 0,
         Day: 'Friday',
-        Duration: 0,
       },
     ]);
   const [doctorSchedulesearchSelected, setDoctorScheduleSearchSelected] =
@@ -416,6 +415,8 @@ function Appointment() {
       dayAndDuration: true,
       dayAndDurationSetState: setDoctorScheduleDayAndDuration,
       currentDayAndDuration: doctorScheduleDayAndDuration,
+      // startTimeSetState: setDoctorScheduleStartTime,
+      // endTimeSetState: setDoctorScheduleEndTime,
       searchstate: setPatientAppointmentSearchSelected,
       title: 'Set Day & Duration',
       setSelectedStep: setDoctorScheduleSelectedStep,
@@ -429,11 +430,19 @@ function Appointment() {
       {
         method: 'POST',
         body: JSON.stringify({
-          patient: AppointmentDetailsPendingConfirmation.patient.id,
+          patient:
+            userctx.role === 'receptionist'
+              ? AppointmentDetailsPendingConfirmation.patient
+              : AppointmentDetailsPendingConfirmation.patient.id,
           doctor: AppointmentDetailsPendingConfirmation.doctorId,
           date: AppointmentDetailsPendingConfirmation.date,
           slot: AppointmentDetailsPendingConfirmation.slot,
-          type: AppointmentDetailsPendingConfirmation.type,
+          type:
+            AppointmentDetailsPendingConfirmation.type === 1
+              ? 'new'
+              : AppointmentDetailsPendingConfirmation.type === 2
+              ? 'followup'
+              : AppointmentDetailsPendingConfirmation.type,
           status: 'pend',
         }),
         headers: {
@@ -441,8 +450,51 @@ function Appointment() {
         },
       }
     );
+    const data = await response.json();
+    console.log(
+      'response : ',
+      data,
+      'type : ',
+      AppointmentDetailsPendingConfirmation.type,
+      'patient : ' + AppointmentDetailsPendingConfirmation.patient
+    );
   };
+  const AddDoctorSchedule = async () => {
+    for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
+      if (doctorScheduleDayAndDuration[i].Work === 1) {
+        const response = await fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              day_of_week: doctorScheduleDayAndDuration[i].Day,
+              start_time: doctorScheduleDayAndDuration[i].start_time,
+              end_time: doctorScheduleDayAndDuration[i].end_time,
+              slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+              doctor: doctorScheduleDoctor,
+              //todo: dummy
+              schedule_status: 'active',
+              price: '250',
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
+        const data = await response.json();
+        console.log(
+          'response : ' + data,
+          'day : ' +
+            doctorScheduleDayAndDuration[i].Day +
+            '      end_time : ' +
+            doctorScheduleDayAndDuration[i].end_time +
+            +' slot_duration : ' +
+            doctorScheduleDayAndDuration[i].slot_duration
+        );
+      }
+    }
+  };
   return (
     <div className={classes.container}>
       {/* appointment NavBar */}
@@ -506,135 +558,134 @@ function Appointment() {
         </div>
       </div>
       {/* Book New Appointment */}
-      {!isLoading &&
-        (userctx.role === 'receptionist' || userctx.role === 'patient') && (
-          <div
-            className={classes.apointment}
-            style={{ display: openWindow === 1 ? 'flex' : 'none' }}
-          >
-            <h2 className={classes.title}>Book New Appointment</h2>
+      {(userctx.role === 'receptionist' || userctx.role === 'patient') && (
+        <div
+          className={classes.apointment}
+          style={{ display: openWindow === 1 ? 'flex' : 'none' }}
+        >
+          <h2 className={classes.title}>Book New Appointment</h2>
 
-            <div className={classes.body}>
-              {/* steps count */}
-              <div className={classes.steps}>
-                <h2 className={classes.selected}>1</h2>
-                <span></span>
-                <h2
-                  className={
-                    PatientAppointmentSelectedStep >= 2 && classes.selected
-                  }
-                >
-                  2
-                </h2>
-                <span></span>
-                <h2
-                  className={
-                    PatientAppointmentSelectedStep >= 3 && classes.selected
-                  }
-                >
-                  3
-                </h2>
-                <span></span>
-                <h2
-                  className={
-                    PatientAppointmentSelectedStep >= 4 && classes.selected
-                  }
-                >
-                  4
-                </h2>
-                <span
-                  style={{
-                    display: userctx.role === 'receptionist' ? 'flex' : 'none',
-                  }}
-                ></span>
-                <h2
-                  style={{
-                    display: userctx.role === 'receptionist' ? 'flex' : 'none',
-                  }}
-                  className={
-                    PatientAppointmentSelectedStep >= 5 && classes.selected
-                  }
-                >
-                  5
-                </h2>
-              </div>
-              <div className={classes.stepContent}>
-                {/* Each Step Selection */}
-                {selection.map((select, index) => {
-                  return select.type === 'dropDown' ? (
-                    select.dropDownContent !== undefined && (
-                      <Selection key={index} {...select} />
-                    )
-                  ) : (
+          <div className={classes.body}>
+            {/* steps count */}
+            <div className={classes.steps}>
+              <h2 className={classes.selected}>1</h2>
+              <span></span>
+              <h2
+                className={
+                  PatientAppointmentSelectedStep >= 2 && classes.selected
+                }
+              >
+                2
+              </h2>
+              <span></span>
+              <h2
+                className={
+                  PatientAppointmentSelectedStep >= 3 && classes.selected
+                }
+              >
+                3
+              </h2>
+              <span></span>
+              <h2
+                className={
+                  PatientAppointmentSelectedStep >= 4 && classes.selected
+                }
+              >
+                4
+              </h2>
+              <span
+                style={{
+                  display: userctx.role === 'receptionist' ? 'flex' : 'none',
+                }}
+              ></span>
+              <h2
+                style={{
+                  display: userctx.role === 'receptionist' ? 'flex' : 'none',
+                }}
+                className={
+                  PatientAppointmentSelectedStep >= 5 && classes.selected
+                }
+              >
+                5
+              </h2>
+            </div>
+            <div className={classes.stepContent}>
+              {/* Each Step Selection */}
+              {selection.map((select, index) => {
+                return select.type === 'dropDown' ? (
+                  select.dropDownContent !== undefined && (
                     <Selection key={index} {...select} />
-                  );
-                })}
-                {/* confirmation  */}
-                <div
-                  className={
-                    userctx.role === 'receptionist'
-                      ? PatientAppointmentSelectedStep === 6
-                        ? classes.confirmDisplay
-                        : classes.displayNone
-                      : PatientAppointmentSelectedStep === 5
+                  )
+                ) : (
+                  <Selection key={index} {...select} />
+                );
+              })}
+              {/* confirmation  */}
+              <div
+                className={
+                  userctx.role === 'receptionist'
+                    ? PatientAppointmentSelectedStep === 6
                       ? classes.confirmDisplay
                       : classes.displayNone
-                  }
-                >
-                  <h2>Confirm Appointment</h2>
-                  <hr></hr>
-                  <div className={classes.appointmentDetails}>
-                    <h3>Appointment Details</h3>
-                    <div className={classes.appointmentDetailsBody}>
-                      {/* showing appointmentdetails */}
-                      {Object.keys(AppointmentDetailsPendingConfirmation).map(
-                        a => {
-                          return (
-                            a !== 'id' &&
-                            a !== 'patient' &&
-                            a !== 'doctorId' &&
-                            a !== 'slot' && (
-                              <h4>
-                                {a + ' : '}
-                                {AppointmentDetailsPendingConfirmation[a]}
-                              </h4>
-                            )
-                          );
-                        }
-                      )}
-                      {/* confirm and cancel button */}
-                      <div className={classes.appointmentDetailsBodyButtons}>
-                        {/*todo: not complete yet*/}
-                        {/* onclick send to api */}
-                        <button
-                          className={classes.confirm}
-                          onClick={() => {
-                            AddAppointmentList();
-                            setAllAppointmentDetails([
-                              ...AllAppointmentDetails,
-                              AppointmentDetailsPendingConfirmation,
-                            ]);
-                            resetBookNewAppointment();
-                          }}
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          className={classes.cancel}
-                          onClick={() => {
-                            resetBookNewAppointment();
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                    : PatientAppointmentSelectedStep === 5
+                    ? classes.confirmDisplay
+                    : classes.displayNone
+                }
+              >
+                <h2>Confirm Appointment</h2>
+                <hr></hr>
+                <div className={classes.appointmentDetails}>
+                  <h3>Appointment Details</h3>
+                  <div className={classes.appointmentDetailsBody}>
+                    {/* showing appointmentdetails */}
+                    {Object.keys(AppointmentDetailsPendingConfirmation).map(
+                      a => {
+                        return (
+                          a !== 'id' &&
+                          a !== 'patient' &&
+                          a !== 'doctorId' &&
+                          a !== 'slot' && (
+                            <h4>
+                              {a + ' : '}
+                              {AppointmentDetailsPendingConfirmation[a]}
+                            </h4>
+                          )
+                        );
+                      }
+                    )}
+                    {/* confirm and cancel button */}
+                    <div className={classes.appointmentDetailsBodyButtons}>
+                      {/*todo: not complete yet*/}
+                      {/* onclick send to api */}
+                      <button
+                        className={classes.confirm}
+                        onClick={() => {
+                          AddAppointmentList();
+                          setAllAppointmentDetails([
+                            ...AllAppointmentDetails,
+                            AppointmentDetailsPendingConfirmation,
+                          ]);
+                          resetBookNewAppointment();
+                        }}
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        className={classes.cancel}
+                        onClick={() => {
+                          resetBookNewAppointment();
+                        }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
       {/* Add Doctor Schedule */}
       <div
         className={classes.apointment}
@@ -659,7 +710,9 @@ function Appointment() {
                 <Selection key={index} {...select} />
               );
             })}
-            {doctorScheduleSelectedStep >= 3 && resetDoctorSchedule()}
+            {doctorScheduleSelectedStep >= 3 &&
+              AddDoctorSchedule() &&
+              resetDoctorSchedule()}
           </div>
         </div>
       </div>
