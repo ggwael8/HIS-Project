@@ -1,35 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import NavBar from '../component/NavBar/navbar';
-import classes from './RootLayout.module.css';
 import { useState, useEffect } from 'react';
 import UserContext from '../context/user-context';
-
+import { checkAuth } from '../utils/auth';
 function RootLayout() {
-  const [userInfo, setUserInfo] = useState({
-    UserID: 3,
-    role: 'patient',
-    PersonalInformation: {
-      title: 'Personal Information',
-      FirstName: 'first_name',
-      LastName: 'last_name',
-      Gender: 'gender',
-      NationalId: 'national_id',
-      DateOfBirth: '2023-04-28',
-    },
-    ContactInformation: {
-      title: 'Contact Information',
-      MobileNumber1: 'phone_1',
-      MobileNumber2: 'phone_2',
-      Email: 'email',
-    },
-    AddressInformation: {
-      title: 'Address Information',
-      FullStreet: 'street',
-      AppartmentNumber: 'appartment_number',
-      City: 'city',
-      Country: 'country',
-    },
-  });
+  const [userInfo, setUserInfo] = useState();
   const [dataFetched, setDataFetched] = useState(false);
   //todo: fetch organization
   async function fetchUserHandler() {
@@ -55,13 +30,6 @@ function RootLayout() {
         MobileNumber2: data.phone_2,
         Email: data.email,
       },
-      // AddressInformation: {
-      //   title: 'Address Information',
-      //   FullStreet: data.address.street,
-      //   AppartmentNumber: data.address.appartment_number,
-      //   City: data.address.city,
-      //   Country: data.address.country,
-      // },
     };
     setUserInfo(transformedInfo);
     setDataFetched(true);
@@ -150,13 +118,20 @@ function RootLayout() {
       <UserContext.Provider value={userInfo}>
         {
           <>
-            <NavBar
-              links={links[userInfo.role]}
-              id='nav'
-              firstname={userInfo.PersonalInformation.FirstName}
-              role={userInfo.role}
-            />
-            <div className={classes.outletBody}>
+            {checkAuth() && (
+              <NavBar
+                links={links[userInfo.role]}
+                id='nav'
+                firstname={userInfo.PersonalInformation.FirstName}
+                role={userInfo.role}
+              />
+            )}
+            <div
+              style={{
+                height: checkAuth() ? '90vh' : '100vh',
+                display: 'flex',
+              }}
+            >
               <Outlet />
             </div>
           </>
