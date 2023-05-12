@@ -1,0 +1,12 @@
+.headlines{
+    text-align: center;
+}
+.headline{
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 2%;
+}
+
+.create{
+    font-size: 0.7rem;
+}

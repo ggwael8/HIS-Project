@@ -1,0 +1,171 @@
+.page{
+    background-color: white;
+    width: 100%;
+    margin: 3% 5%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 4px 12px rgba(0, 0, 0, .08);
+    display: flex;
+    align-items: center;
+    font-family: 'Noto Sans', sans-serif;
+}
+.headlines {
+    text-align: center;
+}
+
+.headline {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 2%;
+}
+.headlines p {
+    font-size: 0.7rem;
+}
+.lines{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.vLine {
+    border-left: 2px solid #49A96E;
+    height: 150px;
+}
+.form{
+    width: 59%;
+}
+.form_details{
+    margin: 5% 0;
+    margin-left: 20%;
+}
+.form_details h2{
+    font-weight: 800;
+    margin: 20px 0;
+}
+.inputes{
+    display: flex;
+    align-items: center;
+    gap: 10%;
+}
+form input{
+    border: none;
+    padding-top: 5%;
+    border-bottom: 1px solid gray;
+    margin: 3% 5%;
+    font-size: 16px;
+
+}
+form input::placeholder {
+    color: rgb(161, 161, 161);
+    font: 20px/3 sans-serif;
+}
+
+.btn{
+    text-align: center;
+    margin-top: 7%;
+    margin-bottom: 7%;
+    /* margin: 7% 20%; */
+}
+.form_details button{
+    border: none;
+    background-color: #49A96E;
+    padding: 8px 20%;
+    color: white;
+    font-weight: 600;
+    font-size: large;
+    margin-right: 20%;
+}
+.change{
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 3%;
+    margin-right: 20%;
+}
+.account{
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 15px;
+    margin-right: 20%;
+}
+.sign{
+    color: #40B8F3;
+    margin-left: 5px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.sml_lines{
+    display: flex;
+    align-items: center;
+    gap: 2%;
+    margin-left: 20%;
+}
+.sml_line{
+    border-top: 8px solid #979797;
+    border-radius: 6px;
+    width: 12%;
+}
+.sml_Green_line {
+    border-top: 8px solid #49A96E;
+    border-radius: 6px;
+    width: 12%;
+}
+.big_sml_line{
+    border-top: 8px solid #49A96E;
+    border-radius: 6px;
+    width: 25%;
+}
+
+.error{
+    color: red;
+    margin-left: 5%;
+}
+.select{
+    border: none;
+    border-bottom: 1px solid gray;
+    color: rgb(153, 151, 151);
+    font-size: 20px;
+    padding-top: 5%;
+    margin: 3% 5%;
+    width: 200px;
+
+}
+.forget{
+    text-align: center;
+    font-size: 13px;
+    margin-right: 20%;
+}
+.signin_form input{
+    width: 70%;
+    padding-top: 15px;
+}
+.fields{
+    margin-top: 10%;
+    margin-bottom: 15%;
+}
+@media (max-width: 1100px) {
+    .lines{
+        display: none;
+    }
+    .form{
+        width: 100%;
+    }
+    .signin_form .form_details{
+        margin-left: 3%;
+    }
+    .form_details button,  .account, .forget{
+        text-align: -webkit-center;
+    }
+    .forget{
+        text-align: -webkit-center;
+    }
+}
+
+@media (max-width: 640px) {
+    .inputes{
+        flex-direction: column;
+        align-items: baseline;
+    }
+}
+
+
+/* // Green #49A96E
+// blue #40B8F3
+// grey #979797
+// black #474747 */
