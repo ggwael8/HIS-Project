@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom';
-import NavBar from '../component/NavBar/navbar';
+import NavBar from '../../component/NavBar/navbar';
 import { useContext } from 'react';
-import UserContext from '../context/user-context';
-import { checkAuth } from '../utils/auth';
+import UserContext from '../../context/user-context';
+import { checkAuth } from '../../utils/auth';
 function RootLayout() {
   const userctx = useContext(UserContext);
   const links = {
@@ -75,6 +75,36 @@ function RootLayout() {
         icon: (
           <h1>
             <i class='fa-solid fa-phone'></i>
+          </h1>
+        ),
+      },
+    ],
+    lab: [
+      {
+        to: '/',
+        title: (
+          <h1>
+            <span>home</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <i class='fa-solid fa-house'></i>
+          </h1>
+        ),
+      },
+    ],
+    radiologist: [
+      {
+        to: '/',
+        title: (
+          <h1>
+            <span>home</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <i class='fa-solid fa-house'></i>
           </h1>
         ),
       },
