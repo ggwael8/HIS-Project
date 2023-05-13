@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard';
-import Appointment from './Pages/Appointment';
-import RootLayout from './Pages/RootLayout';
-import Profile from './Pages/Profile';
+import Appointment from './Pages/Appointment/Appointment';
+import RootLayout from './Pages/Root/RootLayout';
+import Profile from './Pages/Profile/Profile';
 import SignUpLogin from './Pages/SignUpLogin';
 import SignUpAddress from './Pages/SignUpAddress';
 import SignUpPersonal from './Pages/SignUpPersonal';
 import SignIn from './Pages/SignIn';
 import ForgetPassword from './Pages/ForgetPassword';
-import Labs from './Pages/Labs';
+import Labs from './Pages/Labs/Labs';
 import { checkAuth } from './utils/auth';
 import UserContext from './context/user-context';
+import { apiUrl } from './utils/api';
 function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,14 +85,20 @@ function App() {
     {
       path: '/',
       element: <RootLayout />,
-      children: [{ path: '/', element: <Labs /> }],
+      children: [
+        { path: '/', element: <Labs /> },
+        { path: '/profile', element: <Profile /> },
+      ],
     },
   ]);
-  const radiologyRouter = createBrowserRouter([
+  const radiologistRouter = createBrowserRouter([
     {
       path: '/',
       element: <RootLayout />,
-      children: [{ path: '/', element: <Labs /> }],
+      children: [
+        { path: '/', element: <Labs /> },
+        { path: '/profile', element: <Profile /> },
+      ],
     },
   ]);
   const loginRouter = createBrowserRouter([
@@ -112,9 +119,7 @@ function App() {
   async function fetchUserHandler() {
     if (checkAuth()) {
       setIsLoading(true);
-      const response = await fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/auth/users/me/'
-      );
+      const response = await fetch(apiUrl + 'auth/users/me/');
       if (response.status === 200) {
         const data = await response.json();
         setIsLoading(false);
@@ -139,7 +144,7 @@ function App() {
         setUserInfo(transformedInfo);
         return;
       }
-    }
+    } else setIsLoading(false);
   }
   useEffect(() => {
     fetchUserHandler();
@@ -177,10 +182,10 @@ function App() {
             <RouterProvider router={labortoryRouter} />
           </UserContext.Provider>
         );
-      } else if (userInfo.role === 'radiology') {
+      } else if (userInfo.role === 'radiologist') {
         return (
           <UserContext.Provider value={userInfo}>
-            <RouterProvider router={radiologyRouter} />
+            <RouterProvider router={radiologistRouter} />
           </UserContext.Provider>
         );
       }
@@ -190,6 +195,7 @@ function App() {
   };
 
   if (isLoading) return <div>Loading...</div>;
+
   return ChooseRouterRole();
 }
 
