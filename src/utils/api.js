@@ -1,0 +1,1 @@
+export const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/';
