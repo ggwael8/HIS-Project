@@ -19,10 +19,12 @@
   flex-direction: row;
   margin: auto;
   width: 90%;
+  height: 90%;
   align-items: center;
   justify-content: space-between;
 }
 .flex_item {
+  height: 90%;
   display: flex;
   justify-content: center;
   align-items: center;
