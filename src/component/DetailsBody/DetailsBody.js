@@ -1,7 +1,6 @@
 import classes from './DetailsBody.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
-import Button from '../Button/Button';
 function DetailsBody(props) {
   return (
     <div className={classes.details} style={props.style}>
@@ -31,12 +30,21 @@ function DetailsBody(props) {
                   a =>
                     a === 'button' ? (
                       details[a].map((info, index) => {
-                        return <Button title={info} />;
+                        return (
+                          <button
+                            className={classes.Button}
+                            onClick={info.setStates}
+                          >
+                            {info.title}
+                          </button>
+                        );
                       })
                     ) : (
-                      <h4>
-                        {a} : {details[a]}
-                      </h4>
+                      <div>
+                        <h4>
+                          {a} : {details[a]}
+                        </h4>
+                      </div>
                     )
                   // <h4>
                   //   {a} : {details[a]}
