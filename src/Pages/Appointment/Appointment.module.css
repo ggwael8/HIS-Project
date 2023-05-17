@@ -116,7 +116,7 @@
   font-weight: 700;
   font-size: 1.1rem;
 }
-button:hover {
+.appointmentDetailsBodyButtons button:hover {
   background-color: #4747473a;
   color: #49a96e;
   cursor: pointer;

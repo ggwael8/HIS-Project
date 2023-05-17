@@ -57,15 +57,15 @@ function Appointment() {
       fetch(apiUrl + 'hospital/specialty/'),
       fetch(apiUrl + 'hospital/doctor/'),
       PatientAppointmentDoctor !== null &&
-        fetch(apiUrl + 'Appointments/doctor-schedule/'),
+        fetch(apiUrl + 'appointments/doctor-schedule/'),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
           apiUrl +
-            `Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
+            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
         ),
       userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
-      fetch(apiUrl + 'Appointments/Booked-Appointments/'),
+      fetch(apiUrl + 'appointments/Booked-Appointments/'),
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
@@ -362,25 +362,25 @@ function Appointment() {
       time: <span>10:00</span>,
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      specialist: <span>sepaka</span>,
+      doctor: <span>spak</span>,
+      price: <span>200</span>,
+      date: <span>10/12/2023</span>,
+      time: <span>10:00</span>,
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      specialist: <span>sepaka</span>,
+      doctor: <span>spak</span>,
+      price: <span>200</span>,
+      date: <span>10/12/2023</span>,
+      time: <span>10:00</span>,
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      specialist: <span>sepaka</span>,
+      doctor: <span>spak</span>,
+      price: <span>200</span>,
+      date: <span>10/12/2023</span>,
+      time: <span>10:00</span>,
     },
   ]);
   //Doctor Schedule Selection body
@@ -411,73 +411,67 @@ function Appointment() {
   ];
   //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
-    const response = await fetch(
-      'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          patient:
-            userctx.role === 'receptionist'
-              ? AppointmentDetailsPendingConfirmation.patient
-              : AppointmentDetailsPendingConfirmation.patient.id,
-          doctor: AppointmentDetailsPendingConfirmation.doctorId,
-          date: AppointmentDetailsPendingConfirmation.date,
-          slot: AppointmentDetailsPendingConfirmation.slot,
-          type:
-            AppointmentDetailsPendingConfirmation.type === 1
-              ? 'new'
-              : AppointmentDetailsPendingConfirmation.type === 2
-              ? 'followup'
-              : AppointmentDetailsPendingConfirmation.type,
-          status: 'pend',
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(
-      'response : ',
-      data,
-      'type : ',
-      AppointmentDetailsPendingConfirmation.type,
-      'patient : ' + AppointmentDetailsPendingConfirmation.patient
-    );
+    await fetch(apiUrl + 'appointments/Booked-Appointments/', {
+      method: 'POST',
+      body: JSON.stringify({
+        patient:
+          userctx.role === 'receptionist'
+            ? AppointmentDetailsPendingConfirmation.patient
+            : AppointmentDetailsPendingConfirmation.patient.id,
+        doctor: AppointmentDetailsPendingConfirmation.doctorId,
+        date: AppointmentDetailsPendingConfirmation.date,
+        slot: AppointmentDetailsPendingConfirmation.slot,
+        type:
+          AppointmentDetailsPendingConfirmation.type === 1
+            ? 'new'
+            : AppointmentDetailsPendingConfirmation.type === 2
+            ? 'followup'
+            : AppointmentDetailsPendingConfirmation.type,
+        status: 'pend',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    // const data = await response.json();
+    // console.log(
+    //   'response : ',
+    //   data,
+    //   'type : ',
+    //   AppointmentDetailsPendingConfirmation.type,
+    //   'patient : ' + AppointmentDetailsPendingConfirmation.patient
+    // );
   };
   const AddDoctorSchedule = async () => {
     for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
-      if (doctorScheduleDayAndDuration[i].Work === 1) {
-        const response = await fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              day_of_week: doctorScheduleDayAndDuration[i].Day,
-              start_time: doctorScheduleDayAndDuration[i].start_time,
-              end_time: doctorScheduleDayAndDuration[i].end_time,
-              slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
-              doctor: doctorScheduleDoctor,
-              //todo: dummy
-              schedule_status: 'active',
-              price: '250',
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+      if (doctorScheduleDayAndDuration[i].Work === true) {
+        await fetch(apiUrl + 'appointments/doctor-schedule/', {
+          method: 'POST',
+          body: JSON.stringify({
+            day_of_week: doctorScheduleDayAndDuration[i].Day,
+            start_time: doctorScheduleDayAndDuration[i].start_time,
+            end_time: doctorScheduleDayAndDuration[i].end_time,
+            slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+            doctor: doctorScheduleDoctor,
+            //todo: dummy
+            schedule_status: 'active',
+            price: '250',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-        const data = await response.json();
-        console.log(
-          'response : ' + data,
-          'day : ' +
-            doctorScheduleDayAndDuration[i].Day +
-            '      end_time : ' +
-            doctorScheduleDayAndDuration[i].end_time +
-            +' slot_duration : ' +
-            doctorScheduleDayAndDuration[i].slot_duration
-        );
+        // const data = await response.json();
+        // console.log(
+        //   'response : ' + data,
+        //   'day : ' +
+        //     doctorScheduleDayAndDuration[i].Day +
+        //     '      end_time : ' +
+        //     doctorScheduleDayAndDuration[i].end_time +
+        //     +' slot_duration : ' +
+        //     doctorScheduleDayAndDuration[i].slot_duration
+        // );
       }
     }
   };
@@ -505,7 +499,7 @@ function Appointment() {
   ];
   const doctorSideNav = [
     {
-      id: 1,
+      id: 3,
       icon: (
         <FontAwesomeIcon
           icon={faFile}
@@ -625,10 +619,6 @@ function Appointment() {
                         className={classes.confirm}
                         onClick={() => {
                           AddAppointmentList();
-                          setAllAppointmentDetails([
-                            ...AllAppointmentDetails,
-                            AppointmentDetailsPendingConfirmation,
-                          ]);
                           resetBookNewAppointment();
                         }}
                       >
