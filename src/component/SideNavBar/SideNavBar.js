@@ -10,7 +10,7 @@ function SideNavBar(props) {
               className={classes.navButton}
               key={sideNav.id}
               onClick={() => {
-                props.setOpenWindow(index + 1);
+                props.setOpenWindow(sideNav.id);
               }}
             >
               {sideNav.icon}
