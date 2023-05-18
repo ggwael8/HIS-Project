@@ -1,0 +1,26 @@
+.steps {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.steps h2 {
+  font-size: 1rem;
+  padding: 25px 30px;
+  border-radius: 50%;
+  border: solid 1px black;
+  position: relative;
+}
+/* change color of selected step*/
+.steps .selected {
+  background-color: #49a96e;
+  color: white;
+  border: none;
+}
+/*line between each number*/
+.steps span {
+  border: solid 1px black;
+  height: 100%;
+  position: relative;
+}

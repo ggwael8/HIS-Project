@@ -1,14 +1,54 @@
-import React from 'react'
+import React, { useState } from 'react'
 import LogoLogIn from '../component/SignIn/LogoLogIn'
 import classes from './ٍSign.module.css'
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
+const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/login/';
 
+const myHeaders = new Headers({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+}); 
+
+export function setAuthToken(token) {
+    localStorage.setItem('token', token);
+    const time = new Date();
+    localStorage.setItem('time', time.getTime());
+}
 export default function SignIn() {
+
+    function login(username, password) {
+
+        const person = {
+            username: username,
+            password: password,
+        }
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: myHeaders,
+            body: JSON.stringify(person),
+        }).then((response) => {
+            if (response.status === 200) {
+                return response.json().then((data) => {
+                    setAuthToken(data.access);
+                    console.log(data);
+                });
+            }
+            else {
+                console.log(response.status);
+                return response.status;
+            }
+        }).catch(error => {
+            console.log(error);
+        });
+    }
     const navigate = useNavigate();
-    const navigateSignIn = () => {
+    const navigateForgetPassword = () => {
         navigate('/forgetpassword/');
+    };
+    const navigateSignUp = () => {
+        navigate('/');
     };
     const initialValues = {
         username: "",
@@ -27,10 +67,11 @@ export default function SignIn() {
     };
     const handleSubmit = (values, {setSubmitting}) => {
         if (Object.keys(validate(values)).length === 0) {
-            navigateSignIn();
+            login(values.username, values.password);
         }
         setSubmitting(false);
     };
+
     return (
         <div className={classes.page}>
             <LogoLogIn />
@@ -73,7 +114,7 @@ export default function SignIn() {
                                         <ErrorMessage name='password' component='div' className={classes.error } />
                                     </div>
                                     <div className={classes.forget}>
-                                        <span className={classes.sign} onClick={navigateSignIn}>Forget Password</span>
+                                        <span className={classes.sign} onClick={navigateForgetPassword}>Forget Password</span>
                                     </div>
                                 </div>
                                 <div className={classes.btn}>
@@ -81,8 +122,8 @@ export default function SignIn() {
                                         Login
                                     </button>
                                     <p className={classes.account}>
-                                        Already Have An Account?
-                                        <span className={classes.sign} onClick={navigateSignIn}>Sign In</span>
+                                        Don't Have An Account?
+                                        <span className={classes.sign} onClick={navigateSignUp}>Sign Up</span>
                                     </p>
                                 </div>
                             </div>

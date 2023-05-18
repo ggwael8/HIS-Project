@@ -5,9 +5,48 @@ import Logo from '../component/SignUp/Logo';
 import SignUpHeadline from '../component/SignUp/SignUpHeadline';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { auth } from '../utils/auth';
 
-export default function SignUpAddress()
+const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/auth/register/';
+
+
+const myHeaders = new Headers({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+}); 
+
+
+
+export default function SignUpAddress({ userLoginData, userPersonalData })
 {
+    
+    function addUser(values) {
+        console.log(userLoginData);
+        console.log(userPersonalData);
+        const person = {
+            first_name: userPersonalData.firstName,
+            last_name: userPersonalData.lastName,
+            email: userLoginData.email,
+            gender: userPersonalData.gender === 'Male' ? "M" : "F",
+            password: userLoginData.password,
+            phone_1: userPersonalData.mobileNumber,
+            phone_2: userPersonalData.mobileNumber,
+            role: 'doctor',
+            username: userLoginData.username,
+        }
+        fetch(apiUrl,
+        {
+            method: "POST",
+            headers: myHeaders,
+            body: JSON.stringify(person),
+        }).then((response) => {
+            response.json().then((data) => {
+                console.log(data);
+            });
+        }).catch(error => {
+            console.log(error);
+        });
+    }
     const navigate = useNavigate();
     const navigateSignIn = () => {
         navigate('/signin/');
@@ -38,7 +77,8 @@ export default function SignUpAddress()
     const handleSubmit = (values, {setSubmitting}) => {
         if (Object.keys(validate(values)).length === 0) {
             navigateSignIn();
-        }
+            addUser(values);
+        };
         setSubmitting(false);
     };
     return (
@@ -116,7 +156,6 @@ export default function SignUpAddress()
                                 </div>
                             </div>
                         </Form>
-                        {/* )} */}
                     </Formik>
                 </div>
             </div>

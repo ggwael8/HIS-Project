@@ -1,7 +1,8 @@
 import classes from './Profile.module.css';
-import InformationCard from '../component/NavBar/InformationCard';
+import InformationCard from '../../component/NavBar/InformationCard';
 import { useEffect, useState, useContext } from 'react';
-import UserContext from '../context/user-context';
+import UserContext from '../../context/user-context';
+import { apiUrl } from '../../utils/api';
 function Profile(props) {
   const [isLoading, setIsLoading] = useState();
   const userctx = useContext(UserContext);
@@ -9,16 +10,12 @@ function Profile(props) {
   const [patientEmergencyInfo, setPatientEmergencyInfo] = useState([]);
   const [profileContent, setProfileContent] = useState({});
   //todo: fetch organization
-  async function fetchPatientAddressHandler() {
+  async function fetchDataHandler() {
     setIsLoading(true);
     if (userctx.role === 'patient') {
       const response = await Promise.all([
-        fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/hospital/patient/me/'
-        ),
-        fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/records/emergency-contact/'
-        ),
+        fetch(apiUrl + 'hospital/patient/me/'),
+        fetch(apiUrl + 'records/emergency-contact/'),
       ]);
       console.log(response);
       const patientAddressData = await response[0].json();
@@ -52,7 +49,7 @@ function Profile(props) {
     setIsLoading(false);
   }
   useEffect(() => {
-    fetchPatientAddressHandler();
+    fetchDataHandler();
   }, []);
   useEffect(() => {
     setProfileContent({

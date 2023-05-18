@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useContext, useEffect } from 'react';
 import classes from './Appointment.module.css';
+import classesBody from '../Body.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileCirclePlus,
@@ -8,8 +9,13 @@ import {
   faFilter,
   faUserDoctor,
 } from '@fortawesome/free-solid-svg-icons';
-import Selection from '../component/Appointment/Selection';
-import UserContext from '../context/user-context';
+import Selection from '../../component/Appointment/Selection';
+import UserContext from '../../context/user-context';
+import SideNavBar from '../../component/SideNavBar/SideNavBar';
+import StepsCircle from '../../component/StepsCircle/StepsCircle';
+import DetailsBody from '../../component/DetailsBody/DetailsBody';
+import { apiUrl } from '../../utils/api';
+
 function Appointment() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -48,28 +54,18 @@ function Appointment() {
   async function fetchDataHandler() {
     setIsLoading(true);
     const response = await Promise.all([
-      fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/hospital/specialty/'
-      ),
-      fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/hospital/doctor/'
-      ),
+      fetch(apiUrl + 'hospital/specialty/'),
+      fetch(apiUrl + 'hospital/doctor/'),
       PatientAppointmentDoctor !== null &&
-        fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/'
-        ),
+        fetch(apiUrl + 'Appointments/doctor-schedule/'),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
-          `https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
+          apiUrl +
+            `Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
         ),
-      userctx.role === 'patient' &&
-        fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/hospital/patient/me/'
-        ),
-      fetch(
-        'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/'
-      ),
+      userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
+      fetch(apiUrl + 'Appointments/Booked-Appointments/'),
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
@@ -84,7 +80,7 @@ function Appointment() {
     setDoctorsList(
       doctors.results.map(info => {
         return {
-          id: info.user.id,
+          id: info.id,
           body: info.user.first_name + ' ' + info.user.last_name,
         };
       })
@@ -359,42 +355,32 @@ function Appointment() {
   //Todo: Dummy
   const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
     {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
+      specialist: <span>sepaka</span>,
+      doctor: <span>spak</span>,
+      price: <span>200</span>,
+      date: <span>10/12/2023</span>,
+      time: <span>10:00</span>,
     },
     {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
     },
     {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
     },
     {
-      id: 1,
-      specialist: 'specialist',
-      doctor: 'doctor',
-      price: '200',
-      date: 'date',
-      time: 'time',
-      idas: 1,
-      spasdecialist: 'specialist',
-      docasdtor: 'doctor',
-      prisadce: '200',
-      datasde: 'date',
-      timasde: 'time',
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
     },
   ]);
   //Doctor Schedule Selection body
@@ -495,68 +481,85 @@ function Appointment() {
       }
     }
   };
+  const patientSideNav = [
+    {
+      id: 1,
+      icon: (
+        <FontAwesomeIcon
+          icon={faFileCirclePlus}
+          size='xl'
+          style={{ color: openWindow === 1 && '#49A96E' }}
+        />
+      ),
+    },
+    {
+      id: 3,
+      icon: (
+        <FontAwesomeIcon
+          icon={faFile}
+          size='xl'
+          style={{ color: openWindow === 3 && '#49A96E' }}
+        />
+      ),
+    },
+  ];
+  const doctorSideNav = [
+    {
+      id: 1,
+      icon: (
+        <FontAwesomeIcon
+          icon={faFile}
+          size='xl'
+          style={{ color: openWindow === 3 && '#49A96E' }}
+        />
+      ),
+    },
+  ];
+  const receptionistSideNav = [
+    {
+      id: 1,
+      icon: (
+        <FontAwesomeIcon
+          icon={faFileCirclePlus}
+          size='xl'
+          style={{ color: openWindow === 1 && '#49A96E' }}
+        />
+      ),
+    },
+    {
+      id: 2,
+      icon: (
+        <FontAwesomeIcon
+          icon={faUserDoctor}
+          size='xl'
+          style={{ color: openWindow === 2 && '#49A96E' }}
+        />
+      ),
+    },
+    {
+      id: 3,
+      icon: (
+        <FontAwesomeIcon
+          icon={faFile}
+          size='xl'
+          style={{ color: openWindow === 3 && '#49A96E' }}
+        />
+      ),
+    },
+  ];
   return (
-    <div className={classes.container}>
+    <div className={classesBody.container}>
       {/* appointment NavBar */}
-      <div className={classes.appointmentNav}>
-        {/* booking new appointment button */}
-        <div
-          className={classes.appointmentNavButton}
-          onClick={() => {
-            setOpenWindow(1);
-          }}
-          style={{
-            display:
-              userctx.role === 'receptionist' || userctx.role === 'patient'
-                ? 'flex'
-                : 'none',
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faFileCirclePlus}
-            size='xl'
-            style={{ color: openWindow === 1 && '#49A96E' }}
-          />
-        </div>
-        <hr
-          style={{ display: userctx.role === 'receptionist' ? 'flex' : 'none' }}
-        ></hr>
-        {/* doctor schedule button (only shows for receptionist) */}
-        <div
-          className={classes.appointmentNavButton}
-          onClick={() => {
-            setOpenWindow(2);
-          }}
-          style={{ display: userctx.role === 'receptionist' ? 'flex' : 'none' }}
-        >
-          <FontAwesomeIcon
-            icon={faUserDoctor}
-            size='xl'
-            style={{ color: openWindow === 2 && '#49A96E' }}
-          />
-        </div>
-        <hr
-          style={{
-            display:
-              userctx.role === 'receptionist' || userctx.role === 'patient'
-                ? 'flex'
-                : 'none',
-          }}
-        ></hr>
-        {/* all appointment button */}
-        <div
-          className={classes.appointmentNavButton}
-          onClick={() => {
-            setOpenWindow(3);
-          }}
-        >
-          <FontAwesomeIcon
-            icon={faFile}
-            size='xl'
-            style={{ color: openWindow === 3 && '#49A96E' }}
-          />
-        </div>
-      </div>
+      <SideNavBar
+        sideNav={
+          userctx.role === 'patient'
+            ? patientSideNav
+            : userctx.role === 'receptionist'
+            ? receptionistSideNav
+            : doctorSideNav
+        }
+        setOpenWindow={setOpenWindow}
+      />
       {/* Book New Appointment */}
       {(userctx.role === 'receptionist' || userctx.role === 'patient') && (
         <div
@@ -566,49 +569,10 @@ function Appointment() {
           <h2 className={classes.title}>Book New Appointment</h2>
 
           <div className={classes.body}>
-            {/* steps count */}
-            <div className={classes.steps}>
-              <h2 className={classes.selected}>1</h2>
-              <span></span>
-              <h2
-                className={
-                  PatientAppointmentSelectedStep >= 2 && classes.selected
-                }
-              >
-                2
-              </h2>
-              <span></span>
-              <h2
-                className={
-                  PatientAppointmentSelectedStep >= 3 && classes.selected
-                }
-              >
-                3
-              </h2>
-              <span></span>
-              <h2
-                className={
-                  PatientAppointmentSelectedStep >= 4 && classes.selected
-                }
-              >
-                4
-              </h2>
-              <span
-                style={{
-                  display: userctx.role === 'receptionist' ? 'flex' : 'none',
-                }}
-              ></span>
-              <h2
-                style={{
-                  display: userctx.role === 'receptionist' ? 'flex' : 'none',
-                }}
-                className={
-                  PatientAppointmentSelectedStep >= 5 && classes.selected
-                }
-              >
-                5
-              </h2>
-            </div>
+            <StepsCircle
+              stepsCount={userctx.role === 'receptionist' ? 5 : 4}
+              selectedStep={PatientAppointmentSelectedStep}
+            />
             <div className={classes.stepContent}>
               {/* Each Step Selection */}
               {selection.map((select, index) => {
@@ -693,13 +657,10 @@ function Appointment() {
       >
         <h2 className={classes.title}>Add Doctor Schedule</h2>
         <div className={classes.body}>
-          <div className={classes.steps}>
-            <h2 className={classes.selected}>1</h2>
-            <span></span>
-            <h2 className={doctorScheduleSelectedStep >= 2 && classes.selected}>
-              2
-            </h2>
-          </div>
+          <StepsCircle
+            stepsCount={2}
+            selectedStep={PatientAppointmentSelectedStep}
+          />
           <div className={classes.stepContent}>
             {doctorSelection.map((select, index) => {
               return select.type === 'dropDown' ? (
@@ -717,47 +678,13 @@ function Appointment() {
         </div>
       </div>
       {/* All Appointments */}
-      <div
-        className={classes.allAppointment}
+      <DetailsBody
+        toggleFilter={toggleFilter}
+        setToggleFilter={setToggleFilter}
+        details={AllAppointmentDetails}
+        title={'All Appointments'}
         style={{ display: openWindow === 3 ? 'flex' : 'none' }}
-      >
-        <h2 className={classes.title}>All Appointments</h2>
-        <div className={classes.allAppointmentContainer}>
-          <div className={classes.allAppointmentHeader}>
-            <input type='text' id='search' placeholder='search' />
-            <span></span>
-            <div
-              className={toggleFilter && classes.toggleFilter}
-              onClick={() => {
-                setToggleFilter(!toggleFilter);
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faFilter}
-                style={{ color: toggleFilter ? '#49a96e' : '#979797' }}
-              />
-              <h2>filter</h2>
-            </div>
-          </div>
-          <div className={classes.allAppointmentBody}>
-            {AllAppointmentDetails.map(appointmentDetails => {
-              return (
-                <div className={classes.allAppointmentBodyContent}>
-                  {Object.keys(appointmentDetails).map(
-                    a =>
-                      a !== 'id' &&
-                      a !== 'patient' && (
-                        <h4>
-                          {a} : {appointmentDetails[a]}
-                        </h4>
-                      )
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      />
     </div>
   );
 }

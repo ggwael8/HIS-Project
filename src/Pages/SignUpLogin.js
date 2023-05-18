@@ -1,4 +1,3 @@
-
 import React from 'react';
 import classes from './ٍSign.module.css';
 import Logo from '../component/SignUp/Logo';
@@ -6,13 +5,9 @@ import SignUpHeadline from '../component/SignUp/SignUpHeadline';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
-
-export default function SignUpLogin()
+export default function SignUpLogin({ setNow, handleUserData })
 {
     const navigate = useNavigate();
-    const navigateNext = () => {
-        navigate('/signup/personal/');
-    };
     const navigateSignIn = () => {
         navigate('/signin/');
     };
@@ -50,8 +45,9 @@ export default function SignUpLogin()
     };
     const handleSubmit = (values, { setSubmitting }) => {
         if (Object.keys(validate(values)).length === 0) {
-            navigateNext();
-        }
+            setNow(2);
+            handleUserData(values);
+        };
         setSubmitting(false);
     };
     return (
@@ -118,7 +114,6 @@ export default function SignUpLogin()
                                         Already Have An Account?
                                         <span className={classes.sign} onClick={navigateSignIn}>Sign In</span>
                                     </p>
-                                    
                                 </div>
                                 <div className={classes.sml_lines}>
                                     <div className={classes.big_sml_line}></div>
@@ -133,9 +128,3 @@ export default function SignUpLogin()
         </div>
     );
 };
-
-
-// Green #49A96E
-// blue #40B8F3
-// grey #979797
-// black #474747
