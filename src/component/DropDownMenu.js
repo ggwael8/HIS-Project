@@ -26,7 +26,9 @@ function DropDownMenu(props) {
             <NavLink
               to={p.path}
               className={({ isActive }) =>
-                isActive && p.activeEffect ? classes.active : undefined
+                `${classes.link} ${
+                  isActive && p.activeEffect ? classes.active : ''
+                }`
               }
             >
               <h2>{p.icon}</h2>
@@ -35,17 +37,19 @@ function DropDownMenu(props) {
           ) : (
             props.type === 'text' && (
               <>
-                <hr className={classes.whiteSpace}></hr>
-                <card
+                <hr
+                  className={`${classes.horizontalLine} ${classes.whiteSpace}`}
+                ></hr>
+                <div
                   onClick={() => {
                     props.selectstate(p.id);
                     props.setSelectedStep(props.currentStep + 1);
                   }}
-                  className={classes.hoverEffect}
+                  className={`${classes.card} ${classes.hoverEffect}`}
                 >
                   {p.body}
-                </card>
-                {<hr></hr>}
+                </div>
+                {/* {<hr></hr>} */}
               </>
             )
           )}
