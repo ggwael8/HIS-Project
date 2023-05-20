@@ -64,8 +64,7 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <Dashboard /> },
-        { path: '/appointment', element: <Appointment /> },
+        { path: '/', element: <Appointment /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
@@ -75,8 +74,7 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <Dashboard /> },
-        { path: '/appointment', element: <Appointment /> },
+        { path: '/', element: <Appointment /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
