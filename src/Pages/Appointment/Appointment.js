@@ -349,7 +349,7 @@ function Appointment() {
 
     type: userctx.role === 'patient' ? 'new' : appointmentType,
     //todo: dummy
-    status: 'pend',
+    status: 'pending',
   };
 
   //Todo: Dummy
@@ -427,7 +427,7 @@ function Appointment() {
             : AppointmentDetailsPendingConfirmation.type === 2
             ? 'followup'
             : AppointmentDetailsPendingConfirmation.type,
-        status: 'pend',
+        status: 'pending',
       }),
       headers: {
         'Content-Type': 'application/json',
