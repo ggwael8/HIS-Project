@@ -26,30 +26,32 @@ function DetailsBody(props) {
           {props.details.map(details => {
             return (
               <div className={classes.detailsBodyContent}>
-                {Object.keys(details).map(
-                  a =>
-                    a === 'button' ? (
-                      details[a].map((info, index) => {
-                        return (
-                          <button
-                            className={classes.Button}
-                            onClick={info.setStates}
-                          >
-                            {info.title}
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <div>
+                <div className={classes.detailsBodyContentData}>
+                  {Object.keys(details).map(
+                    a =>
+                      a !== 'button' && (
                         <h4>
                           {a} : {details[a]}
                         </h4>
-                      </div>
-                    )
-                  // <h4>
-                  //   {a} : {details[a]}
-                  // </h4>
+                      )
+                  )}
+                </div>
+                <div className={classes.buttons}>
+                {Object.keys(details).map(
+                  info =>
+                    info === 'button' &&
+                    details[info].map(info => {
+                      return (
+                        <button
+                          className={classes.Button}
+                          onClick={info.setStates}
+                        >
+                          {info.title}
+                        </button>
+                      );
+                    })
                 )}
+                </div>
               </div>
             );
           })}
