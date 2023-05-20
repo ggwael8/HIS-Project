@@ -1,6 +1,7 @@
 import classes from './Labs.module.css';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
+import PopUp from '../../component/PopUp/PopUp';
 import { useState, useContext, useEffect, useRef } from 'react';
 import UserContext from '../../context/user-context';
 import { apiUrl } from '../../utils/api';
@@ -17,72 +18,213 @@ function Labs() {
 
   const [openWindow, setOpenWindow] = useState(1);
   const [toggleFilter, setToggleFilter] = useState(false);
-  const [data, setData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
+  const [allResultData, setAllResultData] = useState([]);
   const [loading, setIsLoading] = useState(false);
 
-  const [examsListId, setExamsListId] = useState(null);
+  /* used for exam list popup */
+  const [selectedExamsListId, setSelectedExamsListId] = useState(null);
   const [examsList, setExamsList] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [defaultExamList, setDefaultExamList] = useState(null);
   const [files, setFiles] = useState(examsList.map(() => null));
   const [comments, setComments] = useState(examsList.map(() => ''));
+  //report file for radiology
+  const [reportFile, setReportFile] = useState(null);
+  //filescount for radiology (multiple images)
+  const [filesCount, setFilesCount] = useState(examsList.map(() => null));
+  /*  */
+
+  const [selectedRequestIdResult, setSelectedRequestIdResult] = useState(null);
+  const [examsListResult, setExamsListResult] = useState([]);
+
   async function fetchDataHandler() {
     setIsLoading(true);
+
     const response = await Promise.all([
-      fetch(
-        apiUrl +
-          `lab-radiology/exam-request/?status=&patient=&doctor=&exams__type=${
-            userctx.role === 'lab' ? 'Laboratory' : 'Radiology'
-          }`
-      ),
+      openWindow === 1 &&
+        fetch(
+          apiUrl +
+            `lab-radiology/exam-request/?status=&patient=&doctor=&type_of_request=${
+              userctx.role === 'lab' ? 'Laboratory' : 'Radiology'
+            }`
+        ),
+      openWindow === 2 &&
+        fetch(
+          apiUrl +
+            `${
+              userctx.role === 'lab'
+                ? 'lab-radiology/view-test-resutls/'
+                : 'lab-radiology/view-radiology-request/'
+            }`
+        ),
     ]);
-    const requestList = await response[0].json();
-    setData(
-      requestList.results.map(info => {
-        return {
-          id: <span>{info.id}</span>,
-          date: <span>{info.appointment.date}</span>,
-          status: <span>{info.status}</span>,
-          patientName: (
-            <span>
-              {info.patient.first_name} {info.patient.last_name}
-            </span>
-          ),
-          doctorName: (
-            <span>
-              {info.doctor.first_name} {info.doctor.last_name}
-            </span>
-          ),
-          button: [
-            {
-              title: 'View Exams',
-              setStates: () => {
-                setExamsListId(info.id);
-                setSelectedStatus(info.status);
-              },
-            },
-          ],
-        };
-      })
-    );
-    if (examsListId !== null) {
-      setExamsList(
+    if (openWindow === 1) {
+      const requestList = await response[0].json();
+      setRequestData(
         requestList.results
-          .filter(info => info.id === examsListId)[0]
-          .exams.map(info => {
-            return { name: info.name, code: info.code };
+          .filter(
+            info => info.status === 'Pending' || info.status === 'Requested'
+          )
+          .map(info => {
+            return {
+              id: <span>{info.id}</span>,
+              date: <span>{info.appointment.date}</span>,
+              status: <span>{info.status}</span>,
+              patientName: (
+                <span>
+                  {info.patient.first_name} {info.patient.last_name}
+                </span>
+              ),
+              doctorName: (
+                <span>
+                  {info.doctor.first_name} {info.doctor.last_name}
+                </span>
+              ),
+              button: [
+                {
+                  title: 'View Exams',
+                  setStates: () => {
+                    setSelectedExamsListId(info.id);
+                    setSelectedStatus(info.status);
+                  },
+                },
+              ],
+            };
           })
       );
-      setDefaultExamList(
-        requestList.results.filter(info => info.id === examsListId)[0]
+      if (selectedExamsListId !== null) {
+        setExamsList(
+          requestList.results
+            .filter(info => info.id === selectedExamsListId)[0]
+            .exams.map(info => {
+              return { id: info.id, name: info.name, code: info.code };
+            })
+        );
+        setDefaultExamList(
+          requestList.results.filter(info => info.id === selectedExamsListId)[0]
+        );
+      }
+    } else {
+      const resultList = await response[1].json();
+      setAllResultData(
+        resultList.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            patientName: (
+              <span>
+                {info.patient.first_name} {info.patient.last_name}
+              </span>
+            ),
+            doctorName: (
+              <span>
+                {info.doctor.first_name} {info.doctor.last_name}
+              </span>
+            ),
+            button: [
+              {
+                title: 'View Request Details',
+                setStates: () => {
+                  setSelectedRequestIdResult(info.id);
+                },
+              },
+            ],
+          };
+        })
       );
+      if (selectedRequestIdResult !== null) {
+        if (userctx.role === 'lab') {
+          setExamsListResult(
+            resultList.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .Lab_request.map(info => {
+                return {
+                  id: <span>{info.exam.id}</span>,
+                  name: <span>{info.exam.name}</span>,
+                  code: <span>{info.exam.code}</span>,
+                  price: <span>{info.exam.price}</span>,
+                  date: (
+                    <span>{info.dateTime.toString().substring(0, 10)}</span>
+                  ),
+                  time: (
+                    <span>{info.dateTime.toString().substring(11, 16)}</span>
+                  ),
+                  comment: <span>{info.comment}</span>,
+                  button: {
+                    title: 'Download Result',
+                    setStates: () => {
+                      /* //todo: add download function */
+                      console.log('download ' + info.pdf_result);
+                    },
+                  },
+                };
+              })
+          );
+        } else {
+          setExamsListResult(
+            resultList.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .radiolgy_request.map(info => {
+                return {
+                  id: <span>{info.exam.id}</span>,
+                  name: <span>{info.exam.name}</span>,
+                  code: <span>{info.exam.code}</span>,
+                  price: <span>{info.exam.price}</span>,
+                  image: info.radiology_result.map(info => {
+                    return {
+                      comment: <span>{info.comment}</span>,
+                      button: {
+                        title: 'View Image',
+                        setStates: () => {
+                          console.log(info.image);
+                        },
+                      },
+                    };
+                  }),
+                  button: {
+                    title: 'View Report',
+                    setStates: () => {
+                      console.log(info.report_file);
+                    },
+                  },
+                };
+              })
+          );
+          // console.log(
+          //   resultList.results
+          //     .filter(info => info.id === selectedRequestIdResult)[0]
+          //     .Lab_request.map(info => {
+          //       return {
+          //         id: <span>{info.exam.id}</span>,
+          //         name: <span>{info.exam.name}</span>,
+          //         code: <span>{info.exam.code}</span>,
+          //         price: <span>{info.exam.price}</span>,
+          //         date: (
+          //           <span>{info.dateTime.toString().substring(0, 10)}</span>
+          //         ),
+          //         time: (
+          //           <span>{info.dateTime.toString().substring(11, 16)}</span>
+          //         ),
+          //         comment: <span>{info.comment}</span>,
+          //         button: {
+          //           title: 'Download Result',
+          //           setStates: () => {
+          //             /* //todo: add download function */
+          //             console.log('download ' + info.pdf_result);
+          //           },
+          //         },
+          //       };
+          //     })
+          // );
+        }
+      }
     }
     setIsLoading(false);
   }
 
   useEffect(() => {
     fetchDataHandler();
-  }, [examsListId]);
+  }, [selectedExamsListId, selectedRequestIdResult, openWindow]);
 
   const sideNav = [
     {
@@ -96,7 +238,7 @@ function Labs() {
       ),
     },
     {
-      id: 3,
+      id: 2,
       icon: (
         <FontAwesomeIcon
           icon={faFileLines}
@@ -106,25 +248,89 @@ function Labs() {
       ),
     },
   ];
+
   useEffect(() => {
-    let SetPopUpFalse = e => {
-      if (
-        examsListId !== null &&
-        containerRef.current.contains(e.target) &&
-        !popUpRef.current.contains(e.target)
-      ) {
-        setExamsListId(null);
-      }
-    };
-    document.addEventListener('click', SetPopUpFalse);
-    return () => {
-      document.removeEventListener('click', SetPopUpFalse);
-    };
-  });
-  useEffect(() => {
-    setFiles(examsList.map(() => null));
-    setComments(examsList.map(() => ''));
+    setFiles(examsList.map(() => []));
+    setComments(examsList.map(() => []));
+    userctx.role !== 'lab' && setReportFile(examsList.map(() => null));
+    userctx.role !== 'lab' && setFilesCount(examsList.map(() => 1));
+    console.log(filesCount);
   }, [examsList]);
+
+  const EditExamStatus = async () => {
+    const response = await fetch(
+      apiUrl + `lab-radiology/exam-request/${selectedExamsListId}/`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          ...defaultExamList,
+          status:
+            selectedStatus === 'Requested'
+              ? 'Pending'
+              : selectedStatus === 'Pending' && 'Completed',
+          appointment: defaultExamList.appointment.id,
+          doctor: defaultExamList.doctor.id,
+          patient: defaultExamList.patient.id,
+          exams: defaultExamList.exams.map(info => {
+            return info.id;
+          }),
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+    setSelectedExamsListId(null);
+  };
+  const AddTestResult = async () => {
+    for (let i = 0; i < examsList.length; i++) {
+      const formData = new FormData();
+      formData.append('DateTime', defaultExamList.appointment);
+      userctx.role === 'lab'
+        ? formData.append('pdf_result', files[i][0])
+        : formData.append('report_file', reportFile[i]);
+      userctx.role === 'lab' && formData.append('comment', comments[i][0]);
+      formData.append('Request', defaultExamList.id);
+      formData.append('exam', examsList[i].id);
+      const response = await fetch(
+        apiUrl +
+          `${
+            userctx.role === 'lab'
+              ? 'lab-radiology/test-result/'
+              : 'lab-radiology/radiology-results/'
+          }`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+      if (userctx !== 'lab') {
+        const data = await response.json();
+        for (let j = 0; j < files[i].length; j++) {
+          const formData = new FormData();
+          console.log(data.id);
+          formData.append('result', data.id);
+          formData.append('image', files[i][j]);
+          formData.append('comment', comments[i][j]);
+          const response = await fetch(
+            apiUrl + 'lab-radiology/radiology-result-details/',
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
+        }
+      }
+
+      // console.log(files[i]);
+      // const data = await response.json();
+      // console.log(data);
+    }
+    EditExamStatus();
+    setSelectedExamsListId(null);
+  };
 
   return (
     <div className={classes.container}>
@@ -132,155 +338,53 @@ function Labs() {
       <DetailsBody
         toggleFilter={toggleFilter}
         setToggleFilter={setToggleFilter}
-        details={data}
+        details={
+          openWindow === 1 ? requestData : openWindow === 2 && allResultData
+        }
         title={
           openWindow === 1 ? 'Requests' : openWindow === 2 && 'All Results'
         }
       />
-      {examsListId !== null && (
-        <div className={classes.popUp} ref={containerRef}>
-          <div className={classes.popUpGreyBox} ref={popUpRef}>
-            <div className={classes.popUpContent}>
-              {loading ? (
-                <div>loading</div>
-              ) : (
-                <>
-                  {examsList?.map((exam, index) => {
-                    return (
-                      <div className={classes.examCard}>
-                        <h2>exam {index + 1}</h2>
-                        <div className={classes.examCardContent}>
-                          <h3>
-                            name : <span>{exam.name}</span>
-                          </h3>
-                          <h3>
-                            code : <span>{exam.code}</span>
-                          </h3>
-                          <h3
-                            style={{
-                              display:
-                                selectedStatus === 'Pending'
-                                  ? 'inlineBlock'
-                                  : 'none',
-                            }}
-                          >
-                            <input
-                              className={classes.Input}
-                              placeholder={'Add Comment'}
-                              onChange={e => {
-                                const newComments = [...files];
-                                newComments[index] = e.target.value;
-                                setComments(newComments);
-                                console.log(comments);
-                              }}
-                              value={comments[index]}
-                            />
-                          </h3>
-                          <h3
-                            style={{
-                              display:
-                                selectedStatus === 'Pending'
-                                  ? 'inlineBlock'
-                                  : 'none',
-                            }}
-                          >
-                            <Dropzone
-                              onDrop={acceptedFiles => {
-                                const newFiles = [...files];
-                                newFiles[index] = acceptedFiles[0];
-                                setFiles(newFiles);
-                              }}
-                            >
-                              {({
-                                getRootProps,
-                                getInputProps,
-                                isDragActive,
-                              }) => (
-                                <div
-                                  {...getRootProps()}
-                                  className={`dropzone ${
-                                    isDragActive ? 'active' : ''
-                                  }`}
-                                >
-                                  <input {...getInputProps()} />
-                                  {files[index] ? (
-                                    <p>{files[index].name}</p>
-                                  ) : (
-                                    <p>Upload Image</p>
-                                  )}
-                                </div>
-                              )}
-                            </Dropzone>
-                          </h3>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <h3>
-                    <button
-                      className={`${classes.Button} ${classes.ButtonYellow}`}
-                      onClick={async () => {
-                        const response = await fetch(
-                          apiUrl + `lab-radiology/exam-request/${examsListId}/`,
-                          {
-                            method: 'PUT',
-                            body: JSON.stringify({
-                              ...defaultExamList,
-                              status: 'Pending',
-                              appointment: defaultExamList.appointment.id,
-                              doctor: defaultExamList.doctor.id,
-                              patient: defaultExamList.patient.id,
-                              exams: defaultExamList.exams.map(info => {
-                                return info.id;
-                              }),
-                            }),
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                          }
-                        );
-                        const data = await response.json();
-                        console.log(data);
-                      }}
-                      style={{
-                        display:
-                          selectedStatus === 'Requested'
-                            ? 'inlineBlock'
-                            : 'none',
-                      }}
-                    >
-                      Send To Waiting List
-                    </button>
-                    //todo: i'm here
-                    <button
-                      className={`${classes.Button} ${classes.ButtonYellow}`}
-                      onClick={async () => {
-                        const response = await fetch(
-                          apiUrl + `lab-radiology/test-result/${examsListId}/`,
-                          {
-                            method: 'PUT',
-                            body: JSON.stringify({}),
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                          }
-                        );
-                        const data = await response.json();
-                        console.log(data);
-                      }}
-                      style={{
-                        display:
-                          selectedStatus === 'Pending' ? 'inlineBlock' : 'none',
-                      }}
-                    >
-                      Confirm
-                    </button>
-                  </h3>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+      {selectedExamsListId !== null &&
+        (selectedStatus === 'Requested' ? (
+          <PopUp
+            popUp={selectedExamsListId}
+            setPopUp={setSelectedExamsListId}
+            Cards={examsList}
+            title={'Exam'}
+            buttonFunction={EditExamStatus}
+            buttonText={'Send To Waiting List'}
+          />
+        ) : (
+          selectedStatus === 'Pending' && (
+            <PopUp
+              popUp={selectedExamsListId}
+              setPopUp={setSelectedExamsListId}
+              Cards={examsList}
+              title={'Exam'}
+              commentvalue={comments}
+              commentset={setComments}
+              files={files}
+              setFiles={setFiles}
+              buttonFunction={AddTestResult}
+              buttonText={'Confirm'}
+              multiple={userctx.role === 'lab' ? false : true}
+              reportFileBool={userctx.role !== 'lab' && true}
+              reportFile={userctx.role !== 'lab' && reportFile}
+              setReportFile={userctx.role !== 'lab' && setReportFile}
+              fileTitle={userctx.role === 'lab' ? 'Result File' : 'Image'}
+              filesCount={userctx.role !== 'lab' && filesCount}
+              setFilesCount={userctx.role !== 'lab' && setFilesCount}
+            />
+          )
+        ))}
+      {selectedRequestIdResult !== null && (
+        <PopUp
+          popUp={selectedRequestIdResult}
+          setPopUp={setSelectedRequestIdResult}
+          Cards={examsListResult}
+          title={'Exam'}
+        />
       )}
     </div>
   );
