@@ -36,7 +36,7 @@ function RootLayout() {
     ],
     doctor: [
       {
-        to: '/appointment',
+        to: '/',
         title: (
           <h1>
             <span>appointment</span>
@@ -66,7 +66,7 @@ function RootLayout() {
     ],
     receptionist: [
       {
-        to: '/appointment',
+        to: '/',
         title: (
           <h1>
             <span>appointment</span>
