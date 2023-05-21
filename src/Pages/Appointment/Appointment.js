@@ -1,22 +1,19 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import classes from './Appointment.module.css';
 import classesBody from '../Body.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileCirclePlus,
   faFile,
-  faFilter,
+  faPhoneSlash,
   faUserDoctor,
 } from '@fortawesome/free-solid-svg-icons';
-import Selection from '../../component/Appointment/Selection';
-import UserContext from '../../context/user-context';
-import SideNavBar from '../../component/SideNavBar/SideNavBar';
-import StepsCircle from '../../component/StepsCircle/StepsCircle';
-import DetailsBody from '../../component/DetailsBody/DetailsBody';
-import { apiUrl } from '../../utils/api';
-
+import Selection from '../component/Appointment/Selection';
+import UserContext from '../context/user-context';
 function Appointment() {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   //context api to get user role
@@ -29,13 +26,14 @@ function Appointment() {
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
   const [patient, setPatient] = useState();
-  const [appointmentType, setAppointmentType] = useState(0);
+  const [appointmentType, setAppointmentType] = useState(1);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
     useState(null);
   const [PatientAppointmentDoctor, setPatientAppointmentDoctor] =
     useState(null);
   const [PatientAppointmentDayOfWeek, setPatientAppointmentDayOfWeek] =
     useState(null);
+  const [dayOfWeekName, setDayOfWeekName] = useState(null);
   const [PatientAppointmentDate, setPatientAppointmentDate] = useState(null);
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -49,6 +47,9 @@ function Appointment() {
     doctor: doctorsList,
     days: daysList,
   });
+  //medical record states
+  const [popUp, setPopUp] = useState(false);
+  const [medicalRecord, setMedicalRecord] = useState(null);
   //todo: error handling & optimization
   //fetching data from api
   async function fetchDataHandler() {
@@ -57,15 +58,21 @@ function Appointment() {
       fetch(apiUrl + 'hospital/specialty/'),
       fetch(apiUrl + 'hospital/doctor/'),
       PatientAppointmentDoctor !== null &&
-        fetch(apiUrl + 'Appointments/doctor-schedule/'),
+        fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/'
+        ),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
-          apiUrl +
-            `Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
+          `https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
         ),
-      userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
-      fetch(apiUrl + 'Appointments/Booked-Appointments/'),
+      userctx.role === 'patient' &&
+        fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/hospital/patient/me/'
+        ),
+      fetch(
+        'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/'
+      ),
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
@@ -73,6 +80,13 @@ function Appointment() {
         return {
           id: info.id,
           body: info.specialty,
+          card: {
+            specialty: (
+              <h4>
+                <span>{info.specialty}</span>
+              </h4>
+            ),
+          },
         };
       })
     );
@@ -80,7 +94,7 @@ function Appointment() {
     setDoctorsList(
       doctors.results.map(info => {
         return {
-          id: info.id,
+          id: info.user.id,
           body: info.user.first_name + ' ' + info.user.last_name,
         };
       })
@@ -97,7 +111,35 @@ function Appointment() {
           .map(info => {
             return {
               id: info.id,
+              day: true,
               body: info.day_of_week,
+              card: {
+                doctor: (
+                  <h4>
+                    Doctor : <span>{info.doctor}</span>
+                  </h4>
+                ),
+                day: (
+                  <h4>
+                    Day : <span>{info.day_of_week}</span>
+                  </h4>
+                ),
+                start_time: (
+                  <h4>
+                    Start Time: <span>{info.start_time}</span>
+                  </h4>
+                ),
+                end_time: (
+                  <h4>
+                    End Time: <span>{info.end_time}</span>
+                  </h4>
+                ),
+                price: (
+                  <h4>
+                    Price: <span>{info.price} LE</span>
+                  </h4>
+                ),
+              },
             };
           })
       );
@@ -125,8 +167,48 @@ function Appointment() {
           Name: patient.user.first_name + ' ' + patient.user.last_name,
         });
       }
+    }
+    console.log(openWindow);
+    if (openWindow === 3) {
       const allAppointments = await response[5].json();
-      setAllAppointmentList(allAppointments.results);
+      setAllAppointmentList(
+        allAppointments.results.map(info => {
+          return {
+            ...(userctx.role !== 'doctor' && {
+              doctor: (
+                <span>
+                  {info.doctor.first_name + ' ' + info.doctor.last_name}
+                </span>
+              ),
+            }),
+            ...(userctx.role !== 'patient' && {
+              patient: (
+                <span>
+                  {info.patient.first_name + ' ' + info.patient.last_name}
+                </span>
+              ),
+            }),
+            date: <span>{info.date}</span>,
+            StartTime: (
+              <span>{info.slot.start_time.toString().slice(0, 5)}</span>
+            ),
+            EndTime: <span>{info.slot.end_time}</span>,
+            ...((userctx.role === 'receptionist' ||
+              userctx.role === 'doctor') && {
+              button: [
+                {
+                  title: 'View Medical Record',
+                  setStates: () => {
+                    console.log('view medical record');
+                    navigate('/medicalrecord', { state: info.patient.id });
+                  },
+                },
+              ],
+            }),
+          };
+        })
+      );
+      console.log(allAppointmentList);
     }
     setIsLoading(false);
   }
@@ -137,6 +219,7 @@ function Appointment() {
     PatientAppointmentDoctor,
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
+    openWindow,
   ]);
   //update state that connected to api data
   useEffect(() => {
@@ -156,7 +239,7 @@ function Appointment() {
   const resetBookNewAppointment = () => {
     setPatientAppointmentSelectedStep(1);
     setPatient(0);
-    setAppointmentType(0);
+    setAppointmentType(1);
     setPatientAppointmentDoctor(null);
     setPatientAppointmentDate(null);
     setPatientAppointmentTime(null);
@@ -207,12 +290,14 @@ function Appointment() {
       title: 'Pick Day',
       dropDownContent: dropDownContent.days,
       selectstate: setPatientAppointmentDayOfWeek,
+      selectedDay: setDayOfWeekName,
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
     },
     {
       type: 'selection',
       id: userctx.role === 'receptionist' ? 5 : 4,
+      selectedDay: dayOfWeekName,
       DateAndTime: true,
       DateSetState: setPatientAppointmentDate,
       TimeSetState: setPatientAppointmentTime,
@@ -349,38 +434,48 @@ function Appointment() {
 
     type: userctx.role === 'patient' ? 'new' : appointmentType,
     //todo: dummy
-    status: 'pend',
+    status: 'pending',
   };
 
   //Todo: Dummy
   const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
     {
-      specialist: <span>sepaka</span>,
-      doctor: <span>spak</span>,
-      price: <span>200</span>,
-      date: <span>10/12/2023</span>,
-      time: <span>10:00</span>,
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
     },
     {
-      specialist: <h4>specialist</h4>,
-      doctor: <h4>doctor</h4>,
-      price: <h4>price</h4>,
-      date: <h4>date</h4>,
-      time: <h4>time</h4>,
+      id: 1,
+      specialist: 'specialist',
+      doctor: 'doctor',
+      price: '200',
+      date: 'date',
+      time: 'time',
+      idas: 1,
+      spasdecialist: 'specialist',
+      docasdtor: 'doctor',
+      prisadce: '200',
+      datasde: 'date',
+      timasde: 'time',
     },
   ]);
   //Doctor Schedule Selection body
@@ -411,155 +506,132 @@ function Appointment() {
   ];
   //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
-    const response = await fetch(
-      'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          patient:
-            userctx.role === 'receptionist'
-              ? AppointmentDetailsPendingConfirmation.patient
-              : AppointmentDetailsPendingConfirmation.patient.id,
-          doctor: AppointmentDetailsPendingConfirmation.doctorId,
-          date: AppointmentDetailsPendingConfirmation.date,
-          slot: AppointmentDetailsPendingConfirmation.slot,
-          type:
-            AppointmentDetailsPendingConfirmation.type === 1
-              ? 'new'
-              : AppointmentDetailsPendingConfirmation.type === 2
-              ? 'followup'
-              : AppointmentDetailsPendingConfirmation.type,
-          status: 'pend',
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(
-      'response : ',
-      data,
-      'type : ',
-      AppointmentDetailsPendingConfirmation.type,
-      'patient : ' + AppointmentDetailsPendingConfirmation.patient
-    );
+    await fetch(apiUrl + 'appointments/Booked-Appointments/', {
+      method: 'POST',
+      body: JSON.stringify({
+        patient:
+          userctx.role === 'receptionist'
+            ? AppointmentDetailsPendingConfirmation.patient
+            : AppointmentDetailsPendingConfirmation.patient.id,
+        doctor: AppointmentDetailsPendingConfirmation.doctorId,
+        date: AppointmentDetailsPendingConfirmation.date,
+        slot: AppointmentDetailsPendingConfirmation.slot,
+        type:
+          AppointmentDetailsPendingConfirmation.type === 1
+            ? 'new'
+            : AppointmentDetailsPendingConfirmation.type === 2
+            ? 'followup'
+            : AppointmentDetailsPendingConfirmation.type,
+        status: 'pending',
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    // const data = await response.json();
+    // console.log(
+    //   'response : ',
+    //   data,
+    //   'type : ',
+    //   AppointmentDetailsPendingConfirmation.type,
+    //   'patient : ' + AppointmentDetailsPendingConfirmation.patient
+    // );
   };
   const AddDoctorSchedule = async () => {
     for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
-      if (doctorScheduleDayAndDuration[i].Work === 1) {
-        const response = await fetch(
-          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/',
-          {
-            method: 'POST',
-            body: JSON.stringify({
-              day_of_week: doctorScheduleDayAndDuration[i].Day,
-              start_time: doctorScheduleDayAndDuration[i].start_time,
-              end_time: doctorScheduleDayAndDuration[i].end_time,
-              slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
-              doctor: doctorScheduleDoctor,
-              //todo: dummy
-              schedule_status: 'active',
-              price: '250',
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+      if (doctorScheduleDayAndDuration[i].Work === true) {
+        await fetch(apiUrl + 'appointments/doctor-schedule/', {
+          method: 'POST',
+          body: JSON.stringify({
+            day_of_week: doctorScheduleDayAndDuration[i].Day,
+            start_time: doctorScheduleDayAndDuration[i].start_time,
+            end_time: doctorScheduleDayAndDuration[i].end_time,
+            slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+            doctor: doctorScheduleDoctor,
+            //todo: dummy
+            schedule_status: 'active',
+            price: '250',
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-        const data = await response.json();
-        console.log(
-          'response : ' + data,
-          'day : ' +
-            doctorScheduleDayAndDuration[i].Day +
-            '      end_time : ' +
-            doctorScheduleDayAndDuration[i].end_time +
-            +' slot_duration : ' +
-            doctorScheduleDayAndDuration[i].slot_duration
-        );
+        // const data = await response.json();
+        // console.log(
+        //   'response : ' + data,
+        //   'day : ' +
+        //     doctorScheduleDayAndDuration[i].Day +
+        //     '      end_time : ' +
+        //     doctorScheduleDayAndDuration[i].end_time +
+        //     +' slot_duration : ' +
+        //     doctorScheduleDayAndDuration[i].slot_duration
+        // );
       }
     }
   };
-  const patientSideNav = [
-    {
-      id: 1,
-      icon: (
-        <FontAwesomeIcon
-          icon={faFileCirclePlus}
-          size='xl'
-          style={{ color: openWindow === 1 && '#49A96E' }}
-        />
-      ),
-    },
-    {
-      id: 3,
-      icon: (
-        <FontAwesomeIcon
-          icon={faFile}
-          size='xl'
-          style={{ color: openWindow === 3 && '#49A96E' }}
-        />
-      ),
-    },
-  ];
-  const doctorSideNav = [
-    {
-      id: 1,
-      icon: (
-        <FontAwesomeIcon
-          icon={faFile}
-          size='xl'
-          style={{ color: openWindow === 3 && '#49A96E' }}
-        />
-      ),
-    },
-  ];
-  const receptionistSideNav = [
-    {
-      id: 1,
-      icon: (
-        <FontAwesomeIcon
-          icon={faFileCirclePlus}
-          size='xl'
-          style={{ color: openWindow === 1 && '#49A96E' }}
-        />
-      ),
-    },
-    {
-      id: 2,
-      icon: (
-        <FontAwesomeIcon
-          icon={faUserDoctor}
-          size='xl'
-          style={{ color: openWindow === 2 && '#49A96E' }}
-        />
-      ),
-    },
-    {
-      id: 3,
-      icon: (
-        <FontAwesomeIcon
-          icon={faFile}
-          size='xl'
-          style={{ color: openWindow === 3 && '#49A96E' }}
-        />
-      ),
-    },
-  ];
   return (
-    <div className={classesBody.container}>
+    <div className={classes.container}>
       {/* appointment NavBar */}
-      <SideNavBar
-        sideNav={
-          userctx.role === 'patient'
-            ? patientSideNav
-            : userctx.role === 'receptionist'
-            ? receptionistSideNav
-            : doctorSideNav
-        }
-        setOpenWindow={setOpenWindow}
-      />
+      <div className={classes.appointmentNav}>
+        {/* booking new appointment button */}
+        <div
+          className={classes.appointmentNavButton}
+          onClick={() => {
+            setOpenWindow(1);
+          }}
+          style={{
+            display:
+              userctx.role === 'receptionist' || userctx.role === 'patient'
+                ? 'flex'
+                : 'none',
+          }}
+        >
+          <FontAwesomeIcon
+            icon={faFileCirclePlus}
+            size='xl'
+            style={{ color: openWindow === 1 && '#49A96E' }}
+          />
+        </div>
+        <hr
+          style={{ display: userctx.role === 'receptionist' ? 'flex' : 'none' }}
+        ></hr>
+        {/* doctor schedule button (only shows for receptionist) */}
+        <div
+          className={classes.appointmentNavButton}
+          onClick={() => {
+            setOpenWindow(2);
+          }}
+          style={{ display: userctx.role === 'receptionist' ? 'flex' : 'none' }}
+        >
+          <FontAwesomeIcon
+            icon={faUserDoctor}
+            size='xl'
+            style={{ color: openWindow === 2 && '#49A96E' }}
+          />
+        </div>
+        <hr
+          style={{
+            display:
+              userctx.role === 'receptionist' || userctx.role === 'patient'
+                ? 'flex'
+                : 'none',
+          }}
+        ></hr>
+        {/* all appointment button */}
+        <div
+          className={classes.appointmentNavButton}
+          onClick={() => {
+            setOpenWindow(3);
+          }}
+        >
+          <FontAwesomeIcon
+            icon={faFile}
+            size='xl'
+            style={{ color: openWindow === 3 && '#49A96E' }}
+          />
+        </div>
+      </div>
       {/* Book New Appointment */}
       {(userctx.role === 'receptionist' || userctx.role === 'patient') && (
         <div
@@ -625,10 +697,6 @@ function Appointment() {
                         className={classes.confirm}
                         onClick={() => {
                           AddAppointmentList();
-                          setAllAppointmentDetails([
-                            ...AllAppointmentDetails,
-                            AppointmentDetailsPendingConfirmation,
-                          ]);
                           resetBookNewAppointment();
                         }}
                       >
@@ -657,10 +725,13 @@ function Appointment() {
       >
         <h2 className={classes.title}>Add Doctor Schedule</h2>
         <div className={classes.body}>
-          <StepsCircle
-            stepsCount={2}
-            selectedStep={PatientAppointmentSelectedStep}
-          />
+          <div className={classes.steps}>
+            <h2 className={classes.selected}>1</h2>
+            <span></span>
+            <h2 className={doctorScheduleSelectedStep >= 2 && classes.selected}>
+              2
+            </h2>
+          </div>
           <div className={classes.stepContent}>
             {doctorSelection.map((select, index) => {
               return select.type === 'dropDown' ? (
@@ -678,13 +749,47 @@ function Appointment() {
         </div>
       </div>
       {/* All Appointments */}
-      <DetailsBody
-        toggleFilter={toggleFilter}
-        setToggleFilter={setToggleFilter}
-        details={AllAppointmentDetails}
-        title={'All Appointments'}
+      <div
+        className={classes.allAppointment}
         style={{ display: openWindow === 3 ? 'flex' : 'none' }}
-      />
+      >
+        <h2 className={classes.title}>All Appointments</h2>
+        <div className={classes.allAppointmentContainer}>
+          <div className={classes.allAppointmentHeader}>
+            <input type='text' id='search' placeholder='search' />
+            <span></span>
+            <div
+              className={toggleFilter && classes.toggleFilter}
+              onClick={() => {
+                setToggleFilter(!toggleFilter);
+              }}
+            >
+              <FontAwesomeIcon
+                icon={faFilter}
+                style={{ color: toggleFilter ? '#49a96e' : '#979797' }}
+              />
+              <h2>filter</h2>
+            </div>
+          </div>
+          <div className={classes.allAppointmentBody}>
+            {AllAppointmentDetails.map(appointmentDetails => {
+              return (
+                <div className={classes.allAppointmentBodyContent}>
+                  {Object.keys(appointmentDetails).map(
+                    a =>
+                      a !== 'id' &&
+                      a !== 'patient' && (
+                        <h4>
+                          {a} : {appointmentDetails[a]}
+                        </h4>
+                      )
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

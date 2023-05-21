@@ -22,6 +22,7 @@
 html {
   background-color: #dceedd;
   font-size: 16px;
+  font-family: 'Noto Sans', sans-serif;
 }
 @media (max-width: 1150px) {
   html {
