@@ -44,10 +44,11 @@ function Labs() {
     const response = await Promise.all([
       openWindow === 1 &&
         fetch(
-          apiUrl +
-            `lab-radiology/exam-request/?status=&patient=&doctor=&type_of_request=${
-              userctx.role === 'lab' ? 'Laboratory' : 'Radiology'
-            }`
+          // apiUrl +
+          //   `lab-radiology/exam-request/?status=&patient=&doctor=&type_of_request=${
+          //     userctx.role === 'lab' ? 'Laboratory' : 'Radiology'
+          //   }`
+          apiUrl + `lab-radiology/exam-request/`
         ),
       openWindow === 2 &&
         fetch(
@@ -64,7 +65,8 @@ function Labs() {
       setRequestData(
         requestList.results
           .filter(
-            info => info.status === 'Pending' || info.status === 'Requested'
+            info =>
+              info.status === 'Waiting for result' || info.status === 'Pending'
           )
           .map(info => {
             return {
@@ -253,8 +255,7 @@ function Labs() {
     setFiles(examsList.map(() => []));
     setComments(examsList.map(() => []));
     userctx.role !== 'lab' && setReportFile(examsList.map(() => null));
-    userctx.role !== 'lab' && setFilesCount(examsList.map(() => 1));
-    console.log(filesCount);
+    setFilesCount(examsList.map(() => 1));
   }, [examsList]);
 
   const EditExamStatus = async () => {
@@ -265,9 +266,9 @@ function Labs() {
         body: JSON.stringify({
           ...defaultExamList,
           status:
-            selectedStatus === 'Requested'
-              ? 'Pending'
-              : selectedStatus === 'Pending' && 'Completed',
+            selectedStatus === 'Pending'
+              ? 'Waiting for result'
+              : selectedStatus === 'Waiting for result' && 'Completed',
           appointment: defaultExamList.appointment.id,
           doctor: defaultExamList.doctor.id,
           patient: defaultExamList.patient.id,
@@ -294,6 +295,7 @@ function Labs() {
       userctx.role === 'lab' && formData.append('comment', comments[i][0]);
       formData.append('Request', defaultExamList.id);
       formData.append('exam', examsList[i].id);
+      console.log(formData);
       const response = await fetch(
         apiUrl +
           `${
@@ -306,11 +308,10 @@ function Labs() {
           body: formData,
         }
       );
-      if (userctx !== 'lab') {
+      if (userctx.role !== 'lab') {
         const data = await response.json();
         for (let j = 0; j < files[i].length; j++) {
           const formData = new FormData();
-          console.log(data.id);
           formData.append('result', data.id);
           formData.append('image', files[i][j]);
           formData.append('comment', comments[i][j]);
@@ -346,7 +347,7 @@ function Labs() {
         }
       />
       {selectedExamsListId !== null &&
-        (selectedStatus === 'Requested' ? (
+        (selectedStatus === 'Pending' ? (
           <PopUp
             popUp={selectedExamsListId}
             setPopUp={setSelectedExamsListId}
@@ -356,7 +357,7 @@ function Labs() {
             buttonText={'Send To Waiting List'}
           />
         ) : (
-          selectedStatus === 'Pending' && (
+          selectedStatus === 'Waiting for result' && (
             <PopUp
               popUp={selectedExamsListId}
               setPopUp={setSelectedExamsListId}
@@ -373,7 +374,7 @@ function Labs() {
               reportFile={userctx.role !== 'lab' && reportFile}
               setReportFile={userctx.role !== 'lab' && setReportFile}
               fileTitle={userctx.role === 'lab' ? 'Result File' : 'Image'}
-              filesCount={userctx.role !== 'lab' && filesCount}
+              filesCount={filesCount}
               setFilesCount={userctx.role !== 'lab' && setFilesCount}
             />
           )
