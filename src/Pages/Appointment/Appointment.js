@@ -208,7 +208,12 @@ function Appointment() {
                   title: 'View Medical Record',
                   setStates: () => {
                     console.log('view medical record');
-                    navigate('/medicalrecord', { state: info.patient.id });
+                    navigate('/medicalrecord', {
+                      state: {
+                        patientId: info.patient.id,
+                        appointmentId: info.id,
+                      },
+                    });
                   },
                 },
               ],
