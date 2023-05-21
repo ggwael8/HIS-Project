@@ -156,7 +156,7 @@ function Labs() {
                     title: 'Download Result',
                     setStates: () => {
                       /* //todo: add download function */
-                      console.log('download ' + info.pdf_result);
+                      return info.pdf_result;
                     },
                   },
                 };
@@ -178,7 +178,7 @@ function Labs() {
                       button: {
                         title: 'View Image',
                         setStates: () => {
-                          console.log(info.image);
+                          return info.image;
                         },
                       },
                     };
@@ -186,7 +186,7 @@ function Labs() {
                   button: {
                     title: 'View Report',
                     setStates: () => {
-                      console.log(info.report_file);
+                      return info.report_file;
                     },
                   },
                 };
