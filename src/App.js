@@ -10,6 +10,7 @@ import SignUpPersonal from './Pages/SignUpPersonal';
 import SignIn from './Pages/SignIn';
 import ForgetPassword from './Pages/ForgetPassword';
 import Labs from './Pages/Labs/Labs';
+import MedicalRecord from './Pages/MedicalRecord/MedicalRecord';
 import { checkAuth } from './utils/auth';
 import UserContext from './context/user-context';
 import { apiUrl } from './utils/api';
@@ -65,6 +66,7 @@ function App() {
       element: <RootLayout />,
       children: [
         { path: '/', element: <Appointment /> },
+        { path: '/medicalrecord', element: <MedicalRecord /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
