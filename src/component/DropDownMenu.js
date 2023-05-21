@@ -34,20 +34,35 @@ function DropDownMenu(props) {
               <h2>{p.icon}</h2>
               <h2>{p.body}</h2>
             </NavLink>
+          ) : props.type === 'text' ? (
+            <>
+              <div
+                onClick={() => {
+                  props.selectstate(p.id);
+                  props.setSelectedStep(props.currentStep + 1);
+                }}
+                className={`${classes.card} ${classes.hoverEffect}`}
+              >
+                {p.body}
+              </div>
+              {/* {<hr></hr>} */}
+            </>
           ) : (
-            props.type === 'text' && (
+            props.type === 'card' && (
               <>
-                <hr
-                  className={`${classes.horizontalLine} ${classes.whiteSpace}`}
-                ></hr>
                 <div
                   onClick={() => {
                     props.selectstate(p.id);
+                    p.day && props.selectedDay(p.body);
                     props.setSelectedStep(props.currentStep + 1);
                   }}
-                  className={`${classes.card} ${classes.hoverEffect}`}
+                  className={`${classes.cardContainer} `}
                 >
-                  {p.body}
+                  <div className={`${classes.card} ${classes.hoverEffect}`}>
+                    {Object.keys(p.card).map(key => {
+                      return <>{p.card[key]}</>;
+                    })}
+                  </div>
                 </div>
                 {/* {<hr></hr>} */}
               </>

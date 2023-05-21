@@ -12,10 +12,35 @@ import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TimePicker } from '@mui/x-date-pickers';
+import { TimePicker, DatePicker } from '@mui/x-date-pickers';
 function Selection(props) {
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   const [patient, setPatient] = useState(props.patient);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const handleDateChange = date => {
+    setSelectedDate(date);
+  };
+  const isSelectedDay = date => {
+    console.log(props.selectedDay);
+    const day = date.day();
+    const selectedDay =
+      props.selectedDay === 'Saturday'
+        ? 6
+        : 'Sunday'
+        ? 0
+        : 'Monday'
+        ? 1
+        : 'Tuesday'
+        ? 2
+        : 'Wednesday'
+        ? 3
+        : 'Thursday'
+        ? 4
+        : 'Friday'
+        ? 5
+        : null;
+    return day !== selectedDay;
+  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
@@ -50,8 +75,9 @@ function Selection(props) {
                 selectstate={props.selectstate}
                 searchstate={props.searchstate}
                 setSelectedStep={props.setSelectedStep}
+                selectedDay={props.selectedDay}
                 currentStep={props.currentStep}
-                type={'text'}
+                type={'card'}
                 search={true}
                 scrollable={true}
               />
@@ -266,16 +292,33 @@ function Selection(props) {
             )}
             {props.DateAndTime && (
               <div className={classes.DateAndTime}>
-                <Calendar
+                {/* <Calendar
                   onChange={props.setCurrentDate}
                   value={props.currentDate}
                   onClickDay={value =>
                     props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
                   }
                   // className={classes.react_calendar}
+                /> */}
+                <DatePicker
+                  label='Pick Date'
+                  value={selectedDate}
+                  onChange={value =>
+                    handleDateChange &&
+                    props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
+                  }
+                  disablePast
+                  shouldDisableDate={isSelectedDay}
+                  modifiersStyles={{
+                    selected: {
+                      backgroundColor: 'blue',
+                      color: 'white',
+                    },
+                  }}
                 />
                 {props.TimeSlots.length > 0 && (
-                  <>
+                  <div className={classes.TimeSlotsContainer}>
+                    <h4 className={classes.title}>Pick Time</h4>
                     <div className={classes.TimeSlots}>
                       {props.TimeSlots.map(timeSlot => (
                         <div
@@ -291,7 +334,7 @@ function Selection(props) {
                         </div>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             )}

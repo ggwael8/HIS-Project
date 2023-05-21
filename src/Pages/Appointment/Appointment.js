@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import classes from './Appointment.module.css';
 import classesBody from '../Body.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileCirclePlus,
   faFile,
-  faFilter,
+  faPhoneSlash,
   faUserDoctor,
 } from '@fortawesome/free-solid-svg-icons';
 import Selection from '../../component/Appointment/Selection';
@@ -14,9 +15,11 @@ import UserContext from '../../context/user-context';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import StepsCircle from '../../component/StepsCircle/StepsCircle';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
+import PopUp from '../../component/PopUp/PopUp';
 import { apiUrl } from '../../utils/api';
 
 function Appointment() {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   //context api to get user role
@@ -29,13 +32,14 @@ function Appointment() {
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
   const [patient, setPatient] = useState();
-  const [appointmentType, setAppointmentType] = useState(0);
+  const [appointmentType, setAppointmentType] = useState(1);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
     useState(null);
   const [PatientAppointmentDoctor, setPatientAppointmentDoctor] =
     useState(null);
   const [PatientAppointmentDayOfWeek, setPatientAppointmentDayOfWeek] =
     useState(null);
+  const [dayOfWeekName, setDayOfWeekName] = useState(null);
   const [PatientAppointmentDate, setPatientAppointmentDate] = useState(null);
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -49,6 +53,9 @@ function Appointment() {
     doctor: doctorsList,
     days: daysList,
   });
+  //medical record states
+  const [popUp, setPopUp] = useState(false);
+  const [medicalRecord, setMedicalRecord] = useState(null);
   //todo: error handling & optimization
   //fetching data from api
   async function fetchDataHandler() {
@@ -65,7 +72,7 @@ function Appointment() {
             `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
         ),
       userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
-      fetch(apiUrl + 'appointments/Booked-Appointments/'),
+      openWindow === 3 && fetch(apiUrl + 'appointments/Booked-Appointments/'),
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
@@ -73,6 +80,13 @@ function Appointment() {
         return {
           id: info.id,
           body: info.specialty,
+          card: {
+            specialty: (
+              <h4>
+                <span>{info.specialty}</span>
+              </h4>
+            ),
+          },
         };
       })
     );
@@ -81,7 +95,15 @@ function Appointment() {
       doctors.results.map(info => {
         return {
           id: info.id,
-          body: info.user.first_name + ' ' + info.user.last_name,
+          card: {
+            name: (
+              <h4>
+                {info.image !== null && <img src={info.image} alt='doctor' />}
+                name :
+                <span>{info.user.first_name + ' ' + info.user.last_name}</span>
+              </h4>
+            ),
+          },
         };
       })
     );
@@ -97,7 +119,35 @@ function Appointment() {
           .map(info => {
             return {
               id: info.id,
+              day: true,
               body: info.day_of_week,
+              card: {
+                doctor: (
+                  <h4>
+                    Doctor : <span>{info.doctor}</span>
+                  </h4>
+                ),
+                day: (
+                  <h4>
+                    Day : <span>{info.day_of_week}</span>
+                  </h4>
+                ),
+                start_time: (
+                  <h4>
+                    Start Time: <span>{info.start_time}</span>
+                  </h4>
+                ),
+                end_time: (
+                  <h4>
+                    End Time: <span>{info.end_time}</span>
+                  </h4>
+                ),
+                price: (
+                  <h4>
+                    Price: <span>{info.price} LE</span>
+                  </h4>
+                ),
+              },
             };
           })
       );
@@ -125,8 +175,48 @@ function Appointment() {
           Name: patient.user.first_name + ' ' + patient.user.last_name,
         });
       }
+    }
+    console.log(openWindow);
+    if (openWindow === 3) {
       const allAppointments = await response[5].json();
-      setAllAppointmentList(allAppointments.results);
+      setAllAppointmentList(
+        allAppointments.results.map(info => {
+          return {
+            ...(userctx.role !== 'doctor' && {
+              doctor: (
+                <span>
+                  {info.doctor.first_name + ' ' + info.doctor.last_name}
+                </span>
+              ),
+            }),
+            ...(userctx.role !== 'patient' && {
+              patient: (
+                <span>
+                  {info.patient.first_name + ' ' + info.patient.last_name}
+                </span>
+              ),
+            }),
+            date: <span>{info.date}</span>,
+            StartTime: (
+              <span>{info.slot.start_time.toString().slice(0, 5)}</span>
+            ),
+            EndTime: <span>{info.slot.end_time}</span>,
+            ...((userctx.role === 'receptionist' ||
+              userctx.role === 'doctor') && {
+              button: [
+                {
+                  title: 'View Medical Record',
+                  setStates: () => {
+                    console.log('view medical record');
+                    navigate('/medicalrecord', { state: info.patient.id });
+                  },
+                },
+              ],
+            }),
+          };
+        })
+      );
+      console.log(allAppointmentList);
     }
     setIsLoading(false);
   }
@@ -137,6 +227,7 @@ function Appointment() {
     PatientAppointmentDoctor,
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
+    openWindow,
   ]);
   //update state that connected to api data
   useEffect(() => {
@@ -156,7 +247,7 @@ function Appointment() {
   const resetBookNewAppointment = () => {
     setPatientAppointmentSelectedStep(1);
     setPatient(0);
-    setAppointmentType(0);
+    setAppointmentType(1);
     setPatientAppointmentDoctor(null);
     setPatientAppointmentDate(null);
     setPatientAppointmentTime(null);
@@ -207,12 +298,14 @@ function Appointment() {
       title: 'Pick Day',
       dropDownContent: dropDownContent.days,
       selectstate: setPatientAppointmentDayOfWeek,
+      selectedDay: setDayOfWeekName,
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
     },
     {
       type: 'selection',
       id: userctx.role === 'receptionist' ? 5 : 4,
+      selectedDay: dayOfWeekName,
       DateAndTime: true,
       DateSetState: setPatientAppointmentDate,
       TimeSetState: setPatientAppointmentTime,
@@ -352,37 +445,6 @@ function Appointment() {
     status: 'pending',
   };
 
-  //Todo: Dummy
-  const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
-    {
-      specialist: <span>sepaka</span>,
-      doctor: <span>spak</span>,
-      price: <span>200</span>,
-      date: <span>10/12/2023</span>,
-      time: <span>10:00</span>,
-    },
-    {
-      specialist: <span>sepaka</span>,
-      doctor: <span>spak</span>,
-      price: <span>200</span>,
-      date: <span>10/12/2023</span>,
-      time: <span>10:00</span>,
-    },
-    {
-      specialist: <span>sepaka</span>,
-      doctor: <span>spak</span>,
-      price: <span>200</span>,
-      date: <span>10/12/2023</span>,
-      time: <span>10:00</span>,
-    },
-    {
-      specialist: <span>sepaka</span>,
-      doctor: <span>spak</span>,
-      price: <span>200</span>,
-      date: <span>10/12/2023</span>,
-      time: <span>10:00</span>,
-    },
-  ]);
   //Doctor Schedule Selection body
   const doctorSelection = [
     {
@@ -540,7 +602,18 @@ function Appointment() {
         />
       ),
     },
+    {
+      id: 4,
+      icon: (
+        <FontAwesomeIcon
+          icon={faPhoneSlash}
+          size='xl'
+          style={{ color: openWindow === 4 && '#49A96E' }}
+        />
+      ),
+    },
   ];
+
   return (
     <div className={classesBody.container}>
       {/* appointment NavBar */}
@@ -649,7 +722,7 @@ function Appointment() {
         <div className={classes.body}>
           <StepsCircle
             stepsCount={2}
-            selectedStep={PatientAppointmentSelectedStep}
+            selectedStep={doctorScheduleSelectedStep}
           />
           <div className={classes.stepContent}>
             {doctorSelection.map((select, index) => {
@@ -668,13 +741,17 @@ function Appointment() {
         </div>
       </div>
       {/* All Appointments */}
-      <DetailsBody
-        toggleFilter={toggleFilter}
-        setToggleFilter={setToggleFilter}
-        details={AllAppointmentDetails}
-        title={'All Appointments'}
-        style={{ display: openWindow === 3 ? 'flex' : 'none' }}
-      />
+      {allAppointmentList !== null && (
+        <>
+          <DetailsBody
+            toggleFilter={toggleFilter}
+            setToggleFilter={setToggleFilter}
+            details={allAppointmentList}
+            title={'All Appointments'}
+            style={{ display: openWindow === 3 ? 'flex' : 'none' }}
+          />
+        </>
+      )}
     </div>
   );
 }
