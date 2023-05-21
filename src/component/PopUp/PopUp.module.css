@@ -25,6 +25,7 @@
   height: 80%;
   padding: 1rem;
   background-color: #fff;
+  position: relative;
 }
 
 .Button {
@@ -63,4 +64,37 @@
 .reportFile h2 {
   font-weight: 700;
   font-size: 1.1rem;
+}
+.input {
+  width: 90%;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+}
+.input label {
+  width: 20%;
+}
+.input input {
+  background-color: #f3f3f3;
+  border: none;
+  font-weight: 700;
+  color: #474747;
+  text-align: center;
+  border-radius: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.input input:focus::placeholder {
+  color: transparent;
+}
+.input input:focus {
+  color: #49a96e;
+  outline: none;
 }
