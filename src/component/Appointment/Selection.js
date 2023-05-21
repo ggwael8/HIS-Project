@@ -21,7 +21,6 @@ function Selection(props) {
     setSelectedDate(date);
   };
   const isSelectedDay = date => {
-    console.log(props.selectedDay);
     const day = date.day();
     const selectedDay =
       props.selectedDay === 'Saturday'
@@ -292,14 +291,6 @@ function Selection(props) {
             )}
             {props.DateAndTime && (
               <div className={classes.DateAndTime}>
-                {/* <Calendar
-                  onChange={props.setCurrentDate}
-                  value={props.currentDate}
-                  onClickDay={value =>
-                    props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
-                  }
-                  // className={classes.react_calendar}
-                /> */}
                 <DatePicker
                   label='Pick Date'
                   value={selectedDate}
