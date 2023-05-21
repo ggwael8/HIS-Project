@@ -2,7 +2,6 @@ import classes from './DetailsBody.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 function DetailsBody(props) {
-  let values;
   return (
     <div className={classes.details} style={props.style}>
       <h2 className={classes.title}>{props.title}</h2>
@@ -54,7 +53,50 @@ function DetailsBody(props) {
                                   <h3>{details[info][cardInfo]}</h3>
                                 </div>
                               ) : cardInfo === 'body' ? (
-                                <></>
+                                <>
+                                  {details[info][cardInfo].map(info => {
+                                    return (
+                                      <div className={classes.card}>
+                                        <div
+                                          className={
+                                            classes.detailsBodyContentData
+                                          }
+                                        >
+                                          {Object.keys(info).map(key => {
+                                            return (
+                                              key !== 'button' && (
+                                                <h3>
+                                                  {key} : {info[key]}
+                                                </h3>
+                                              )
+                                            );
+                                          })}
+                                        </div>
+                                        <div className={classes.buttons}>
+                                          {Object.keys(info).map(key => {
+                                            return (
+                                              key === 'button' && (
+                                                <a
+                                                  className={
+                                                    classes.openNewLink
+                                                  }
+                                                  href={info[key].setStates}
+                                                  target='_blank'
+                                                  rel='noreferrer'
+                                                >
+                                                  {console.log(
+                                                    info[key].setStates
+                                                  )}
+                                                  {info[key].title}
+                                                </a>
+                                              )
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </>
                               ) : (
                                 <h5>
                                   {cardInfo} : {details[info][cardInfo]}
