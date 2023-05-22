@@ -6,6 +6,7 @@ function InformationCard(props) {
     if (key !== 'title')
       content[index] = (
         <h2 key={index}>
+          {/* put space before capital letters in key */}
           {key.toString().replace(/([A-Z])/g, ' $1')} :{' '}
           <span>{props.card[key]}</span>
         </h2>
