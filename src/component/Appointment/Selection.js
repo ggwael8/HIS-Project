@@ -16,6 +16,31 @@ import { TimePicker } from '@mui/x-date-pickers';
 function Selection(props) {
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   const [patient, setPatient] = useState(props.patient);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const handleDateChange = date => {
+    setSelectedDate(date);
+  };
+  const isSelectedDay = date => {
+    console.log(props.selectedDay);
+    const day = date.day();
+    const selectedDay =
+      props.selectedDay === 'Saturday'
+        ? 6
+        : 'Sunday'
+        ? 0
+        : 'Monday'
+        ? 1
+        : 'Tuesday'
+        ? 2
+        : 'Wednesday'
+        ? 3
+        : 'Thursday'
+        ? 4
+        : 'Friday'
+        ? 5
+        : null;
+    return day !== selectedDay;
+  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
@@ -266,13 +291,29 @@ function Selection(props) {
             )}
             {props.DateAndTime && (
               <div className={classes.DateAndTime}>
-                <Calendar
+                {/* <Calendar
                   onChange={props.setCurrentDate}
                   value={props.currentDate}
                   onClickDay={value =>
                     props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
                   }
                   // className={classes.react_calendar}
+                /> */}
+                <DatePicker
+                  label='Pick Date'
+                  value={selectedDate}
+                  onChange={value =>
+                    handleDateChange &&
+                    props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
+                  }
+                  disablePast
+                  shouldDisableDate={isSelectedDay}
+                  modifiersStyles={{
+                    selected: {
+                      backgroundColor: 'blue',
+                      color: 'white',
+                    },
+                  }}
                 />
                 {props.TimeSlots.length > 0 && (
                   <>

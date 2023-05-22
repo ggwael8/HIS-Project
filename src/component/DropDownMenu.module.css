@@ -93,3 +93,9 @@ a.active i {
   background-color: #47474718;
   color: #474747;
 }
+
+.selected {
+  background-color: #49a96e21;
+  border-radius: 0.5rem;
+  width: 90%;
+}

@@ -126,7 +126,44 @@ function Appointment() {
         });
       }
       const allAppointments = await response[5].json();
-      setAllAppointmentList(allAppointments.results);
+      setAllAppointmentList(
+        allAppointments.results.map(info => {
+          return {
+            ...(userctx.role !== 'doctor' && {
+              doctor: (
+                <span>
+                  {info.doctor.first_name + ' ' + info.doctor.last_name}
+                </span>
+              ),
+            }),
+            ...(userctx.role !== 'patient' && {
+              patient: (
+                <span>
+                  {info.patient.first_name + ' ' + info.patient.last_name}
+                </span>
+              ),
+            }),
+            date: <span>{info.date}</span>,
+            StartTime: (
+              <span>{info.slot.start_time.toString().slice(0, 5)}</span>
+            ),
+            EndTime: <span>{info.slot.end_time}</span>,
+            ...((userctx.role === 'receptionist' ||
+              userctx.role === 'doctor') && {
+              button: [
+                {
+                  title: 'View Medical Record',
+                  setStates: () => {
+                    console.log('view medical record');
+                    navigate('/medicalrecord', { state: info.patient.id });
+                  },
+                },
+              ],
+            }),
+          };
+        })
+      );
+      console.log(allAppointmentList);
     }
     setIsLoading(false);
   }
