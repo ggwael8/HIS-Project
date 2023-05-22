@@ -26,45 +26,26 @@ function DropDownMenu(props) {
             <NavLink
               to={p.path}
               className={({ isActive }) =>
-                `${classes.link} ${
-                  isActive && p.activeEffect ? classes.active : ''
-                }`
+                isActive && p.activeEffect ? classes.active : undefined
               }
             >
               <h2>{p.icon}</h2>
               <h2>{p.body}</h2>
             </NavLink>
-          ) : props.type === 'text' ? (
-            <>
-              <div
-                onClick={() => {
-                  props.selectstate(p.id);
-                  props.setSelectedStep(props.currentStep + 1);
-                }}
-                className={`${classes.card} ${classes.hoverEffect}`}
-              >
-                {p.body}
-              </div>
-              {/* {<hr></hr>} */}
-            </>
           ) : (
-            props.type === 'card' && (
+            props.type === 'text' && (
               <>
-                <div
+                <hr className={classes.whiteSpace}></hr>
+                <card
                   onClick={() => {
                     props.selectstate(p.id);
-                    p.day && props.selectedDay(p.body);
                     props.setSelectedStep(props.currentStep + 1);
                   }}
-                  className={`${classes.cardContainer} `}
+                  className={classes.hoverEffect}
                 >
-                  <div className={`${classes.card} ${classes.hoverEffect}`}>
-                    {Object.keys(p.card).map(key => {
-                      return <>{p.card[key]}</>;
-                    })}
-                  </div>
-                </div>
-                {/* {<hr></hr>} */}
+                  {p.body}
+                </card>
+                {<hr></hr>}
               </>
             )
           )}

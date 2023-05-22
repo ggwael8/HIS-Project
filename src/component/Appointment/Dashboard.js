@@ -3,21 +3,21 @@ import classes from './Dashboard.module.css'
 import { BiCalendarMinus } from "react-icons/bi";
 import { CiClock2 } from "react-icons/ci";
 import { FaRegEdit } from "react-icons/fa";
-
+import { apiUrl } from '../../utils/api';
 
 export default function AppointmentDashboard() {
 
     const [allResults, setAllResults] = useState([]);
-        
-    const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/appointments/Booked-Appointments/';
-    
+
     const myHeaders = new Headers({
         "Content-Type": "application/json",
         Authorization: `Bearer ${localStorage.getItem("token")}`,
     });
     
     useEffect(() => {
-        getAllResults(apiUrl);
+        getAllResults(
+            apiUrl + 'appointments/Booked-Appointments/'
+        );
     }, [])
     async function getAllResults(url) {
     try {
@@ -39,32 +39,6 @@ export default function AppointmentDashboard() {
         }
     }
 
-
-
-//     async function getAllResults(url) {
-//     try {
-//       const response = await fetch(url, {
-//         method: 'GET',
-//         headers: myHeaders,
-//       });
-//       const data = await response.json();
-
-//       // Check if fetched results already exist in allResults
-//       const uniqueResults = data.results.filter(result => !allResults.some(existingResult => existingResult.id === result.id));
-
-//       setAllResults(prevResults => [...prevResults, ...uniqueResults]);
-
-//       if (data.next !== null) {
-//         // Fetch next page if it exists
-//         await getAllResults(data.next);
-//       }
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   }
-
-
-    
     function getMonthName(monthNumber) {
         const months = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
