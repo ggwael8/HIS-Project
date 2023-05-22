@@ -5,39 +5,6 @@ import Dropzone from 'react-dropzone';
 function Cards(props) {
   return (
     <div className={classes.Cards}>
-      {console.log(props.reportFile)}
-      {/* {props.reportFileBool && (
-        <div className={classes.Card}>
-          <div className={classes.CardTitle}>
-            <h2>Report File</h2>
-          </div>
-          <div className={classes.CardContent}>
-            <h3>
-              <Dropzone
-                onDrop={acceptedFiles => {
-                  props.setReportFile(acceptedFiles[0]);
-                }}
-              >
-                {({ getRootProps, getInputProps, isDragActive }) => (
-                  <div
-                    {...getRootProps()}
-                    className={`${classes.dropzone} ${
-                      isDragActive ? classes.active : ''
-                    }`}
-                  >
-                    <input {...getInputProps()} />
-                    {props.reportFile ? (
-                      <p>{props.reportFile.name}</p>
-                    ) : (
-                      <p>Drag Or Click To Add File</p>
-                    )}
-                  </div>
-                )}
-              </Dropzone>
-            </h3>
-          </div>
-        </div>
-      )} */}
       {props.Cards.map((card, cardIndex) => {
         return (
           <div className={classes.Card}>
@@ -52,7 +19,6 @@ function Cards(props) {
                     card[info].map((image, index) => {
                       return (
                         <div className={classes.custom}>
-                          {console.log(image)}
                           <div className={classes.customContent}>
                             <h4>image {index + 1}</h4>
                             <h2>
@@ -60,14 +26,14 @@ function Cards(props) {
                             </h2>
                           </div>
                           <div className={classes.customButton}>
-                            <button
+                            <a
                               className={`${classes.Button} ${classes.ButtonGreen}`}
-                              onClick={() => {
-                                image.button.setStates();
-                              }}
+                              href={image.button.setStates()}
+                              target='_blank'
+                              rel='noreferrer'
                             >
                               {image.button.title}
-                            </button>
+                            </a>
                           </div>
                         </div>
                       );
@@ -86,7 +52,6 @@ function Cards(props) {
                       const newReportFiles = [...props.reportFile];
                       newReportFiles[cardIndex] = acceptedFiles[0];
                       props.setReportFile(newReportFiles);
-                      console.log(props.reportFile);
                     }}
                   >
                     {({ getRootProps, getInputProps, isDragActive }) => (
@@ -107,20 +72,10 @@ function Cards(props) {
                   </Dropzone>
                 </div>
               )}
-              {/* {props.commentvalue && (
-                <input
-                  className={classes.Input}
-                  placeholder={'Add Comment'}
-                  onChange={e => {
-                    const newComments = [...props.commentvalue];
-                    newComments[cardIndex] = e.target.value;
-                    props.commentset(newComments);
-                  }}
-                  value={props.commentvalue[cardIndex]}
-                />
-              )} */}
+
               {props.files && (
                 <>
+                  {console.log(props)}
                   {Array.from(
                     { length: props.filesCount[cardIndex] },
                     (_, index) => {
@@ -200,14 +155,14 @@ function Cards(props) {
                 .filter(info => info === 'button')
                 .map(info => (
                   <h3>
-                    <button
+                    <a
                       className={`${classes.Button} ${classes.ButtonYellow}`}
-                      onClick={() => {
-                        card[info].setStates();
-                      }}
+                      href={card[info].setStates()}
+                      target='_blank'
+                      rel='noreferrer'
                     >
                       {card[info].title}
-                    </button>
+                    </a>
                   </h3>
                 ))}
             </div>

@@ -33,6 +33,10 @@
 .popUpContent h3 {
   width: 40%;
 }
+.CardContent span {
+  font-weight: 700;
+  color: #49a96e;
+}
 .Input {
   background-color: #f3f3f3;
   border: none;
@@ -66,6 +70,10 @@
   background-color: #e6e6e6;
 }
 .Button {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  align-items: center;
   width: 100%;
   margin: auto;
   height: 100%;
@@ -73,6 +81,7 @@
   border-radius: 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
+  padding: 0.2rem 0.5rem;
 }
 .ButtonGreen {
   color: #fff;
@@ -121,6 +130,7 @@
 }
 .customButton {
   width: 40%;
+  height: 50%;
 }
 .horizontalLine {
   width: 50%;

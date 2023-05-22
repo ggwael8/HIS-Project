@@ -1,1 +1,2 @@
-export const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/';
+export const apiUrl =
+  'https://hospital-information-system-production.up.railway.app/';
