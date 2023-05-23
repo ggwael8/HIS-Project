@@ -125,9 +125,17 @@ function DetailsBody(props) {
                         info =>
                           info === 'button' &&
                           details[info].map(info => {
+                            if (info === false) return null;
                             return (
                               <button
-                                className={classes.Button}
+                                className={` ${classes.Button}
+                                  ${
+                                    info.red
+                                      ? classes.ButtonRed
+                                      : info.yellow
+                                      ? classes.ButtonYellow
+                                      : classes.ButtonGreen
+                                  }`}
                                 onClick={info.setStates}
                               >
                                 {info.title}

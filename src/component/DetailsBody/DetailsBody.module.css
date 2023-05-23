@@ -136,16 +136,36 @@
 }
 .Button {
   width: 20%;
-  color: #fff;
-  background-color: #49a96e;
   border: none;
   border-radius: 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
 }
-.Button:hover {
+.ButtonGreen {
+  color: #fff;
+  background-color: #49a96e;
+}
+.ButtonGreen:hover {
   background-color: #4747473a;
   color: #49a96e;
+  cursor: pointer;
+}
+.ButtonRed {
+  color: #fff;
+  background-color: #df5c5c;
+}
+.ButtonRed:hover {
+  background-color: #4747473a;
+  color: #df5c5c;
+  cursor: pointer;
+}
+.ButtonYellow {
+  color: #fff;
+  background-color: #c59e33;
+}
+.ButtonYellow:hover {
+  background-color: #4747473a;
+  color: #c59e33;
   cursor: pointer;
 }
 .card {
