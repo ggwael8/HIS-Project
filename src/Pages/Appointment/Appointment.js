@@ -47,15 +47,19 @@ function Appointment() {
   const [openWindow, setOpenWindow] = useState(
     userctx.role === 'doctor' ? 3 : 1
   );
+  //bills pop up state
+  const [billsPopUp, setBillsPopUp] = useState(false);
+  const [bills, setBills] = useState(null);
+
   //state for dropdowncontent on each step
   const [dropDownContent, setDropDownContent] = useState({
     specialty: specialtyList,
     doctor: doctorsList,
     days: daysList,
   });
-  //medical record states
-  const [popUp, setPopUp] = useState(false);
-  const [medicalRecord, setMedicalRecord] = useState(null);
+  // //medical record states
+  // const [popUp, setPopUp] = useState(false);
+  // const [medicalRecord, setMedicalRecord] = useState(null);
   //todo: error handling & optimization
   //fetching data from api
   async function fetchDataHandler() {
@@ -73,6 +77,12 @@ function Appointment() {
         ),
       userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
       openWindow === 3 && fetch(apiUrl + 'appointments/Booked-Appointments/'),
+      openWindow === 4 && fetch(apiUrl + 'appointments/Doctor-Appointments/'),
+      billsPopUp &&
+        fetch(
+          apiUrl +
+            `bills/bill/?patient=&patient__user__username=&appointment=${billsPopUp}`
+        ),
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
@@ -176,7 +186,6 @@ function Appointment() {
         });
       }
     }
-    console.log(openWindow);
     if (openWindow === 3) {
       const allAppointments = await response[5].json();
       setAllAppointmentList(
@@ -201,8 +210,58 @@ function Appointment() {
               <span>{info.slot.start_time.toString().slice(0, 5)}</span>
             ),
             EndTime: <span>{info.slot.end_time}</span>,
-            ...((userctx.role === 'receptionist' ||
-              userctx.role === 'doctor') && {
+            ...(userctx.role === 'receptionist' && {
+              status: <span>{info.status}</span>,
+              button: [
+                info.status === 'waiting' && {
+                  title: 'View Bills',
+                  setStates: () => {
+                    setBillsPopUp(info.id);
+                  },
+                },
+                info.status === 'waiting' && {
+                  title: 'View Requests',
+                  yellow: true,
+                  setStates: () => {
+                    navigate('/requests', {
+                      state: {
+                        patientId: info.patient.id,
+                        appointmentId: info.id,
+                      },
+                    });
+                  },
+                },
+                {
+                  title:
+                    info.status === 'pending'
+                      ? 'Set To Waiting'
+                      : info.status === 'waiting' && 'Set To Completed',
+                  setStates: () => {
+                    async function changeStatus() {
+                      await fetch(
+                        apiUrl + `appointments/Booked-Appointments/${info.id}/`,
+                        {
+                          method: 'PATCH',
+                          body: JSON.stringify({
+                            status:
+                              info.status === 'pending'
+                                ? 'waiting'
+                                : info.status === 'waiting' && 'completed',
+                          }),
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                        }
+                      );
+                      fetchDataHandler();
+                    }
+                    changeStatus();
+                  },
+                },
+              ],
+            }),
+
+            ...(userctx.role === 'doctor' && {
               button: [
                 {
                   title: 'View Medical Record',
@@ -221,7 +280,107 @@ function Appointment() {
           };
         })
       );
-      console.log(allAppointmentList);
+    }
+    if (openWindow === 4) {
+      const data = await response[6].json();
+      setAllAppointmentList(
+        data.results.map(info => {
+          return {
+            Doctor: (
+              <span>
+                {info.doctor.first_name + ' ' + info.doctor.last_name}
+              </span>
+            ),
+            Date: <span>{info.date}</span>,
+            ScheduleId: <span>{info.schedule}</span>,
+            TotalAppointment: <span>{info.total_appointments}</span>,
+            button: [
+              {
+                title: 'Cancel',
+                red: true,
+                setStates: () => {
+                  async function cancelAppointment() {
+                    await fetch(
+                      apiUrl + `appointments/Doctor-Appointments/${info.id}/`,
+                      {
+                        method: 'DELETE',
+                      }
+                    );
+                    fetchDataHandler();
+                  }
+                  cancelAppointment();
+                },
+              },
+            ],
+          };
+        })
+      );
+    }
+    if (billsPopUp) {
+      const data = await response[7].json();
+      console.log(data.results);
+      setBills(
+        data.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            appointmentId: <span>{info.appointment.id}</span>,
+            patient: (
+              <span>
+                {info.patient.first_name + ' ' + info.patient.last_name}
+              </span>
+            ),
+            doctor: (
+              <span>
+                {info.appointment.doctor.first_name +
+                  ' ' +
+                  info.appointment.doctor.last_name}
+              </span>
+            ),
+            schedulePrice: <span>{info.appointment.slot.schedule.price}</span>,
+            total: <span>{info.total}</span>,
+            //todo: m3rf4 maloooo
+            card: [
+              info.insurance !== null && {
+                title: 'Insurance',
+              },
+              info.radiology_request !== null && {
+                title: 'Radiology Request',
+                card: info.radiology_request.exams.map(info => {
+                  return {
+                    name: <span>{info.name}</span>,
+                    price: <span>{info.price}</span>,
+                  };
+                }),
+              },
+              info.lab_request !== null && {
+                title: 'Lab Request',
+                card: info.lab_request.exams.map(info => {
+                  return {
+                    name: <span>{info.name}</span>,
+                    price: <span>{info.price}</span>,
+                  };
+                }),
+              },
+              info.prescription !== null && {
+                title: 'Prescription',
+                card: info.prescription.prescription.map(info => {
+                  return {
+                    name: <span>{info.drug.name}</span>,
+                    price: <span>{info.drug.price}</span>,
+                  };
+                }),
+              },
+            ],
+            // insurance:
+            //   info.insurance !== null && info.insurance.map(info => {}),
+            // radiology_request:
+            //   info.radiology_request !== null &&
+            //   info.radiology_request.map(info => {}),
+            // lab_request:
+            //   info.lab_request !== null && info.lab_request.map(info => {}),
+          };
+        })
+      );
     }
     setIsLoading(false);
   }
@@ -233,6 +392,7 @@ function Appointment() {
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
     openWindow,
+    billsPopUp,
   ]);
   //update state that connected to api data
   useEffect(() => {
@@ -746,7 +906,7 @@ function Appointment() {
         </div>
       </div>
       {/* All Appointments */}
-      {allAppointmentList !== null && (
+      {openWindow === 3 && allAppointmentList !== null && (
         <>
           <DetailsBody
             toggleFilter={toggleFilter}
@@ -756,6 +916,24 @@ function Appointment() {
             style={{ display: openWindow === 3 ? 'flex' : 'none' }}
           />
         </>
+      )}
+      {openWindow === 4 && allAppointmentList !== null && (
+        <>
+          <DetailsBody
+            toggleFilter={toggleFilter}
+            setToggleFilter={setToggleFilter}
+            details={allAppointmentList}
+            title={'Cancel Doctor Appointment'}
+          />
+        </>
+      )}
+      {billsPopUp && (
+        <PopUp
+          popUp={billsPopUp}
+          setPopUp={setBillsPopUp}
+          Cards={bills}
+          title={'Bills'}
+        />
       )}
     </div>
   );
