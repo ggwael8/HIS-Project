@@ -93,6 +93,19 @@ function RootLayout() {
           </h1>
         ),
       },
+      {
+        to: '/requests',
+        title: (
+          <h1>
+            <span>Requests</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <FontAwesomeIcon icon={faFileMedical} />
+          </h1>
+        ),
+      },
     ],
     lab: [
       {
@@ -110,6 +123,21 @@ function RootLayout() {
       },
     ],
     radiologist: [
+      {
+        to: '/',
+        title: (
+          <h1>
+            <span>Home</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <i class='fa-solid fa-house'></i>
+          </h1>
+        ),
+      },
+    ],
+    pharmacist: [
       {
         to: '/',
         title: (

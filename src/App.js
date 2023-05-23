@@ -11,6 +11,7 @@ import SignIn from './Pages/SignIn';
 import ForgetPassword from './Pages/ForgetPassword';
 import Labs from './Pages/Labs/Labs';
 import MedicalRecord from './Pages/MedicalRecord/MedicalRecord';
+import Pharmacy from './Pages/Pharmacy/Pharmacy';
 import { checkAuth } from './utils/auth';
 import UserContext from './context/user-context';
 import { apiUrl } from './utils/api';
@@ -39,16 +40,16 @@ function App() {
   //     ],
   //   },
   // ]);
-  // const pharmacyRouter = createBrowserRouter([
-  //   {
-  //     path: '/',
-  //     element: <RootLayout />,
-  //     children: [
-  //       { path: '/', element: <Dashboard /> },
-  //       { path: '/profile', element: <Profile /> },
-  //     ],
-  //   },
-  // ]);
+  const pharmacyRouter = createBrowserRouter([
+    {
+      path: '/',
+      element: <RootLayout />,
+      children: [
+        { path: '/', element: <Pharmacy /> },
+        { path: '/profile', element: <Profile /> },
+      ],
+    },
+  ]);
   const patientRouter = createBrowserRouter([
     {
       path: '/',
@@ -77,6 +78,7 @@ function App() {
       element: <RootLayout />,
       children: [
         { path: '/', element: <Appointment /> },
+        { path: '/requests', element: <MedicalRecord /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
@@ -186,6 +188,12 @@ function App() {
         return (
           <UserContext.Provider value={userInfo}>
             <RouterProvider router={radiologistRouter} />
+          </UserContext.Provider>
+        );
+      } else if (userInfo.role === 'pharmacist') {
+        return (
+          <UserContext.Provider value={userInfo}>
+            <RouterProvider router={pharmacyRouter} />
           </UserContext.Provider>
         );
       }
