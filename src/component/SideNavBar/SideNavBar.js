@@ -4,6 +4,7 @@ function SideNavBar(props) {
   return (
     <div className={classes.nav}>
       {props.sideNav.map((sideNav, index) => {
+        if (sideNav === false) return null;
         return (
           <>
             <div
