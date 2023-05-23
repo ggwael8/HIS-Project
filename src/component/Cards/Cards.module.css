@@ -22,9 +22,9 @@
   color: #474747;
   border-bottom: 1px solid #979797;
   padding-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 .CardContent {
-  margin-top: 1rem;
   display: flex;
   gap: 1rem 5rem;
   flex-wrap: wrap;
