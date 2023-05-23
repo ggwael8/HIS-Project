@@ -85,10 +85,7 @@ function Labs() {
               ),
               button: [
                 {
-                  title:
-                    info.status === 'Pending'
-                      ? 'View Exams'
-                      : info === 'Waiting for result' && 'Set Result',
+                  title: 'View Exams',
                   setStates: () => {
                     setSelectedExamsListId(info.id);
                     setSelectedStatus(info.status);
