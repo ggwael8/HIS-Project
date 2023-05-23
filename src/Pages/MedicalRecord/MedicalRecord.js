@@ -8,13 +8,14 @@ import {
   faNotesMedical,
   faPills,
 } from '@fortawesome/free-solid-svg-icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import { apiUrl } from '../../utils/api';
 import { useLocation } from 'react-router-dom';
 import PopUp from '../../component/PopUp/PopUp';
-
+import UserContext from '../../context/user-context';
 function MedicalRecord() {
+  const userctx = useContext(UserContext);
   const { state } = useLocation();
 
   const [details, setDetails] = useState([]);
@@ -35,7 +36,9 @@ function MedicalRecord() {
 
   //drop down menu states
   const [content, setContent] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const [selectedForDoctorRole, setSelectedForDoctorRole] = useState([]);
+  const [selectedForReceptionistRole, setSelectedForReceptionistRole] =
+    useState([]);
   const [tempSelected, setTempSelected] = useState([]); //for multiple selection in drop down menu
   const [search, setSearch] = useState('');
 
@@ -44,12 +47,15 @@ function MedicalRecord() {
 
   //note for prescription
   const [note, setNote] = useState(null);
+
+  //prescription items
+  const [prescriptionItems, setPrescriptionItems] = useState([]);
   //reset details when open window change
   useEffect(() => {
     setDetails([]);
     setSelectedRequestIdResult(null);
     setExamsListResult([]);
-    setSelected([]);
+    setSelectedForDoctorRole([]);
     setTempSelected([]);
     setSearch('');
     setContent([]);
@@ -102,51 +108,62 @@ function MedicalRecord() {
     };
   }, [patientId]);
 
-  useEffect(() => {
-    const fetchHandler = async () => {
-      const response = await Promise.all([
-        openWindow === 1 &&
-          fetch(
-            apiUrl + `lab-radiology/view-test-resutls/?patient=${patientId}`
-          ),
-        openWindow === 2 &&
-          fetch(
-            apiUrl +
-              `lab-radiology/view-radiology-request/?patient=${patientId}`
-          ),
-        openWindow === 3 && fetch(apiUrl + `records/all-records/${patientId}/`),
-        openWindow === 4 &&
-          fetch(apiUrl + `pharmacy/doctor-prescription/?patient=${patientId}`),
-      ]);
+  const fetchMainDataHandler = async () => {
+    const response = await Promise.all([
+      openWindow === 1 &&
+        fetch(
+          userctx.role === 'doctor'
+            ? apiUrl + `lab-radiology/view-test-resutls/?patient=${patientId}`
+            : apiUrl +
+                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Laboratory&appointment=${appointmentId}`
+        ),
+      openWindow === 2 &&
+        fetch(
+          userctx.role === 'doctor'
+            ? apiUrl +
+                `lab-radiology/view-radiology-request/?patient=${patientId}`
+            : apiUrl +
+                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Radiology&appointment=${appointmentId}`
+        ),
+      openWindow === 3 && fetch(apiUrl + `records/all-records/${patientId}/`),
+      openWindow === 4 &&
+        fetch(
+          userctx.role === 'doctor'
+            ? apiUrl + `pharmacy/doctor-prescription/?patient=${patientId}`
+            : apiUrl +
+                `pharmacy/receptionist-prescription/?created_at=&updated_at=&doctor=&patient=&appointment=${appointmentId}&date=&notes=&dispensed_by=&dispensed_status=`
+        ),
+    ]);
 
-      if (openWindow === 1) {
-        const data = await response[0].json();
-        setDetails(
-          data.results.map(info => {
-            return {
-              id: <span>{info.id}</span>,
-              patientName: (
-                <span>
-                  {info.patient.first_name} {info.patient.last_name}
-                </span>
-              ),
-              doctorName: (
-                <span>
-                  {info.doctor.first_name} {info.doctor.last_name}
-                </span>
-              ),
-              button: [
-                {
-                  title: 'View Request Details',
-                  setStates: () => {
-                    setSelectedRequestIdResult(info.id);
-                  },
+    if (openWindow === 1) {
+      const data = await response[0].json();
+      setDetails(
+        data.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            patientName: (
+              <span>
+                {info.patient.first_name} {info.patient.last_name}
+              </span>
+            ),
+            doctorName: (
+              <span>
+                {info.doctor.first_name} {info.doctor.last_name}
+              </span>
+            ),
+            button: [
+              {
+                title: 'View Request Details',
+                setStates: () => {
+                  setSelectedRequestIdResult(info.id);
                 },
-              ],
-            };
-          })
-        );
-        if (selectedRequestIdResult !== null) {
+              },
+            ],
+          };
+        })
+      );
+      if (selectedRequestIdResult !== null) {
+        if (userctx.role === 'doctor') {
           setExamsListResult(
             data.results
               .filter(info => info.id === selectedRequestIdResult)[0]
@@ -174,36 +191,65 @@ function MedicalRecord() {
                 };
               })
           );
+        } else {
+          setExamsListResult(
+            data.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .exams.map(info => {
+                return {
+                  id: info.id,
+                  card: {
+                    name: (
+                      <h4>
+                        name : <span>{info.name}</span>
+                      </h4>
+                    ),
+                    code: (
+                      <h4>
+                        code : <span>{info.code}</span>
+                      </h4>
+                    ),
+                    price: (
+                      <h4>
+                        price : <span>{info.price}</span>
+                      </h4>
+                    ),
+                  },
+                };
+              })
+          );
         }
       }
-      if (openWindow === 2) {
-        const data = await response[1].json();
-        setDetails(
-          data.results.map(info => {
-            return {
-              id: <span>{info.id}</span>,
-              patientName: (
-                <span>
-                  {info.patient.first_name} {info.patient.last_name}
-                </span>
-              ),
-              doctorName: (
-                <span>
-                  {info.doctor.first_name} {info.doctor.last_name}
-                </span>
-              ),
-              button: [
-                {
-                  title: 'View Request Details',
-                  setStates: () => {
-                    setSelectedRequestIdResult(info.id);
-                  },
+    }
+    if (openWindow === 2) {
+      const data = await response[1].json();
+      setDetails(
+        data.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            patientName: (
+              <span>
+                {info.patient.first_name} {info.patient.last_name}
+              </span>
+            ),
+            doctorName: (
+              <span>
+                {info.doctor.first_name} {info.doctor.last_name}
+              </span>
+            ),
+            button: [
+              {
+                title: 'View Request Details',
+                setStates: () => {
+                  setSelectedRequestIdResult(info.id);
                 },
-              ],
-            };
-          })
-        );
-        if (selectedRequestIdResult !== null) {
+              },
+            ],
+          };
+        })
+      );
+      if (selectedRequestIdResult !== null) {
+        if (userctx.role === 'doctor') {
           setExamsListResult(
             data.results
               .filter(info => info.id === selectedRequestIdResult)[0]
@@ -233,101 +279,130 @@ function MedicalRecord() {
                 };
               })
           );
+        } else {
+          setExamsListResult(
+            data.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .exams.map(info => {
+                return {
+                  id: info.id,
+                  card: {
+                    name: (
+                      <h4>
+                        name : <span>{info.name}</span>
+                      </h4>
+                    ),
+                    code: (
+                      <h4>
+                        code : <span>{info.code}</span>
+                      </h4>
+                    ),
+                    price: (
+                      <h4>
+                        price : <span>{info.price}</span>
+                      </h4>
+                    ),
+                  },
+                };
+              })
+          );
         }
       }
-      if (openWindow === 3) {
-        const data = await response[2].json();
-        setDetails([
-          {
-            cards: {
-              title: 'Medical Record',
-              diagnosis: <span>{data.medical_record.diagnosis}</span>,
-              allergies: <span>{data.medical_record.allergies}</span>,
-              family_history: <span>{data.medical_record.family_history}</span>,
-            },
+    }
+    if (openWindow === 3) {
+      const data = await response[2].json();
+      setDetails([
+        {
+          cards: {
+            title: 'Medical Record',
+            diagnosis: <span>{data.medical_record.diagnosis}</span>,
+            allergies: <span>{data.medical_record.allergies}</span>,
+            family_history: <span>{data.medical_record.family_history}</span>,
           },
-          {
-            cards: {
-              title: 'Vitals',
-              body: data.vitals.map(info => {
-                return {
-                  id: <span>{info.id}</span>,
-                  date: <span>{info.date}</span>,
-                  time: <span>{info.time}</span>,
-                  height: <span>{info.height}</span>,
-                  weight: <span>{info.weight}</span>,
-                  blood_pressure: <span>{info.blood_pressure}</span>,
-                  heart_rate: <span>{info.heart_rate}</span>,
-                  temperature: <span>{info.temperature}</span>,
-                };
-              }),
-            },
+        },
+        {
+          cards: {
+            title: 'Vitals',
+            body: data.vitals.map(info => {
+              return {
+                id: <span>{info.id}</span>,
+                date: <span>{info.date}</span>,
+                time: <span>{info.time}</span>,
+                height: <span>{info.height}</span>,
+                weight: <span>{info.weight}</span>,
+                blood_pressure: <span>{info.blood_pressure}</span>,
+                heart_rate: <span>{info.heart_rate}</span>,
+                temperature: <span>{info.temperature}</span>,
+              };
+            }),
           },
-          {
-            cards: {
-              title: 'Visits',
-              body: data.visits.map(info => {
-                return {
-                  id: <span>{info.id}</span>,
-                  doctor: <span>{info.doctor}</span>,
-                  room_number: <span>{info.room_number}</span>,
-                  bed_number: <span>{info.bed_number}</span>,
-                  admission_date: <span>{info.admission_date}</span>,
-                  discharge_date: <span>{info.discharge_date}</span>,
-                  diagnosis: <span>{info.diagnosis}</span>,
-                  notes: <span>{info.notes}</span>,
-                };
-              }),
-            },
+        },
+        {
+          cards: {
+            title: 'Visits',
+            body: data.visits.map(info => {
+              return {
+                id: <span>{info.id}</span>,
+                doctor: <span>{info.doctor}</span>,
+                room_number: <span>{info.room_number}</span>,
+                bed_number: <span>{info.bed_number}</span>,
+                admission_date: <span>{info.admission_date}</span>,
+                discharge_date: <span>{info.discharge_date}</span>,
+                diagnosis: <span>{info.diagnosis}</span>,
+                notes: <span>{info.notes}</span>,
+              };
+            }),
           },
-          {
-            cards: {
-              title: 'Surgeries',
-              body: data.surgeries.map(info => {
-                return {
-                  doctor: <span>{info.doctor}</span>,
-                  surgery_type: <span>{info.surgery_type}</span>,
-                  date: <span>{info.date}</span>,
-                  time: <span>{info.time}</span>,
-                  button: {
-                    title: 'View Documentation',
-                    setStates: info.documentation,
-                  },
-                };
-              }),
-            },
-          },
-        ]);
-        console.log(data);
-      }
-      if (openWindow === 4) {
-        const data = await response[3].json();
-        setDetails(
-          data.results.map(info => {
-            return {
-              id: <span>{info.id}</span>,
-              patientName: (
-                <span>
-                  {info.patient.first_name} {info.patient.last_name}
-                </span>
-              ),
-              doctorName: (
-                <span>
-                  {info.doctor.first_name} {info.doctor.last_name}
-                </span>
-              ),
-              button: [
-                {
-                  title: 'View Prescription Details',
-                  setStates: () => {
-                    setSelectedRequestIdResult(info.id);
-                  },
+        },
+        {
+          cards: {
+            title: 'Surgeries',
+            body: data.surgeries.map(info => {
+              return {
+                doctor: <span>{info.doctor}</span>,
+                surgery_type: <span>{info.surgery_type}</span>,
+                date: <span>{info.date}</span>,
+                time: <span>{info.time}</span>,
+                button: {
+                  title: 'View Documentation',
+                  setStates: info.documentation,
                 },
-              ],
-            };
-          })
-        );
-        if (selectedRequestIdResult !== null) {
+              };
+            }),
+          },
+        },
+      ]);
+      console.log(data);
+    }
+    if (openWindow === 4) {
+      const data = await response[3].json();
+      setDetails(
+        data.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            patientName: (
+              <span>
+                {info.patient.first_name} {info.patient.last_name}
+              </span>
+            ),
+            doctorName: (
+              <span>
+                {info.doctor.first_name} {info.doctor.last_name}
+              </span>
+            ),
+            button: [
+              {
+                title: 'View Prescription Details',
+                setStates: () => {
+                  setSelectedRequestIdResult(info.id);
+                },
+              },
+            ],
+          };
+        })
+      );
+      if (selectedRequestIdResult !== null) {
+        if (userctx.role === 'doctor') {
           setExamsListResult(
             data.results
               .filter(info => info.id === selectedRequestIdResult)[0]
@@ -341,10 +416,67 @@ function MedicalRecord() {
                 };
               })
           );
+        } else {
+          setExamsListResult(
+            data.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .prescription.map(info => {
+                return {
+                  id: info.id,
+                  card: {
+                    name: (
+                      <h4>
+                        name : <span>{info.drug.name}</span>
+                      </h4>
+                    ),
+                    price: (
+                      <h4>
+                        price : <span>{info.drug.price}</span>
+                      </h4>
+                    ),
+                  },
+                };
+              })
+          );
+          setPrescriptionItems({
+            id: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].id,
+            dispensed_status: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].dispensed_status,
+            doctor: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].doctor.id,
+            patient: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].patient.id,
+            date: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].date,
+            notes: data.results.filter(
+              info => info.id === selectedRequestIdResult
+            )[0].notes,
+            prescription: data.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .prescription.map(p => {
+                return {
+                  id: p.id,
+                  drug: p.drug.id,
+                  amount: p.amount,
+                  dose: p.dose,
+                  duration: p.duration,
+                  dispensed: p.dispensed,
+                  prescription: p.prescription,
+                };
+              }),
+          });
         }
       }
-    };
-    if (isPatientValid) fetchHandler();
+    }
+  };
+  useEffect(() => {
+    if (isPatientValid) fetchMainDataHandler();
   }, [isPatientValid, openWindow, patientId, selectedRequestIdResult]);
 
   // get request data
@@ -403,6 +535,7 @@ function MedicalRecord() {
           })
         );
       }
+      fetchMainDataHandler();
     }
 
     if (requestType !== null) fetchHandler();
@@ -419,7 +552,7 @@ function MedicalRecord() {
             patient: patientId,
             appointment: appointmentDetails.id,
             doctor: appointmentDetails.doctor,
-            exams: selected,
+            exams: selectedForDoctorRole,
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -432,7 +565,7 @@ function MedicalRecord() {
           ' ',
           appointmentDetails.doctor,
           ' ',
-          selected
+          selectedForDoctorRole
         );
         console.log(await response.json());
       } else if (requestType === 'prescription') {
@@ -449,17 +582,17 @@ function MedicalRecord() {
         });
 
         const data = await response.json();
-        for (let i = 0; i < selected.length; i++) {
+        for (let i = 0; i < selectedForDoctorRole.length; i++) {
           const response2 = await fetch(
             apiUrl + 'pharmacy/prescriptionitems/',
             {
               method: 'POST',
               body: JSON.stringify({
                 prescription: data.id,
-                drug: selected[i].drug,
-                amount: selected[i].amount,
-                dose: selected[i].dose,
-                duration: selected[i].duration,
+                drug: selectedForDoctorRole[i].drug,
+                amount: selectedForDoctorRole[i].amount,
+                dose: selectedForDoctorRole[i].dose,
+                duration: selectedForDoctorRole[i].duration,
               }),
               headers: {
                 'Content-Type': 'application/json',
@@ -471,9 +604,85 @@ function MedicalRecord() {
         }
         console.log('first response : ', data);
       }
+      fetchMainDataHandler();
     }
-    if (selected.length > 0) fetchHandler();
-  }, [selected]);
+    if (selectedForDoctorRole.length > 0) fetchHandler();
+  }, [selectedForDoctorRole]);
+
+  useEffect(() => {
+    async function fetchHandler() {
+      if (selectedForReceptionistRole.length > 0) {
+        if (openWindow === 1 || openWindow === 2) {
+          const response = await fetch(
+            apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
+            {
+              method: 'PATCH',
+              body: JSON.stringify({
+                status: 'Pending',
+                exams: selectedForReceptionistRole,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          console.log(await response.json());
+        } else if (openWindow === 4) {
+          console.log(selectedForReceptionistRole);
+          if (selectedForReceptionistRole.length >= 1) {
+            console.log(prescriptionItems);
+            const updatedPrescription = {
+              ...prescriptionItems,
+              dispensed_status: 'send_to_pharmacy',
+              prescription: prescriptionItems.prescription.map(p => {
+                if (selectedForReceptionistRole.includes(p.id)) {
+                  return { ...p, dispensed: true };
+                } else {
+                  return p;
+                }
+              }),
+            };
+            const response = await fetch(
+              apiUrl +
+                `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+              {
+                method: 'PUT',
+                body: JSON.stringify(updatedPrescription),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            console.log(await response.json());
+          }
+
+          // const response = await fetch(
+          //   apiUrl +
+          //     `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+          //   {
+          //     method: 'PATCH',
+          //     body: JSON.stringify({
+          //       dispensed_status: 'send_to_pharmacy',
+          //       prescription: prescriptionItems,
+          //     }),
+          //     headers: {
+          //       'Content-Type': 'application/json',
+          //     },
+          //   }
+          // );
+        }
+      }
+      setSelectedForReceptionistRole(null);
+      setSelectedRequestIdResult(null);
+      setTempSelected([]);
+      fetchMainDataHandler();
+    }
+    fetchHandler();
+  }, [selectedForReceptionistRole]);
+
+  // useEffect(() => {
+  //   console.log(prescriptionItems);
+  // }, [prescriptionItems]);
   const sideNav = [
     {
       id: 1,
@@ -495,7 +704,7 @@ function MedicalRecord() {
         />
       ),
     },
-    {
+    userctx.role !== 'receptionist' && {
       id: 3,
       icon: (
         <FontAwesomeIcon
@@ -524,7 +733,10 @@ function MedicalRecord() {
           <div className={classes.patientIdContainer}>
             <h2>No Patient Selected</h2>
             <span style={{ color: '#49a96e', fontWeight: '700' }}>
-              Only Open With View Medical Record Button
+              Only Open With{' '}
+              {userctx.role === 'doctor'
+                ? 'View Medical Record Button'
+                : 'View Requests Button'}
             </span>
             <input
               className={classes.patientIdInput}
@@ -565,7 +777,7 @@ function MedicalRecord() {
               : 'Prescriptions'
           }
           additionalFunction={
-            openWindow !== 3
+            openWindow !== 3 && userctx.role !== 'receptionist'
               ? {
                   title:
                     openWindow === 1
@@ -586,14 +798,32 @@ function MedicalRecord() {
           }
         />
       )}
-      {selectedRequestIdResult !== null && (
-        <PopUp
-          popUp={selectedRequestIdResult}
-          setPopUp={setSelectedRequestIdResult}
-          Cards={examsListResult}
-          title={openWindow === 4 ? 'Drug' : 'Exam'}
-        />
-      )}
+      {selectedRequestIdResult !== null &&
+        (userctx.role === 'doctor' ? (
+          <PopUp
+            popUp={selectedRequestIdResult}
+            setPopUp={setSelectedRequestIdResult}
+            Cards={examsListResult}
+            title={openWindow === 4 ? 'Drug' : 'Exam'}
+          />
+        ) : (
+          <>
+            <PopUp
+              selection={examsListResult}
+              popUp={selectedRequestIdResult}
+              setPopUp={setSelectedRequestIdResult}
+              selectstate={setTempSelected}
+              searchstate={setSearch}
+              multiple={true}
+              selected={tempSelected}
+              buttonFunction={() => {
+                setSelectedForReceptionistRole(tempSelected);
+              }}
+              buttonText={'Confirm'}
+            />
+            {console.log(selectedForReceptionistRole)}
+          </>
+        ))}
       {openPopUp &&
         content !== null &&
         (requestType === 'prescription' ? (
@@ -606,7 +836,7 @@ function MedicalRecord() {
             searchstate={setSearch}
             noteSet={setNote}
             buttonFunction={() => {
-              setSelected(tempSelected);
+              setSelectedForDoctorRole(tempSelected);
               setOpenPopUp(false);
             }}
             buttonText={'Confirm'}
@@ -621,13 +851,12 @@ function MedicalRecord() {
             multiple={true}
             selected={tempSelected}
             buttonFunction={() => {
-              setSelected(tempSelected);
+              setSelectedForDoctorRole(tempSelected);
               setOpenPopUp(false);
             }}
             buttonText={'Confirm'}
           />
         ))}
-      {console.log(selected)}
     </div>
   );
 }
