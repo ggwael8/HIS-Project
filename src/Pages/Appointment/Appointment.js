@@ -231,7 +231,7 @@ function Appointment() {
                     });
                   },
                 },
-                {
+                info.status !== 'completed' && {
                   title:
                     info.status === 'pending'
                       ? 'Set To Waiting'
