@@ -22,6 +22,7 @@ function MedicalSecretary() {
   const [popUp, setPopUp] = useState();
   const [tempSelected, setTempSelected] = useState([]);
   const [reportFile, setReportFile] = useState(null);
+  const [data, setData] = useState(null);
   async function fetchMainDataHandler() {
     setIsLoading(true);
     const response = await Promise.all([
@@ -81,7 +82,7 @@ function MedicalSecretary() {
             date: <span>{info.date}</span>,
             time: <span>{info.time}</span>,
             height: <span>{info.height}</span>,
-            width: <span>{info.width}</span>,
+            weight: <span>{info.weight}</span>,
             temperature: <span>{info.temperature}</span>,
             blood_pressure: <span>{info.blood_pressure}</span>,
             heart_rate: <span>{info.heart_rate}</span>,
@@ -93,7 +94,7 @@ function MedicalSecretary() {
         date: null,
         time: null,
         height: null,
-        width: null,
+        weight: null,
         temperature: null,
         blood_pressure: null,
         heart_rate: null,
@@ -147,6 +148,9 @@ function MedicalSecretary() {
         diagnosis: null,
         admission_date: null,
         discharge_date: null,
+        room_number: null,
+        bed_number: null,
+        notes: null,
       });
     }
     setIsLoading(false);
@@ -162,6 +166,46 @@ function MedicalSecretary() {
     fetchMainDataHandler();
   }, [openWindow]);
 
+  useEffect(() => {
+    async function fetchHandler() {
+      if (openWindow !== 1) {
+        const response = await fetch(
+          apiUrl +
+            `${
+              openWindow === 2
+                ? 'records/vitals/'
+                : openWindow === 3
+                ? 'records/medical-record/'
+                : openWindow === 4 && 'records/visits/'
+            }`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data[0]),
+          }
+        );
+        console.log(await response.json());
+      } else if (openWindow === 1) {
+        const formData = new FormData();
+        formData.append('patient', data[0].patient);
+        formData.append('doctor', data[0].doctor);
+        formData.append('surgery_type', data[0].surgery_type);
+        formData.append('date', data[0].date);
+        formData.append('time', data[0].time);
+        formData.append('documentation', reportFile[0]);
+        const response = await fetch(apiUrl + 'records/surgery/', {
+          method: 'POST',
+
+          body: formData,
+        });
+        console.log(await response.json());
+      }
+    }
+
+    if (data !== null) fetchHandler();
+  }, [data]);
   const sideNav = [
     {
       id: 1,
@@ -250,7 +294,7 @@ function MedicalSecretary() {
           selected={tempSelected}
           selectstate={setTempSelected}
           buttonFunction={() => {
-            console.log(tempSelected);
+            setData(tempSelected);
           }}
           buttonText={'Confirm'}
           reportFile={reportFile}

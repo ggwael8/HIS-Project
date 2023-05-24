@@ -68,12 +68,12 @@ function Pharmacy() {
             id: <span>{info.id}</span>,
             doctor: (
               <span>
-                {info.doctor.first_name + ' ' + info.doctor.second_name}
+                {info.doctor.first_name + ' ' + info.doctor.last_name}
               </span>
             ),
             patient: (
               <span>
-                {info.patient.first_name + ' ' + info.patient.second_name}
+                {info.patient.first_name + ' ' + info.patient.last_name}
               </span>
             ),
             date: <span>{info.date}</span>,
@@ -116,7 +116,7 @@ function Pharmacy() {
   }
   useEffect(() => {
     fetchMainDataHandler();
-  }, [openWindow]);
+  }, [openWindow, prescriptionId]);
 
   useEffect(() => {
     async function fetchHandler() {
@@ -214,6 +214,24 @@ function Pharmacy() {
           Cards={popUpData.length > 0 && popUpData}
           text={popUpData.length === 0 && 'No Prescription'}
           title={'Prescription'}
+          buttonFunction={() => {
+            async function fetchHandler() {
+              const response = await fetch(
+                apiUrl + `pharmacy/pharmacist-prescription/${prescriptionId}/`,
+                {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ dispensed_status: 'dispensed' }),
+                }
+              );
+              console.log(await response.json());
+              setPrescriptionId(null);
+            }
+            fetchHandler();
+          }}
+          buttonText={'Set To Dispensed'}
         />
       )}
     </div>

@@ -173,7 +173,7 @@ function Cards(props) {
                   .map(info => (
                     <h3>
                       <a
-                        className={`${classes.File} ${classes.ButtonYellow}`}
+                        className={`${classes.Button} ${classes.ButtonYellow}`}
                         href={card[info].setStates()}
                         target='_blank'
                         rel='noreferrer'

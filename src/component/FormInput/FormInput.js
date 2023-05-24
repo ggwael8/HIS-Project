@@ -54,6 +54,16 @@ function FormInput(props) {
                               ? 'date'
                               : info === 'time'
                               ? 'time'
+                              : info === 'room_number' ||
+                                info === 'bed_number' ||
+                                info === 'patient' ||
+                                info === 'doctor' ||
+                                info === 'weight' ||
+                                info === 'height' ||
+                                info === 'temperature' ||
+                                info === 'blood_pressure' ||
+                                info === 'heart_rate'
+                              ? 'number'
                               : 'text'
                           }
                           id={info}

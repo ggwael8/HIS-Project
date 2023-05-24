@@ -668,6 +668,13 @@ function MedicalRecord() {
             const updatedPrescription2 = {
               ...prescriptionItems,
               dispensed_status: 'send_to_pharmacy',
+              prescription: prescriptionItems.prescription.map(p => {
+                if (selectedForReceptionistRole.includes(p.id)) {
+                  return { ...p, dispensed: true };
+                } else {
+                  return p;
+                }
+              }),
             };
             const response2 = await fetch(
               apiUrl +
@@ -680,7 +687,7 @@ function MedicalRecord() {
                 },
               }
             );
-            console.log('first res : ',await response.json());
+            console.log('first res : ', await response.json());
             console.log('sec res : ', await response2.json());
           }
 
