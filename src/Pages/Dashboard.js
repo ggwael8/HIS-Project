@@ -57,8 +57,14 @@ function Dashboard() {
         </div>
       </div>
       <div className={classes.secondary}>
-        <div className={`${classes.container}`}></div>
-        <div className={`${classes.container}`}></div>
+        <div className={`${classes.container}`}>
+
+
+        </div>
+        <div className={`${classes.container}`}>
+
+          
+        </div>
       </div>
     </div>
   );
