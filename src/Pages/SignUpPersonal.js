@@ -5,14 +5,10 @@ import Logo from '../component/SignUp/Logo';
 import SignUpHeadline from '../component/SignUp/SignUpHeadline';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import Dropdown from 'react-bootstrap/Dropdown';
 
-export default function SignUpPersonal()
+export default function SignUpPersonal({ setNow, handleUserData })
 {
     const navigate = useNavigate();
-    const navigateNext = () => {
-        navigate('/signup/address/');
-    };
     const navigateSignIn = () => {
         navigate('/signin/');
     };
@@ -50,7 +46,8 @@ export default function SignUpPersonal()
     };
     const handleSubmit = (values, { setSubmitting }) => {
         if (Object.keys(validate(values)).length === 0) {
-            navigateNext();
+            setNow(3);
+            handleUserData(values);
         }
         setSubmitting(false);
     };
@@ -92,7 +89,6 @@ export default function SignUpPersonal()
                                             <ErrorMessage name='lastName' component='div' className={classes.error} />
                                         </div>
                                 </div>
-
                                 <div className={classes.inputes}>
                                     <div>
                                         <Field
@@ -105,7 +101,6 @@ export default function SignUpPersonal()
                                     <div>
                                         <Field
                                             as='select'
-                                            // type ='text'
                                             name='gender'
                                             placeholder='Gender'
                                             className = {classes.select}
@@ -164,9 +159,3 @@ export default function SignUpPersonal()
         </div>
     )
 }
-
-
-// Green #49A96E
-// blue #40B8F3
-// grey #979797
-// black #474747

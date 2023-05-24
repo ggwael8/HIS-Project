@@ -16,6 +16,7 @@ import Pharmacy from './Pages/Pharmacy/Pharmacy';
 import { checkAuth, auth } from './utils/auth';
 import UserContext from './context/user-context';
 import { apiUrl } from './utils/api';
+import Register from './Pages/Register';
 function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -106,10 +107,10 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <SignUpLogin /> },
-        { path: '/signup/login/', element: <SignUpLogin /> },
-        { path: '/signup/personal/', element: <SignUpPersonal /> },
-        { path: '/signup/address/', element: <SignUpAddress /> },
+        { path: '/', element: <Register /> },
+        // { path: '/signup/login/', element: <SignUpLogin /> },
+        // { path: '/signup/personal/', element: <SignUpPersonal /> },
+        // { path: '/signup/address/', element: <SignUpAddress /> },
         { path: '/signin/', element: <SignIn /> },
         { path: '/forgetpassword/', element: <ForgetPassword /> },
       ],
