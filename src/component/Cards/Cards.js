@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import classes from './Cards.module.css';
 import Dropzone from 'react-dropzone';
 
@@ -174,7 +173,7 @@ function Cards(props) {
                   .map(info => (
                     <h3>
                       <a
-                        className={`${classes.Button} ${classes.ButtonYellow}`}
+                        className={`${classes.File} ${classes.ButtonYellow}`}
                         href={card[info].setStates()}
                         target='_blank'
                         rel='noreferrer'
