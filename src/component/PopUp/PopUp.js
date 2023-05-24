@@ -3,6 +3,7 @@ import classes from './PopUp.module.css';
 import Cards from '../Cards/Cards';
 import DropDownMenu from '../DropDownMenu';
 import Prescription from '../Prescription/Prescription';
+import FormInput from '../FormInput/FormInput';
 function PopUp(props) {
   const containerRef = useRef();
   const popUpRef = useRef();
@@ -26,7 +27,6 @@ function PopUp(props) {
     <div className={classes.popUp} ref={containerRef}>
       <div className={classes.popUpGreyBox} ref={popUpRef}>
         <div className={classes.popUpContent}>
-          {console.log(props)}
           {props.text && <h3>{props.text}</h3>}
           {props.Cards && (
             <Cards
@@ -81,6 +81,17 @@ function PopUp(props) {
                   />
                 </div>
               )}
+            </>
+          )}
+          {props.formInput && (
+            <>
+              <FormInput
+                title={props.title}
+                rawData={props.rawData}
+                selectstate={props.selectstate}
+                reportFile={props.reportFile}
+                setReportFile={props.setReportFile}
+              />
             </>
           )}
           {props.buttonFunction && (
