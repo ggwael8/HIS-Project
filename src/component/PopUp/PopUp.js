@@ -2,7 +2,8 @@ import { useRef, useEffect, useState } from 'react';
 import classes from './PopUp.module.css';
 import Cards from '../Cards/Cards';
 import DropDownMenu from '../DropDownMenu';
-import Prescriptions from '../DashBoard/Prescription/Prescriptions';
+import Prescription from '../Prescription/Prescription';
+import FormInput from '../FormInput/FormInput';
 function PopUp(props) {
   const containerRef = useRef();
   const popUpRef = useRef();
@@ -26,6 +27,7 @@ function PopUp(props) {
     <div className={classes.popUp} ref={containerRef}>
       <div className={classes.popUpGreyBox} ref={popUpRef}>
         <div className={classes.popUpContent}>
+          {props.text && <h3>{props.text}</h3>}
           {props.Cards && (
             <Cards
               Cards={props.Cards}
@@ -59,20 +61,37 @@ function PopUp(props) {
           )}
           {props.prescription && (
             <>
-              <Prescriptions
+              <Prescription
                 selectstate={props.selectstate}
                 searchstate={props.searchstate}
                 content={props.prescription}
                 selected={props.selected}
+                isDrug={props.isDrug}
+                isPrescription={props.isPrescription}
               />
-              <div className={classes.input}>
-                <label htmlFor='note'>Add Note</label>
-                <input type='text' id='note' onChange={
-                  e => {
-                    props.noteSet(e.target.value)
-                  }
-                }/>
-              </div>
+              {props.noteSet && (
+                <div className={classes.input}>
+                  <label htmlFor='note'>Add Note</label>
+                  <input
+                    type='text'
+                    id='note'
+                    onChange={e => {
+                      props.noteSet(e.target.value);
+                    }}
+                  />
+                </div>
+              )}
+            </>
+          )}
+          {props.formInput && (
+            <>
+              <FormInput
+                title={props.title}
+                rawData={props.rawData}
+                selectstate={props.selectstate}
+                reportFile={props.reportFile}
+                setReportFile={props.setReportFile}
+              />
             </>
           )}
           {props.buttonFunction && (
