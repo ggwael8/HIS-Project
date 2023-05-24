@@ -3,8 +3,8 @@ import LogoLogIn from '../component/SignIn/LogoLogIn'
 import classes from './ٍSign.module.css'
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { apiUrl } from '../utils/api';
 
-const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/login/';
 
 const myHeaders = new Headers({
     "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export default function SignIn() {
             username: username,
             password: password,
         }
-        fetch(apiUrl, {
+        fetch(apiUrl + 'login/', {
             method: 'POST',
             headers: myHeaders,
             body: JSON.stringify(person),

@@ -83,7 +83,8 @@ input::placeholder {
     color: #49a96e;
     font-size: 30px;
     font-weight: 600;
-    margin: 80px;
+    margin: 150px 300px;
+
 }
 .searchBar {
     margin-top: 20px;

@@ -56,13 +56,13 @@ function DropDownMenu(props) {
                     props.setSelectedStep(props.currentStep + 1);
                   }}
                   className={classes.hoverEffect}
-                >
+                />
                   <div className={`${classes.card} ${classes.hoverEffect}`}>
                     {Object.keys(p.card).map(key => {
                       return <>{p.card[key]}</>;
                     })}
                   </div>
-                </div>
+                {/* </div> */}
                 {/* {<hr></hr>} */}
               </>
             )

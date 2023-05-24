@@ -15,6 +15,7 @@ import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import StepsCircle from '../../component/StepsCircle/StepsCircle';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import { apiUrl } from '../../utils/api';
+import { Navigate } from 'react-router-dom';
 
 function Appointment() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -155,7 +156,7 @@ function Appointment() {
                   title: 'View Medical Record',
                   setStates: () => {
                     console.log('view medical record');
-                    navigate('/medicalrecord', { state: info.patient.id });
+                    Navigate('/medicalrecord', { state: info.patient.id });
                   },
                 },
               ],

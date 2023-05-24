@@ -5,9 +5,7 @@ import Logo from '../component/SignUp/Logo';
 import SignUpHeadline from '../component/SignUp/SignUpHeadline';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { auth } from '../utils/auth';
-
-const apiUrl = 'https://hospital-information-system-1-production.up.railway.app/auth/register/';
+import { apiUrl } from '../utils/api';
 
 
 const myHeaders = new Headers({
@@ -34,7 +32,7 @@ export default function SignUpAddress({ userLoginData, userPersonalData })
             role: 'doctor',
             username: userLoginData.username,
         }
-        fetch(apiUrl,
+        fetch(apiUrl + 'auth/register/',
         {
             method: "POST",
             headers: myHeaders,
