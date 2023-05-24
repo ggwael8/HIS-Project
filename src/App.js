@@ -4,9 +4,6 @@ import Dashboard from './Pages/Dashboard';
 import Appointment from './Pages/Appointment/Appointment';
 import RootLayout from './Pages/Root/RootLayout';
 import Profile from './Pages/Profile/Profile';
-import SignUpLogin from './Pages/SignUpLogin';
-import SignUpAddress from './Pages/SignUpAddress';
-import SignUpPersonal from './Pages/SignUpPersonal';
 import SignIn from './Pages/SignIn';
 import ForgetPassword from './Pages/ForgetPassword';
 import Labs from './Pages/Labs/Labs';
@@ -16,11 +13,15 @@ import Pharmacy from './Pages/Pharmacy/Pharmacy';
 import { checkAuth } from './utils/auth';
 import UserContext from './context/user-context';
 import { apiUrl } from './utils/api';
+import AppointmentDashboard from './component/Appointment/Dashboard';
+import Register from './Pages/Register';
+import Bills from './Pages/Bills/Bills';
+
+
 function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   //todo: fetch organization
-
   const adminRouter = createBrowserRouter([
     {
       path: '/',
@@ -55,6 +56,8 @@ function App() {
       children: [
         { path: '/', element: <Dashboard /> },
         { path: '/appointment', element: <Appointment /> },
+        { path: '/appointment/dashboard', element: <AppointmentDashboard /> },
+        { path: '/bills', element: <Bills /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
@@ -64,8 +67,8 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <Appointment /> },
-        { path: '/medicalrecord', element: <MedicalRecord /> },
+        { path: '/', element: <Dashboard /> },
+        { path: '/appointment', element: <Appointment /> },
         { path: '/profile', element: <Profile /> },
       ],
     },
@@ -106,10 +109,7 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <SignUpLogin /> },
-        { path: '/signup/login/', element: <SignUpLogin /> },
-        { path: '/signup/personal/', element: <SignUpPersonal /> },
-        { path: '/signup/address/', element: <SignUpAddress /> },
+        { path: '/', element: <Register /> },
         { path: '/signin/', element: <SignIn /> },
         { path: '/forgetpassword/', element: <ForgetPassword /> },
       ],

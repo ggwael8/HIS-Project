@@ -12,7 +12,7 @@ import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TimePicker, DatePicker } from '@mui/x-date-pickers';
+import { TimePicker } from '@mui/x-date-pickers';
 function Selection(props) {
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   const [patient, setPatient] = useState(props.patient);
@@ -21,6 +21,7 @@ function Selection(props) {
     setSelectedDate(date);
   };
   const isSelectedDay = date => {
+    console.log(props.selectedDay);
     const day = date.day();
     const selectedDay =
       props.selectedDay === 'Saturday'
@@ -74,9 +75,8 @@ function Selection(props) {
                 selectstate={props.selectstate}
                 searchstate={props.searchstate}
                 setSelectedStep={props.setSelectedStep}
-                selectedDay={props.selectedDay}
                 currentStep={props.currentStep}
-                type={'card'}
+                type={'text'}
                 search={true}
                 scrollable={true}
               />
@@ -291,6 +291,14 @@ function Selection(props) {
             )}
             {props.DateAndTime && (
               <div className={classes.DateAndTime}>
+                {/* <Calendar
+                  onChange={props.setCurrentDate}
+                  value={props.currentDate}
+                  onClickDay={value =>
+                    props.DateSetState(dateFormat(value, 'yyyy-mm-dd'))
+                  }
+                  // className={classes.react_calendar}
+                /> */}
                 <DatePicker
                   label='Pick Date'
                   value={selectedDate}
@@ -308,8 +316,7 @@ function Selection(props) {
                   }}
                 />
                 {props.TimeSlots.length > 0 && (
-                  <div className={classes.TimeSlotsContainer}>
-                    <h4 className={classes.title}>Pick Time</h4>
+                  <>
                     <div className={classes.TimeSlots}>
                       {props.TimeSlots.map(timeSlot => (
                         <div
@@ -325,7 +332,7 @@ function Selection(props) {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             )}

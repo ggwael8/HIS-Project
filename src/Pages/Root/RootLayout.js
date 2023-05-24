@@ -3,8 +3,6 @@ import NavBar from '../../component/NavBar/navbar';
 import { useContext } from 'react';
 import UserContext from '../../context/user-context';
 import { checkAuth } from '../../utils/auth';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileMedical } from '@fortawesome/free-solid-svg-icons';
 function RootLayout() {
   const userctx = useContext(UserContext);
   const links = {
@@ -13,7 +11,7 @@ function RootLayout() {
         to: '/',
         title: (
           <h1>
-            <span>Home</span>
+            <span>home</span>
           </h1>
         ),
         icon: (
@@ -26,7 +24,7 @@ function RootLayout() {
         to: '/appointment',
         title: (
           <h1>
-            <span>Appointment</span>
+            <span>appointment</span>
           </h1>
         ),
         icon: (
@@ -38,28 +36,15 @@ function RootLayout() {
     ],
     doctor: [
       {
-        to: '/',
+        to: '/appointment',
         title: (
           <h1>
-            <span>Appointment</span>
+            <span>appointment</span>
           </h1>
         ),
         icon: (
           <h1>
             <i class='fa-solid fa-phone'></i>
-          </h1>
-        ),
-      },
-      {
-        to: '/medicalrecord',
-        title: (
-          <h1>
-            <span>Medical Record</span>
-          </h1>
-        ),
-        icon: (
-          <h1>
-            <FontAwesomeIcon icon={faFileMedical} />
           </h1>
         ),
       },
@@ -69,7 +54,7 @@ function RootLayout() {
         to: '/',
         title: (
           <h1>
-            <span>Home</span>
+            <span>home</span>
           </h1>
         ),
         icon: (
@@ -81,10 +66,10 @@ function RootLayout() {
     ],
     receptionist: [
       {
-        to: '/',
+        to: '/appointment',
         title: (
           <h1>
-            <span>Appointment</span>
+            <span>appointment</span>
           </h1>
         ),
         icon: (
@@ -112,7 +97,7 @@ function RootLayout() {
         to: '/',
         title: (
           <h1>
-            <span>Home</span>
+            <span>home</span>
           </h1>
         ),
         icon: (
@@ -127,7 +112,7 @@ function RootLayout() {
         to: '/',
         title: (
           <h1>
-            <span>Home</span>
+            <span>home</span>
           </h1>
         ),
         icon: (

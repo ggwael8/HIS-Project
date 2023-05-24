@@ -2,11 +2,12 @@
   background-color: white;
   margin: auto;
   height: 80vh;
-  width: 90%;
+  width: 90vw;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   align-items: center;
   font-family: 'Noto Sans', sans-serif;
+  margin: 10vh;
 }
 .headlines {
   text-align: center;

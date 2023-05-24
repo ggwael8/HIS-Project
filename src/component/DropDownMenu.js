@@ -26,9 +26,7 @@ function DropDownMenu(props) {
             <NavLink
               to={p.path}
               className={({ isActive }) =>
-                `${classes.link} ${
-                  isActive && p.activeEffect ? classes.active : ''
-                }`
+                isActive && p.activeEffect ? classes.active : undefined
               }
             >
               <h2>{p.icon}</h2>
@@ -45,47 +43,27 @@ function DropDownMenu(props) {
               >
                 {p.body}
               </div>
+              {/* {<hr></hr>} */}
             </>
           ) : (
-            props.type === 'card' && (
+            props.type === 'text' && (
               <>
-                <div
+                <hr className={classes.whiteSpace}></hr>
+                <card
                   onClick={() => {
-                    if (props.multiple) {
-                      // if multiple selection is allowed
-                      props.selectstate(prevState => {
-                        if (prevState.includes(p.id)) {
-                          // if the ID already exists in the array, remove it
-                          return prevState.filter(id => id !== p.id);
-                        } else {
-                          // if the ID doesn't exist in the array, add it
-                          return [...prevState, p.id];
-                        }
-                      });
-                    } else {
-                      // if only single selection is allowed
-                      props.selectstate(p.id);
-                      props.clickFunction &&
-                        props.clickFunction(p.id, p.card.name);
-                    }
+                    props.selectstate(p.id);
                     p.day && props.selectedDay(p.body);
-                    props.currentStep &&
-                      props.setSelectedStep(props.currentStep + 1);
+                    props.setSelectedStep(props.currentStep + 1);
                   }}
-                  className={`${classes.cardContainer} `}
-                >
-                  <div
-                    className={`${classes.card} ${classes.hoverEffect} ${
-                      Array.isArray(props.selected) &&
-                      props.selected.includes(p.id) &&
-                      classes.selected
-                    }`}
-                  >
+                  className={classes.hoverEffect}
+                />
+                  <div className={`${classes.card} ${classes.hoverEffect}`}>
                     {Object.keys(p.card).map(key => {
                       return <>{p.card[key]}</>;
                     })}
                   </div>
-                </div>
+                {/* </div> */}
+                {/* {<hr></hr>} */}
               </>
             )
           )}

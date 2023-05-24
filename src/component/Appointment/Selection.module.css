@@ -154,19 +154,11 @@
   align-items: flex-start;
   gap: 3rem;
 }
-.TimeSlotsContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 50%;
-  height: 70%;
-}
 .TimeSlots {
   align-items: center;
   padding: 1rem 0;
-  width: 100%;
-  height: 100%;
+  width: 50%;
+  height: 70%;
   gap: 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -204,10 +196,6 @@
 }
 .timePicker {
   width: 40%;
-}
-.title {
-  font-weight: 700;
-  width: 100%;
 }
 @media (max-width: 1350px) {
   .appointmentTypeRadioButtons {

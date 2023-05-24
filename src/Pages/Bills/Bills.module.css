@@ -1,0 +1,138 @@
+.page {
+    background-color: white;
+    height: 80vh;
+    width: 95vw;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: 'Noto Sans', sans-serif;
+    margin: 3%;
+    border-radius: 10px;
+}
+
+.allBox {
+    margin: 3%;
+}
+
+.title {
+    color: #49a96e;
+    font-weight: 700;
+    font-size: 25px;
+}
+
+.paymentBox {
+    border: 1px solid gray;
+    border-radius: 15px;
+    height: 67vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.searchBar{
+    margin-top: 20px;
+    margin-right: 20px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+}
+
+.search{
+    border: none;
+    border-bottom: 1px solid black;
+    padding-top: 10px;
+    font-size: 17px;
+}
+
+input::placeholder {
+    color: rgb(161, 161, 161);
+    font: 20px/3 sans-serif;
+}
+
+.cover {
+    border: 1px solid rgb(197, 193, 193);
+    border-radius: 10px;
+    height: 15vh;
+    margin: 15px 3%;
+    width: 95%;
+    display: flex;
+    align-items: center;
+}
+
+.billBox{
+    display: flex;
+    align-items: center;
+    width: 77%;
+    margin: 3%;
+}
+
+.boxDetails {
+    width: 33%;
+    font-weight: 600;
+    color: rgb(59, 57, 57);
+}
+
+.data {
+    color: #49a96e;
+    margin-left: 5%;
+}
+
+.health {
+    color: #49a96e;
+    font-size: 30px;
+    font-weight: 600;
+    margin: 150px 300px;
+
+}
+.searchBar {
+    margin-top: 20px;
+    margin-right: 20px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+}
+
+.search {
+    border: none;
+    border-bottom: 1px solid black;
+    padding-top: 10px;
+    font-size: 17px;
+}
+
+input::placeholder {
+    color: rgb(161, 161, 161);
+    font: 20px/3 sans-serif;
+}
+.cover button {
+    border: none;
+    color: white;
+    background-color: #49a96e;
+    margin-right: 5%;
+    width: 20%;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 17px;
+}
+
+@media (max-width: 680px) {
+    .cover{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .billBox{
+        width: 95%;
+        display: flex;
+        align-items: center;    
+
+    }
+    .cover button{
+        width: 50%;
+        margin-bottom: 5px;
+    }
+}

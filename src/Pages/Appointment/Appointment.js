@@ -1,13 +1,12 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import classes from './Appointment.module.css';
 import classesBody from '../Body.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileCirclePlus,
   faFile,
-  faPhoneSlash,
+  faFilter,
   faUserDoctor,
 } from '@fortawesome/free-solid-svg-icons';
 import Selection from '../../component/Appointment/Selection';
@@ -15,11 +14,10 @@ import UserContext from '../../context/user-context';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import StepsCircle from '../../component/StepsCircle/StepsCircle';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
-import PopUp from '../../component/PopUp/PopUp';
 import { apiUrl } from '../../utils/api';
+import { Navigate } from 'react-router-dom';
 
 function Appointment() {
-  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   //context api to get user role
@@ -32,14 +30,13 @@ function Appointment() {
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
   const [patient, setPatient] = useState();
-  const [appointmentType, setAppointmentType] = useState(1);
+  const [appointmentType, setAppointmentType] = useState(0);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
     useState(null);
   const [PatientAppointmentDoctor, setPatientAppointmentDoctor] =
     useState(null);
   const [PatientAppointmentDayOfWeek, setPatientAppointmentDayOfWeek] =
     useState(null);
-  const [dayOfWeekName, setDayOfWeekName] = useState(null);
   const [PatientAppointmentDate, setPatientAppointmentDate] = useState(null);
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -68,12 +65,12 @@ function Appointment() {
       fetch(apiUrl + 'hospital/specialty/'),
       fetch(apiUrl + 'hospital/doctor/'),
       PatientAppointmentDoctor !== null &&
-        fetch(apiUrl + 'appointments/doctor-schedule/'),
+        fetch(apiUrl + 'Appointments/doctor-schedule/'),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
           apiUrl +
-            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
+            `Appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
         ),
       userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
       openWindow === 3 && fetch(apiUrl + 'appointments/Booked-Appointments/'),
@@ -90,13 +87,6 @@ function Appointment() {
         return {
           id: info.id,
           body: info.specialty,
-          card: {
-            specialty: (
-              <h4>
-                <span>{info.specialty}</span>
-              </h4>
-            ),
-          },
         };
       })
     );
@@ -105,15 +95,7 @@ function Appointment() {
       doctors.results.map(info => {
         return {
           id: info.id,
-          card: {
-            name: (
-              <h4>
-                {info.image !== null && <img src={info.image} alt='doctor' />}
-                name :
-                <span>{info.user.first_name + ' ' + info.user.last_name}</span>
-              </h4>
-            ),
-          },
+          body: info.user.first_name + ' ' + info.user.last_name,
         };
       })
     );
@@ -129,35 +111,7 @@ function Appointment() {
           .map(info => {
             return {
               id: info.id,
-              day: true,
               body: info.day_of_week,
-              card: {
-                doctor: (
-                  <h4>
-                    Doctor : <span>{info.doctor}</span>
-                  </h4>
-                ),
-                day: (
-                  <h4>
-                    Day : <span>{info.day_of_week}</span>
-                  </h4>
-                ),
-                start_time: (
-                  <h4>
-                    Start Time: <span>{info.start_time}</span>
-                  </h4>
-                ),
-                end_time: (
-                  <h4>
-                    End Time: <span>{info.end_time}</span>
-                  </h4>
-                ),
-                price: (
-                  <h4>
-                    Price: <span>{info.price} LE</span>
-                  </h4>
-                ),
-              },
             };
           })
       );
@@ -273,6 +227,45 @@ function Appointment() {
                         appointmentId: info.id,
                       },
                     });
+                  },
+                },
+                info.status !== 'completed' && {
+                  title:
+                    info.status === 'pending'
+                      ? 'Set To Waiting'
+                      : info.status === 'waiting' && 'Set To Completed',
+                  setStates: () => {
+                    async function changeStatus() {
+                      await fetch(
+                        apiUrl + `appointments/Booked-Appointments/${info.id}/`,
+                        {
+                          method: 'PATCH',
+                          body: JSON.stringify({
+                            status:
+                              info.status === 'pending'
+                                ? 'waiting'
+                                : info.status === 'waiting' && 'completed',
+                          }),
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                        }
+                      );
+                      fetchDataHandler();
+                    }
+                    changeStatus();
+                  },
+                },
+              ],
+            }),
+
+            ...(userctx.role === 'doctor' && {
+              button: [
+                {
+                  title: 'View Medical Record',
+                  setStates: () => {
+                    console.log('view medical record');
+                    Navigate('/medicalrecord', { state: info.patient.id });
                   },
                 },
               ],
@@ -412,7 +405,7 @@ function Appointment() {
   const resetBookNewAppointment = () => {
     setPatientAppointmentSelectedStep(1);
     setPatient(0);
-    setAppointmentType(1);
+    setAppointmentType(0);
     setPatientAppointmentDoctor(null);
     setPatientAppointmentDate(null);
     setPatientAppointmentTime(null);
@@ -463,14 +456,12 @@ function Appointment() {
       title: 'Pick Day',
       dropDownContent: dropDownContent.days,
       selectstate: setPatientAppointmentDayOfWeek,
-      selectedDay: setDayOfWeekName,
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
     },
     {
       type: 'selection',
       id: userctx.role === 'receptionist' ? 5 : 4,
-      selectedDay: dayOfWeekName,
       DateAndTime: true,
       DateSetState: setPatientAppointmentDate,
       TimeSetState: setPatientAppointmentTime,
@@ -607,9 +598,40 @@ function Appointment() {
 
     type: userctx.role === 'patient' ? 'new' : appointmentType,
     //todo: dummy
-    status: 'pending',
+    status: 'pend',
   };
 
+  //Todo: Dummy
+  const [AllAppointmentDetails, setAllAppointmentDetails] = useState([
+    {
+      specialist: <span>sepaka</span>,
+      doctor: <span>spak</span>,
+      price: <span>200</span>,
+      date: <span>10/12/2023</span>,
+      time: <span>10:00</span>,
+    },
+    {
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
+    },
+    {
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
+    },
+    {
+      specialist: <h4>specialist</h4>,
+      doctor: <h4>doctor</h4>,
+      price: <h4>price</h4>,
+      date: <h4>date</h4>,
+      time: <h4>time</h4>,
+    },
+  ]);
   //Doctor Schedule Selection body
   const doctorSelection = [
     {
@@ -638,67 +660,73 @@ function Appointment() {
   ];
   //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
-    await fetch(apiUrl + 'appointments/Booked-Appointments/', {
-      method: 'POST',
-      body: JSON.stringify({
-        patient:
-          userctx.role === 'receptionist'
-            ? AppointmentDetailsPendingConfirmation.patient
-            : AppointmentDetailsPendingConfirmation.patient.id,
-        doctor: AppointmentDetailsPendingConfirmation.doctorId,
-        date: AppointmentDetailsPendingConfirmation.date,
-        slot: AppointmentDetailsPendingConfirmation.slot,
-        type:
-          AppointmentDetailsPendingConfirmation.type === 1
-            ? 'new'
-            : AppointmentDetailsPendingConfirmation.type === 2
-            ? 'followup'
-            : AppointmentDetailsPendingConfirmation.type,
-        status: 'pending',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    // const data = await response.json();
-    // console.log(
-    //   'response : ',
-    //   data,
-    //   'type : ',
-    //   AppointmentDetailsPendingConfirmation.type,
-    //   'patient : ' + AppointmentDetailsPendingConfirmation.patient
-    // );
+    const response = await fetch(
+      'https://hospital-information-system-production-b18b.up.railway.app/Appointments/Booked-Appointments/',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          patient:
+            userctx.role === 'receptionist'
+              ? AppointmentDetailsPendingConfirmation.patient
+              : AppointmentDetailsPendingConfirmation.patient.id,
+          doctor: AppointmentDetailsPendingConfirmation.doctorId,
+          date: AppointmentDetailsPendingConfirmation.date,
+          slot: AppointmentDetailsPendingConfirmation.slot,
+          type:
+            AppointmentDetailsPendingConfirmation.type === 1
+              ? 'new'
+              : AppointmentDetailsPendingConfirmation.type === 2
+              ? 'followup'
+              : AppointmentDetailsPendingConfirmation.type,
+          status: 'pend',
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const data = await response.json();
+    console.log(
+      'response : ',
+      data,
+      'type : ',
+      AppointmentDetailsPendingConfirmation.type,
+      'patient : ' + AppointmentDetailsPendingConfirmation.patient
+    );
   };
   const AddDoctorSchedule = async () => {
     for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
-      if (doctorScheduleDayAndDuration[i].Work === true) {
-        await fetch(apiUrl + 'appointments/doctor-schedule/', {
-          method: 'POST',
-          body: JSON.stringify({
-            day_of_week: doctorScheduleDayAndDuration[i].Day,
-            start_time: doctorScheduleDayAndDuration[i].start_time,
-            end_time: doctorScheduleDayAndDuration[i].end_time,
-            slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
-            doctor: doctorScheduleDoctor,
-            //todo: dummy
-            schedule_status: 'active',
-            price: '250',
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+      if (doctorScheduleDayAndDuration[i].Work === 1) {
+        const response = await fetch(
+          'https://hospital-information-system-production-b18b.up.railway.app/Appointments/doctor-schedule/',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              day_of_week: doctorScheduleDayAndDuration[i].Day,
+              start_time: doctorScheduleDayAndDuration[i].start_time,
+              end_time: doctorScheduleDayAndDuration[i].end_time,
+              slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+              doctor: doctorScheduleDoctor,
+              //todo: dummy
+              schedule_status: 'active',
+              price: '250',
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-        // const data = await response.json();
-        // console.log(
-        //   'response : ' + data,
-        //   'day : ' +
-        //     doctorScheduleDayAndDuration[i].Day +
-        //     '      end_time : ' +
-        //     doctorScheduleDayAndDuration[i].end_time +
-        //     +' slot_duration : ' +
-        //     doctorScheduleDayAndDuration[i].slot_duration
-        // );
+        const data = await response.json();
+        console.log(
+          'response : ' + data,
+          'day : ' +
+            doctorScheduleDayAndDuration[i].Day +
+            '      end_time : ' +
+            doctorScheduleDayAndDuration[i].end_time +
+            +' slot_duration : ' +
+            doctorScheduleDayAndDuration[i].slot_duration
+        );
       }
     }
   };
@@ -726,7 +754,7 @@ function Appointment() {
   ];
   const doctorSideNav = [
     {
-      id: 3,
+      id: 1,
       icon: (
         <FontAwesomeIcon
           icon={faFile}
@@ -767,18 +795,7 @@ function Appointment() {
         />
       ),
     },
-    {
-      id: 4,
-      icon: (
-        <FontAwesomeIcon
-          icon={faPhoneSlash}
-          size='xl'
-          style={{ color: openWindow === 4 && '#49A96E' }}
-        />
-      ),
-    },
   ];
-
   return (
     <div className={classesBody.container}>
       {/* appointment NavBar */}
@@ -857,6 +874,10 @@ function Appointment() {
                         className={classes.confirm}
                         onClick={() => {
                           AddAppointmentList();
+                          setAllAppointmentDetails([
+                            ...AllAppointmentDetails,
+                            AppointmentDetailsPendingConfirmation,
+                          ]);
                           resetBookNewAppointment();
                         }}
                       >
@@ -887,7 +908,7 @@ function Appointment() {
         <div className={classes.body}>
           <StepsCircle
             stepsCount={2}
-            selectedStep={doctorScheduleSelectedStep}
+            selectedStep={PatientAppointmentSelectedStep}
           />
           <div className={classes.stepContent}>
             {doctorSelection.map((select, index) => {
