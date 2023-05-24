@@ -141,6 +141,18 @@
   font-weight: 700;
   font-size: 1.1rem;
 }
+.File {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  align-items: center;
+  height: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.5rem;
+}
 .ButtonGreen {
   color: #fff;
   background-color: #49a96e;

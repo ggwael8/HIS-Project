@@ -126,7 +126,16 @@ function DetailsBody(props) {
                           info === 'button' &&
                           details[info].map(info => {
                             if (info === false) return null;
-                            return (
+                            return info.type === 'pdf' ? (
+                              <a
+                                className={`${classes.File} ${classes.ButtonYellow}`}
+                                href={info.setStates()}
+                                target='_blank'
+                                rel='noreferrer'
+                              >
+                                {info.title}
+                              </a>
+                            ) : (
                               <button
                                 className={` ${classes.Button}
                                   ${
