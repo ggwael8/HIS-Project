@@ -618,7 +618,6 @@ function MedicalRecord() {
             {
               method: 'PATCH',
               body: JSON.stringify({
-                status: 'Pending',
                 exams: selectedForReceptionistRole,
               }),
               headers: {
@@ -626,13 +625,26 @@ function MedicalRecord() {
               },
             }
           );
-          console.log(await response.json());
+
+          const response2 = await fetch(
+            apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
+            {
+              method: 'PATCH',
+              body: JSON.stringify({
+                status: 'Pending',
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          console.log('first res : ', await response.json());
+          console.log('sec res : ', await response2.json());
         } else if (openWindow === 4) {
           console.log(selectedForReceptionistRole);
           if (selectedForReceptionistRole.length >= 1) {
             const updatedPrescription = {
               ...prescriptionItems,
-              dispensed_status: 'send_to_pharmacy',
               prescription: prescriptionItems.prescription.map(p => {
                 if (selectedForReceptionistRole.includes(p.id)) {
                   return { ...p, dispensed: true };
@@ -653,7 +665,23 @@ function MedicalRecord() {
                 },
               }
             );
-            console.log(await response.json());
+            const updatedPrescription2 = {
+              ...prescriptionItems,
+              dispensed_status: 'send_to_pharmacy',
+            };
+            const response2 = await fetch(
+              apiUrl +
+                `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+              {
+                method: 'PUT',
+                body: JSON.stringify(updatedPrescription2),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            console.log('first res : ',await response.json());
+            console.log('sec res : ', await response2.json());
           }
 
           // const response = await fetch(
