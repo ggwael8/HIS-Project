@@ -11,6 +11,7 @@ import SignIn from './Pages/SignIn';
 import ForgetPassword from './Pages/ForgetPassword';
 import Labs from './Pages/Labs/Labs';
 import MedicalRecord from './Pages/MedicalRecord/MedicalRecord';
+import MedicalSecretary from './Pages/MedicalSecretary/MedicalSecretary';
 import Pharmacy from './Pages/Pharmacy/Pharmacy';
 import { checkAuth } from './utils/auth';
 import UserContext from './context/user-context';
@@ -30,16 +31,13 @@ function App() {
       ],
     },
   ]);
-  // const medicalSecrtaryRouter = createBrowserRouter([
-  //   {
-  //     path: '/',
-  //     element: <RootLayout />,
-  //     children: [
-  //       { path: '/', element: <Dashboard /> },
-  //       { path: '/profile', element: <Profile /> },
-  //     ],
-  //   },
-  // ]);
+  const medicalSecrtaryRouter = createBrowserRouter([
+    {
+      path: '/',
+      element: <RootLayout />,
+      children: [{ path: '/', element: <MedicalSecretary /> }],
+    },
+  ]);
   const pharmacyRouter = createBrowserRouter([
     {
       path: '/',
@@ -194,6 +192,12 @@ function App() {
         return (
           <UserContext.Provider value={userInfo}>
             <RouterProvider router={pharmacyRouter} />
+          </UserContext.Provider>
+        );
+      } else if (userInfo.role === 'medical_secretary') {
+        return (
+          <UserContext.Provider value={userInfo}>
+            <RouterProvider router={medicalSecrtaryRouter} />
           </UserContext.Provider>
         );
       }
