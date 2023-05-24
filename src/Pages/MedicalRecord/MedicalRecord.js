@@ -630,7 +630,6 @@ function MedicalRecord() {
         } else if (openWindow === 4) {
           console.log(selectedForReceptionistRole);
           if (selectedForReceptionistRole.length >= 1) {
-            console.log(prescriptionItems);
             const updatedPrescription = {
               ...prescriptionItems,
               dispensed_status: 'send_to_pharmacy',
@@ -642,6 +641,7 @@ function MedicalRecord() {
                 }
               }),
             };
+            console.log(updatedPrescription);
             const response = await fetch(
               apiUrl +
                 `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
@@ -831,6 +831,7 @@ function MedicalRecord() {
             popUp={openPopUp}
             setPopUp={setOpenPopUp}
             prescription={content}
+            isPrescription={true}
             selected={tempSelected}
             selectstate={setTempSelected}
             searchstate={setSearch}
