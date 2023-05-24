@@ -67,11 +67,13 @@ function PopUp(props) {
               />
               <div className={classes.input}>
                 <label htmlFor='note'>Add Note</label>
-                <input type='text' id='note' onChange={
-                  e => {
-                    props.noteSet(e.target.value)
-                  }
-                }/>
+                <input
+                  type='text'
+                  id='note'
+                  onChange={e => {
+                    props.noteSet(e.target.value);
+                  }}
+                />
               </div>
             </>
           )}
