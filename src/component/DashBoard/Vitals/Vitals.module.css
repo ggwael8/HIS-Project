@@ -1,0 +1,82 @@
+.page {
+    width: 15%;
+    margin: 3px ;
+    display: flex;
+    flex-direction: column;
+   
+}
+
+.allBox {
+    margin: 3px;
+    
+}
+
+.title {
+    color: #49a96e;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.VitalsBox {
+    border: 1px solid gray;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 245px;
+    justify-content: center;
+}
+
+.boxDetails {
+    width: 100%;
+    font-weight: 600;
+    color: rgb(59, 57, 57);
+    display: flex;
+    margin: 13px;
+}
+
+.data { text-align: center;
+    color: #49a96e;
+    margin-left: 3px;
+}
+
+.health {
+    color: #49a96e;
+    font-size: 30px;
+    font-weight: 600;
+    margin: 150px 300px;
+
+}
+
+.cover button {
+    border: none;
+    color: white;
+    background-color: #49a96e;
+    margin-right: 5%;
+    width: 30%;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+@media (max-width: 680px) {
+    .cover {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .billBox {
+        width: 95%;
+        display: flex;
+        align-items: center;
+
+    }
+
+    .cover button {
+        width: 50%;
+        margin-bottom: 5px;
+    }
+}
