@@ -26,6 +26,8 @@ function PopUp(props) {
     <div className={classes.popUp} ref={containerRef}>
       <div className={classes.popUpGreyBox} ref={popUpRef}>
         <div className={classes.popUpContent}>
+          {console.log(props)}
+          {props.text && <h3>{props.text}</h3>}
           {props.Cards && (
             <Cards
               Cards={props.Cards}
@@ -64,15 +66,21 @@ function PopUp(props) {
                 searchstate={props.searchstate}
                 content={props.prescription}
                 selected={props.selected}
+                isDrug={props.isDrug}
+                isPrescription={props.isPrescription}
               />
-              <div className={classes.input}>
-                <label htmlFor='note'>Add Note</label>
-                <input type='text' id='note' onChange={
-                  e => {
-                    props.noteSet(e.target.value)
-                  }
-                }/>
-              </div>
+              {props.noteSet && (
+                <div className={classes.input}>
+                  <label htmlFor='note'>Add Note</label>
+                  <input
+                    type='text'
+                    id='note'
+                    onChange={e => {
+                      props.noteSet(e.target.value);
+                    }}
+                  />
+                </div>
+              )}
             </>
           )}
           {props.buttonFunction && (
