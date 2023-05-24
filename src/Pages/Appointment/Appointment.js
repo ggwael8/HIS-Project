@@ -337,7 +337,7 @@ function Appointment() {
               </span>
             ),
             schedulePrice: <span>{info.appointment.slot.schedule.price}</span>,
-            total: <span>{info.total}</span>,
+            // total: <span>{info.total}</span>,
             //todo: m3rf4 maloooo
             card: [
               info.insurance !== null && {

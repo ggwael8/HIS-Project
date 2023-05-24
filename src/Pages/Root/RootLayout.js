@@ -152,21 +152,6 @@ function RootLayout() {
         ),
       },
     ],
-    medical_secretary: [
-      {
-        to: '/',
-        title: (
-          <h1>
-            <span>Home</span>
-          </h1>
-        ),
-        icon: (
-          <h1>
-            <i class='fa-solid fa-house'></i>
-          </h1>
-        ),
-      },
-    ],
   };
   return (
     <>

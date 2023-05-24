@@ -1,6 +1,6 @@
 .page {
-  width: 50%;
-  margin: 15px;
+  width: 30%;
+  margin-right: 15px;
   display: flex;
   flex-direction: column;
 }
@@ -15,7 +15,7 @@
   font-size: 15px;
 }
 
-.paymentBox {
+.historyBox {
   border: 1px solid gray;
   border-radius: 15px;
   display: flex;
@@ -23,59 +23,21 @@
   overflow-y: auto;
   overflow-x: hidden;
   height: 245px;
-}
-
-.searchBar {
-  margin-top: 20px;
-  margin-right: 20px;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-
-}
-
-.search {
-  border: none;
-  border-bottom: 1px solid black;
-  padding-top: 10px;
-  font-size: 12px;
-}
-
-input::placeholder {
-  color: rgb(161, 161, 161);
-  font: 17px/3 sans-serif;
-}
-
-.cover {
-  border: 1px solid rgb(197, 193, 193);
-  border-radius: 10px;
-  height: 70px;
-  margin: 10px;
-  width: 95%;
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-}
-
-.billBox {
-  display: flex;
-  align-items: center;
-  width: 77%;
-  margin: 22px;
+  justify-content: center;
+  text-overflow: ellipsis;
 }
 
 .boxDetails {
-  width: 33%;
+  width: 100%;
   font-weight: 600;
   color: rgb(59, 57, 57);
-  display: flex;
+  margin: 10px;
 }
 
 .data {
+  text-align: center;
   color: #49a96e;
-  margin-left: 5%;
+  margin-left: 5px;
 }
 
 .health {
@@ -91,7 +53,7 @@ input::placeholder {
   color: white;
   background-color: #49a96e;
   margin-right: 5%;
-  width: 40%;
+  width: 30%;
   height: 40px;
   border-radius: 10px;
   cursor: pointer;

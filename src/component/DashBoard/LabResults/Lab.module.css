@@ -58,20 +58,33 @@ input::placeholder {
   align-items: center;
   font-size: 12px;
 }
-
-.billBox {
-  display: flex;
-  align-items: center;
-  width: 77%;
-  margin: 22px;
+.id{
+    width: 20%;
+    font-weight: 600;
+    color: rgb(59, 57, 57);
+    display: flex;
+}
+.name{
+    width: 55%;
+    font-weight: 600;
+    color: rgb(59, 57, 57);
+    display: flex;
 }
 
-.boxDetails {
-  width: 33%;
+.right {
+  width: 20%;
   font-weight: 600;
   color: rgb(59, 57, 57);
   display: flex;
 }
+
+.billBox {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  margin: 10px;
+}
+
 
 .data {
   color: #49a96e;
@@ -80,10 +93,9 @@ input::placeholder {
 
 .health {
   color: #49a96e;
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 600;
-  margin: 150px 300px;
-
+  margin: 60px 100px;
 }
 
 .cover button {
@@ -91,7 +103,7 @@ input::placeholder {
   color: white;
   background-color: #49a96e;
   margin-right: 5%;
-  width: 40%;
+  width: 30%;
   height: 40px;
   border-radius: 10px;
   cursor: pointer;
