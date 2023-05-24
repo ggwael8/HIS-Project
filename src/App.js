@@ -13,7 +13,7 @@ import Labs from './Pages/Labs/Labs';
 import MedicalRecord from './Pages/MedicalRecord/MedicalRecord';
 import MedicalSecretary from './Pages/MedicalSecretary/MedicalSecretary';
 import Pharmacy from './Pages/Pharmacy/Pharmacy';
-import { checkAuth } from './utils/auth';
+import { checkAuth, auth } from './utils/auth';
 import UserContext from './context/user-context';
 import { apiUrl } from './utils/api';
 function App() {
@@ -118,8 +118,13 @@ function App() {
 
   async function fetchUserHandler() {
     if (checkAuth()) {
-      setIsLoading(true);
-      const response = await fetch(apiUrl + 'auth/users/me/');
+      setIsLoading(true);  
+      const response = await fetch(apiUrl + 'auth/users/me/',{
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: auth,
+        },
+      });
       if (response.status === 200) {
         const data = await response.json();
         setIsLoading(false);

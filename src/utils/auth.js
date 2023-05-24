@@ -5,3 +5,9 @@ export function checkAuth() {
     return false;
   }
 }
+
+export function getAuthToken() {
+  return localStorage.getItem('token');
+}
+
+export const auth = 'JWT ' + getAuthToken();
