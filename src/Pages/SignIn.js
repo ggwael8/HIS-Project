@@ -68,7 +68,7 @@ export default function SignIn() {
     if (Object.keys(validate(values)).length === 0) {
       login(values.username, values.password);
       setTimeout(() => {
-        navigateSignUp();
+        navigate('/');
         window.location.reload(true);
       }, 2000);
     }
