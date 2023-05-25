@@ -65,23 +65,68 @@ function Appointment() {
   async function fetchDataHandler() {
     setIsLoading(true);
     const response = await Promise.all([
-      fetch(apiUrl + 'hospital/specialty/'),
-      fetch(apiUrl + 'hospital/doctor/'),
+      fetch(apiUrl + 'hospital/specialty/', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
+      }),
+      fetch(apiUrl + 'hospital/doctor/', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
+      }),
       PatientAppointmentDoctor !== null &&
-        fetch(apiUrl + 'appointments/doctor-schedule/'),
+        fetch(apiUrl + 'appointments/doctor-schedule/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
           apiUrl +
-            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`
+            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
-      userctx.role === 'patient' && fetch(apiUrl + 'hospital/patient/me/'),
-      openWindow === 3 && fetch(apiUrl + 'appointments/Booked-Appointments/'),
-      openWindow === 4 && fetch(apiUrl + 'appointments/Doctor-Appointments/'),
+      userctx.role === 'patient' &&
+        fetch(apiUrl + 'hospital/patient/me/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
+      openWindow === 3 &&
+        fetch(apiUrl + 'appointments/Booked-Appointments/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
+      openWindow === 4 &&
+        fetch(apiUrl + 'appointments/Doctor-Appointments/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       billsPopUp &&
         fetch(
           apiUrl +
-            `bills/bill/?patient=&patient__user__username=&appointment=${billsPopUp}`
+            `bills/bill/?patient=&patient__user__username=&appointment=${billsPopUp}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
     ]);
     const specialty = await response[0].json();
@@ -304,6 +349,10 @@ function Appointment() {
                       apiUrl + `appointments/Doctor-Appointments/${info.id}/`,
                       {
                         method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          Authorization: `JWT ${localStorage.getItem('token')}`,
+                        },
                       }
                     );
                     fetchDataHandler();
@@ -660,6 +709,7 @@ function Appointment() {
       }),
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `JWT ${localStorage.getItem('token')}`,
       },
     });
     // const data = await response.json();
@@ -688,6 +738,7 @@ function Appointment() {
           }),
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
           },
         });
 

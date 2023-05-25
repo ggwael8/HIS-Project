@@ -4,6 +4,7 @@ import DropDownMenu from './../DropDownMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect, useRef } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 function ProfileNavBar(props) {
   const [onDropDown, setOnDropDown] = useState(false);
@@ -11,6 +12,7 @@ function ProfileNavBar(props) {
   let dropDownRef = useRef();
   let profileContainer = useRef();
 
+  let navigate = useNavigate();
   useEffect(() => {
     let SetDropDownFalse = e => {
       if (
@@ -39,6 +41,13 @@ function ProfileNavBar(props) {
       id: 2,
       type: 'link',
       path: '/',
+      func: () => {
+        localStorage.removeItem('token');
+        setTimeout(() => {
+          navigate('/');
+          window.location.reload(true);
+        }, 1000);
+      },
       icon: <i class='fa-solid fa-right-from-bracket '></i>,
       body: 'logout',
     },

@@ -78,7 +78,13 @@ function MedicalRecord() {
           setIsLoading(true);
           const response = await fetch(
             apiUrl +
-              `appointments/Booked-Appointments/?patient=${patientId}&doctor=&slot=&date=&type=&status=&created_at=`
+              `appointments/Booked-Appointments/?patient=${patientId}&doctor=&slot=&date=&type=&status=&created_at=`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+              },
+            }
           );
           if (response.ok) {
             const data = await response.json();
@@ -115,7 +121,13 @@ function MedicalRecord() {
           userctx.role === 'doctor'
             ? apiUrl + `lab-radiology/view-test-resutls/?patient=${patientId}`
             : apiUrl +
-                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Laboratory&appointment=${appointmentId}`
+                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Laboratory&appointment=${appointmentId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
       openWindow === 2 &&
         fetch(
@@ -123,15 +135,33 @@ function MedicalRecord() {
             ? apiUrl +
                 `lab-radiology/view-radiology-request/?patient=${patientId}`
             : apiUrl +
-                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Radiology&appointment=${appointmentId}`
+                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Radiology&appointment=${appointmentId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
-      openWindow === 3 && fetch(apiUrl + `records/all-records/${patientId}/`),
+      openWindow === 3 &&
+        fetch(apiUrl + `records/all-records/${patientId}/`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       openWindow === 4 &&
         fetch(
           userctx.role === 'doctor'
             ? apiUrl + `pharmacy/doctor-prescription/?patient=${patientId}`
             : apiUrl +
-                `pharmacy/receptionist-prescription/?created_at=&updated_at=&doctor=&patient=&appointment=${appointmentId}&date=&notes=&dispensed_by=&dispensed_status=`
+                `pharmacy/receptionist-prescription/?created_at=&updated_at=&doctor=&patient=&appointment=${appointmentId}&date=&notes=&dispensed_by=&dispensed_status=`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
     ]);
 
@@ -484,8 +514,19 @@ function MedicalRecord() {
     async function fetchHandler() {
       const response = await Promise.all([
         (requestType === 'Laboratory' || requestType === 'Radiology') &&
-          fetch(apiUrl + `lab-radiology/exams-list/?type=${requestType}`),
-        requestType === 'prescription' && fetch(apiUrl + `pharmacy/drug/`),
+          fetch(apiUrl + `lab-radiology/exams-list/?type=${requestType}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }),
+        requestType === 'prescription' &&
+          fetch(apiUrl + `pharmacy/drug/`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }),
       ]);
       if (requestType === 'Laboratory' || requestType === 'Radiology') {
         const data = await response[0].json();
@@ -556,6 +597,7 @@ function MedicalRecord() {
           }),
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
           },
         });
         console.log(
@@ -578,6 +620,7 @@ function MedicalRecord() {
           }),
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
           },
         });
 
@@ -596,6 +639,7 @@ function MedicalRecord() {
               }),
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
               },
             }
           );
@@ -622,6 +666,7 @@ function MedicalRecord() {
               }),
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
               },
             }
           );
@@ -635,6 +680,7 @@ function MedicalRecord() {
               }),
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
               },
             }
           );
@@ -662,6 +708,7 @@ function MedicalRecord() {
                 body: JSON.stringify(updatedPrescription),
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `JWT ${localStorage.getItem('token')}`,
                 },
               }
             );
@@ -684,6 +731,7 @@ function MedicalRecord() {
                 body: JSON.stringify(updatedPrescription2),
                 headers: {
                   'Content-Type': 'application/json',
+                  Authorization: `JWT ${localStorage.getItem('token')}`,
                 },
               }
             );

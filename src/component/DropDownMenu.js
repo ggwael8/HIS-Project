@@ -24,12 +24,13 @@ function DropDownMenu(props) {
         <>
           {props.type === 'link' ? (
             <NavLink
-              to={p.path}
+              to={!p.func && p.path}
               className={({ isActive }) =>
                 `${classes.link} ${
                   isActive && p.activeEffect ? classes.active : ''
                 }`
               }
+              onClick={p.func}
             >
               <h2>{p.icon}</h2>
               <h2>{p.body}</h2>

@@ -25,12 +25,20 @@ function MedicalSecretary() {
   const [data, setData] = useState(null);
   async function fetchMainDataHandler() {
     setIsLoading(true);
-    const response = await Promise.all([
-      openWindow === 1 && fetch(apiUrl + `records/surgery/`),
-      openWindow === 2 && fetch(apiUrl + `records/vitals/`),
-      openWindow === 3 && fetch(apiUrl + `records/medical-record/`),
-      openWindow === 4 && fetch(apiUrl + `records/visits/`),
-    ]);
+    const response = await Promise.all(
+      [
+        openWindow === 1 && fetch(apiUrl + `records/surgery/`),
+        openWindow === 2 && fetch(apiUrl + `records/vitals/`),
+        openWindow === 3 && fetch(apiUrl + `records/medical-record/`),
+        openWindow === 4 && fetch(apiUrl + `records/visits/`),
+      ],
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
+      }
+    );
     if (openWindow === 1) {
       const data = await response[0].json();
       setDetails(
@@ -182,6 +190,7 @@ function MedicalSecretary() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
             },
             body: JSON.stringify(data[0]),
           }
@@ -199,8 +208,10 @@ function MedicalSecretary() {
         formData.append('documentation', reportFile[0]);
         const response = await fetch(apiUrl + 'records/surgery/', {
           method: 'POST',
-
           body: formData,
+          headers: {
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
         });
         console.log(await response.json());
 

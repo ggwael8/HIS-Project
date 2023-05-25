@@ -2,7 +2,7 @@ import classes from './Labs.module.css';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import PopUp from '../../component/PopUp/PopUp';
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import UserContext from '../../context/user-context';
 import { apiUrl } from '../../utils/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,10 +10,7 @@ import {
   faFileLines,
   faFileCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons';
-import Dropzone from 'react-dropzone';
 function Labs() {
-  let popUpRef = useRef();
-  let containerRef = useRef();
   const userctx = useContext(UserContext);
 
   const [openWindow, setOpenWindow] = useState(1);
@@ -43,13 +40,12 @@ function Labs() {
 
     const response = await Promise.all([
       openWindow === 1 &&
-        fetch(
-          // apiUrl +
-          //   `lab-radiology/exam-request/?status=&patient=&doctor=&type_of_request=${
-          //     userctx.role === 'lab' ? 'Laboratory' : 'Radiology'
-          //   }`
-          apiUrl + `lab-radiology/exam-request/`
-        ),
+        fetch(apiUrl + `lab-radiology/exam-request/`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       openWindow === 2 &&
         fetch(
           apiUrl +
@@ -57,7 +53,13 @@ function Labs() {
               userctx.role === 'lab'
                 ? 'lab-radiology/view-test-resutls/'
                 : 'lab-radiology/view-radiology-request/'
-            }`
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
         ),
     ]);
     if (openWindow === 1) {
@@ -192,32 +194,6 @@ function Labs() {
                 };
               })
           );
-          // console.log(
-          //   resultList.results
-          //     .filter(info => info.id === selectedRequestIdResult)[0]
-          //     .Lab_request.map(info => {
-          //       return {
-          //         id: <span>{info.exam.id}</span>,
-          //         name: <span>{info.exam.name}</span>,
-          //         code: <span>{info.exam.code}</span>,
-          //         price: <span>{info.exam.price}</span>,
-          //         date: (
-          //           <span>{info.dateTime.toString().substring(0, 10)}</span>
-          //         ),
-          //         time: (
-          //           <span>{info.dateTime.toString().substring(11, 16)}</span>
-          //         ),
-          //         comment: <span>{info.comment}</span>,
-          //         button: {
-          //           title: 'Download Result',
-          //           setStates: () => {
-          //             /* //todo: add download function */
-          //             console.log('download ' + info.pdf_result);
-          //           },
-          //         },
-          //       };
-          //     })
-          // );
         }
       }
     }
@@ -278,6 +254,7 @@ function Labs() {
         }),
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `JWT ${localStorage.getItem('token')}`,
         },
       }
     );
@@ -306,6 +283,9 @@ function Labs() {
         {
           method: 'POST',
           body: formData,
+          headers: {
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
         }
       );
       if (userctx.role !== 'lab') {
@@ -320,6 +300,9 @@ function Labs() {
             {
               method: 'POST',
               body: formData,
+              headers: {
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+              },
             }
           );
         }

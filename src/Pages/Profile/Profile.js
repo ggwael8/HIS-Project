@@ -14,8 +14,18 @@ function Profile(props) {
     setIsLoading(true);
     if (userctx.role === 'patient') {
       const response = await Promise.all([
-        fetch(apiUrl + 'hospital/patient/me/'),
-        fetch(apiUrl + 'records/emergency-contact/'),
+        fetch(apiUrl + 'hospital/patient/me/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
+        fetch(apiUrl + 'records/emergency-contact/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       ]);
       console.log(response);
       const patientAddressData = await response[0].json();
@@ -69,22 +79,6 @@ function Profile(props) {
   }, [patientAddress, patientEmergencyInfo]);
 
   const [selectedHeader, SetSelectedHeader] = useState(1);
-  // const setProfile = () => {
-  //   setProfileContent({
-  //     PersonalInformationID: 1,
-  //     EmergencyInformationID: 2,
-  //     Personalcards: [
-  //       userctx.PersonalInformation,
-  //       userctx.ContactInformation,
-  //       patientAddress,
-  //     ],
-  //     EmergencyCards:
-  //       userctx.role === 'patient' &&
-  //       patientEmergencyInfo.map(info => {
-  //         return info;
-  //       }),
-  //   });
-  // };
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
@@ -137,8 +131,6 @@ function Profile(props) {
             </div>
           </>
         }
-
-        {console.log(profileContent)}
       </div>
     )
   );
