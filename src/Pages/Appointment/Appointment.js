@@ -363,12 +363,14 @@ function Appointment() {
               },
               info.prescription !== null && {
                 title: 'Prescription',
-                card: info.prescription.prescription.map(info => {
-                  return {
-                    name: <span>{info.drug.name}</span>,
-                    price: <span>{info.drug.price}</span>,
-                  };
-                }),
+                card: info.prescription.prescription
+                  .filter(info => info.dispensed === true)
+                  .map(info => {
+                    return {
+                      name: <span>{info.drug.name}</span>,
+                      price: <span>{info.drug.price}</span>,
+                    };
+                  }),
               },
             ],
             // insurance:

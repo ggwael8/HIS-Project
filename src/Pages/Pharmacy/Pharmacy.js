@@ -90,7 +90,6 @@ function Pharmacy() {
         })
       );
       if (prescriptionId) {
-        console.log(data.results[0].prescription);
         setPopUpData(
           data.results
             .filter(info => info.id === prescriptionId)[0]
@@ -183,7 +182,7 @@ function Pharmacy() {
         ))}
       {openWindow === 2 && (
         <DetailsBody
-          title='Drugs'
+          title='Prescriptions'
           toggleFilter={toggleFilter}
           setToggleFilter={setToggleFilter}
           details={details}

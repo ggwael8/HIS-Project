@@ -33,7 +33,6 @@ function FormInput(props) {
                           }`}
                         >
                           <input {...getInputProps()} />
-                          {console.log(props.reportFile)}
                           {props.reportFile ? (
                             <p>{props.reportFile[0].name}</p>
                           ) : (

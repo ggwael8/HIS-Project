@@ -187,6 +187,8 @@ function MedicalSecretary() {
           }
         );
         console.log(await response.json());
+        setData(null);
+        setPopUp(null);
       } else if (openWindow === 1) {
         const formData = new FormData();
         formData.append('patient', data[0].patient);
@@ -201,6 +203,9 @@ function MedicalSecretary() {
           body: formData,
         });
         console.log(await response.json());
+
+        setData(null);
+        setPopUp(null);
       }
     }
 

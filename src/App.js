@@ -36,7 +36,10 @@ function App() {
     {
       path: '/',
       element: <RootLayout />,
-      children: [{ path: '/', element: <MedicalSecretary /> }],
+      children: [
+        { path: '/', element: <MedicalSecretary /> },
+        { path: '/profile', element: <Profile /> },
+      ],
     },
   ]);
   const pharmacyRouter = createBrowserRouter([
@@ -107,7 +110,8 @@ function App() {
       path: '/',
       element: <RootLayout />,
       children: [
-        { path: '/', element: <Register /> },
+        { path: '/', element: <SignIn /> },
+        { path: '/signup', element: <Register /> },
         // { path: '/signup/login/', element: <SignUpLogin /> },
         // { path: '/signup/personal/', element: <SignUpPersonal /> },
         // { path: '/signup/address/', element: <SignUpAddress /> },
@@ -119,8 +123,8 @@ function App() {
 
   async function fetchUserHandler() {
     if (checkAuth()) {
-      setIsLoading(true);  
-      const response = await fetch(apiUrl + 'auth/users/me/',{
+      setIsLoading(true);
+      const response = await fetch(apiUrl + 'auth/users/me/', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: auth,
