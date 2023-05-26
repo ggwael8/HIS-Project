@@ -25,18 +25,22 @@ function Pharmacy() {
   //fetching main data
   async function fetchMainDataHandler() {
     setIsLoading(true);
-    const response = await Promise.all(
-      [
-        openWindow === 1 && fetch(apiUrl + `pharmacy/drug/`),
-        openWindow === 2 && fetch(apiUrl + `pharmacy/pharmacist-prescription/`),
-      ],
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`,
-        },
-      }
-    );
+    const response = await Promise.all([
+      openWindow === 1 &&
+        fetch(apiUrl + `pharmacy/drug/`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
+      openWindow === 2 &&
+        fetch(apiUrl + `pharmacy/pharmacist-prescription/`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
+    ]);
     if (openWindow === 1) {
       const data = await response[0].json();
       setDetails(

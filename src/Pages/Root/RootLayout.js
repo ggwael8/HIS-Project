@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import UserContext from '../../context/user-context';
 import { checkAuth } from '../../utils/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileMedical } from '@fortawesome/free-solid-svg-icons';
+import { faFileMedical, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 function RootLayout() {
   const userctx = useContext(UserContext);
   const links = {
@@ -103,6 +103,19 @@ function RootLayout() {
         icon: (
           <h1>
             <FontAwesomeIcon icon={faFileMedical} />
+          </h1>
+        ),
+      },
+      {
+        to: '/signup',
+        title: (
+          <h1>
+            <span>signup</span>
+          </h1>
+        ),
+        icon: (
+          <h1>
+            <FontAwesomeIcon icon={faUserPlus} />
           </h1>
         ),
       },

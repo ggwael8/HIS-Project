@@ -255,8 +255,8 @@ function Appointment() {
               <span>{info.slot.start_time.toString().slice(0, 5)}</span>
             ),
             EndTime: <span>{info.slot.end_time}</span>,
+            status: <span>{info.status}</span>,
             ...(userctx.role === 'receptionist' && {
-              status: <span>{info.status}</span>,
               button: [
                 info.status === 'waiting' && {
                   title: 'View Bills',
@@ -295,6 +295,9 @@ function Appointment() {
                           }),
                           headers: {
                             'Content-Type': 'application/json',
+                            Authorization: `JWT ${localStorage.getItem(
+                              'token'
+                            )}`,
                           },
                         }
                       );
@@ -306,22 +309,24 @@ function Appointment() {
               ],
             }),
 
-            ...(userctx.role === 'doctor' && {
-              button: [
-                {
-                  title: 'View Medical Record',
-                  setStates: () => {
-                    console.log('view medical record');
-                    navigate('/medicalrecord', {
-                      state: {
-                        patientId: info.patient.id,
-                        appointmentId: info.id,
-                      },
-                    });
+            ...(userctx.role === 'doctor' &&
+              info.status !== 'completed' &&
+              info.status !== 'pending' && {
+                button: [
+                  {
+                    title: 'View Medical Record',
+                    setStates: () => {
+                      console.log('view medical record');
+                      navigate('/medicalrecord', {
+                        state: {
+                          patientId: info.patient.id,
+                          appointmentId: info.id,
+                        },
+                      });
+                    },
                   },
-                },
-              ],
-            }),
+                ],
+              }),
           };
         })
       );
@@ -387,7 +392,6 @@ function Appointment() {
             ),
             schedulePrice: <span>{info.appointment.slot.schedule.price}</span>,
             total: <span>{info.total}</span>,
-            //todo: m3rf4 maloooo
             card: [
               info.insurance !== null && {
                 title: 'Insurance',

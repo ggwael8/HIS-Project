@@ -22,22 +22,24 @@ function Selection(props) {
   };
   const isSelectedDay = date => {
     const day = date.day();
+
     const selectedDay =
       props.selectedDay === 'Saturday'
         ? 6
-        : 'Sunday'
+        : props.selectedDay === 'Sunday'
         ? 0
-        : 'Monday'
+        : props.selectedDay === 'Monday'
         ? 1
-        : 'Tuesday'
+        : props.selectedDay === 'Tuesday'
         ? 2
-        : 'Wednesday'
+        : props.selectedDay === 'Wednesday'
         ? 3
-        : 'Thursday'
+        : props.selectedDay === 'Thursday'
         ? 4
-        : 'Friday'
+        : props.selectedDay === 'Friday'
         ? 5
         : null;
+    console.log(day, selectedDay, props.selectedDay);
     return day !== selectedDay;
   };
   return (

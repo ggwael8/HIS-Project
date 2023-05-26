@@ -261,6 +261,8 @@ function Labs() {
     const data = await response.json();
     console.log(data);
     setSelectedExamsListId(null);
+    setSelectedStatus(null);
+    fetchDataHandler();
   };
   const AddTestResult = async () => {
     for (let i = 0; i < examsList.length; i++) {
@@ -314,6 +316,8 @@ function Labs() {
     }
     EditExamStatus();
     setSelectedExamsListId(null);
+    setSelectedStatus(null);
+    fetchDataHandler();
   };
 
   return (

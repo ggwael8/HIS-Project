@@ -82,6 +82,7 @@ function App() {
         { path: '/', element: <Appointment /> },
         { path: '/requests', element: <MedicalRecord /> },
         { path: '/profile', element: <Profile /> },
+        { path: '/signup', element: <Register /> },
       ],
     },
   ]);
@@ -111,7 +112,6 @@ function App() {
       element: <RootLayout />,
       children: [
         { path: '/', element: <SignIn /> },
-        { path: '/signup', element: <Register /> },
         // { path: '/signup/login/', element: <SignUpLogin /> },
         // { path: '/signup/personal/', element: <SignUpPersonal /> },
         // { path: '/signup/address/', element: <SignUpAddress /> },

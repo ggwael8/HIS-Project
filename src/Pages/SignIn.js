@@ -17,30 +17,23 @@ export function setAuthToken(token) {
 }
 
 export default function SignIn() {
-  function login(username, password) {
-    const person = {
-      username: username,
-      password: password,
-    };
-    fetch(apiUrl + 'login/', {
+  const [error, setError] = useState(null);
+  async function login(username, password) {
+    const response = await fetch(apiUrl + 'login/', {
       method: 'POST',
       headers: myHeaders,
-      body: JSON.stringify(person),
-    })
-      .then(response => {
-        if (response.status === 200) {
-          return response.json().then(data => {
-            setAuthToken(data.access);
-            console.log(data);
-          });
-        } else {
-          console.log(response.status);
-          return response.status;
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
+      body: JSON.stringify({ username, password }),
+    });
+    if (response.status === 200) {
+      const data = await response.json();
+      setAuthToken(data.access);
+      navigate('/');
+      window.location.reload(true);
+      return response;
+    } else {
+      setError('Invalid username or password');
+      return response;
+    }
   }
   const navigate = useNavigate();
   const navigateForgetPassword = () => {
@@ -67,10 +60,10 @@ export default function SignIn() {
   const handleSubmit = (values, { setSubmitting }) => {
     if (Object.keys(validate(values)).length === 0) {
       login(values.username, values.password);
-      setTimeout(() => {
-        navigate('/');
-        window.location.reload(true);
-      }, 2000);
+      // setTimeout(() => {
+      //   navigate('/');
+      //   window.location.reload(true);
+      // }, 2000);
     }
     setSubmitting(false);
   };
@@ -116,21 +109,24 @@ export default function SignIn() {
                       className={classes.error}
                     />
                   </div>
-                  <div className={classes.forget}>
+                  <div>
+                    <p className={classes.error}>{error}</p>
+                  </div>
+                  {/* <div className={classes.forget}>
                     <span
                       className={classes.sign}
                       onClick={navigateForgetPassword}
                     >
                       Forget Password
                     </span>
-                  </div>
+                  </div> */}
                 </div>
                 <div className={classes.btn}>
                   <button type='submit'>Login</button>
                   <p className={classes.account}>
                     Don't Have An Account?
-                    <span className={classes.sign} onClick={navigateSignUp}>
-                      Sign Up
+                    <span className={classes.customSpan}>
+                      Create One From Receptionist Inside Hospital
                     </span>
                   </p>
                 </div>

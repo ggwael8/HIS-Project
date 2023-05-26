@@ -65,6 +65,14 @@ form input::placeholder {
   margin-bottom: 7%;
   /* margin: 7% 20%; */
 }
+.btn button {
+  cursor: pointer;
+}
+.btn button:hover {
+  background-color: #4747473a;
+  color: #49a96e;
+  cursor: pointer;
+}
 .form_details button {
   border: none;
   background-color: #49a96e;
@@ -85,6 +93,12 @@ form input::placeholder {
   font-weight: 500;
   margin-top: 15px;
   margin-right: 20%;
+}
+.customSpan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #49a96e;
 }
 .sign {
   color: #40b8f3;
@@ -116,6 +130,10 @@ form input::placeholder {
 
 .error {
   color: red;
+  margin-left: 5%;
+}
+.success {
+  color: #49a96e;
   margin-left: 5%;
 }
 .select {
