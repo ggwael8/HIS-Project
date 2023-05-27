@@ -2,10 +2,13 @@ import classes from './Profile.module.css';
 import InformationCard from '../../component/NavBar/InformationCard';
 import { useEffect, useState, useContext } from 'react';
 import UserContext from '../../context/user-context';
+import ExtraContext from '../../context/extra-context';
 import { apiUrl } from '../../utils/api';
+
 function Profile(props) {
   const [isLoading, setIsLoading] = useState();
   const userctx = useContext(UserContext);
+  const extraCtx = useContext(ExtraContext);
   const [patientAddress, setPatientAddress] = useState({});
   const [patientEmergencyInfo, setPatientEmergencyInfo] = useState([]);
   const [profileContent, setProfileContent] = useState({});
@@ -29,7 +32,6 @@ function Profile(props) {
       ]);
       console.log(response);
       const patientAddressData = await response[0].json();
-
       setPatientAddress({
         title: 'Address Information',
         FullStreet: patientAddressData.address.street,
@@ -68,7 +70,9 @@ function Profile(props) {
       Personalcards: [
         userctx.PersonalInformation,
         userctx.ContactInformation,
-        patientAddress,
+        userctx.role === 'doctor'
+          ? extraCtx
+          : userctx.role === 'patient' && patientAddress,
       ],
       EmergencyCards:
         userctx.role === 'patient' &&
@@ -85,7 +89,7 @@ function Profile(props) {
   return (
     isLoading === false && (
       <div className={classes.profile}>
-        {console.log()}
+        {console.log(userctx.role)}
         {
           <>
             <div className={classes.header}>
