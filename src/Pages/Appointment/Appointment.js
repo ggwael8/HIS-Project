@@ -44,6 +44,10 @@ function Appointment() {
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [allAppointmentList, setAllAppointmentList] = useState(null);
+  const [
+    PatientAppointmentSearchSelected,
+    setPatientAppointmentSearchSelected,
+  ] = useState('');
   const [openWindow, setOpenWindow] = useState(
     userctx.role === 'doctor' ? 3 : 1
   );
@@ -131,19 +135,29 @@ function Appointment() {
     ]);
     const specialty = await response[0].json();
     setSpecialityList(
-      specialty.results.map(info => {
-        return {
-          id: info.id,
-          body: info.specialty,
-          card: {
-            specialty: (
-              <h4>
-                <span>{info.specialty}</span>
-              </h4>
-            ),
-          },
-        };
-      })
+      specialty.results
+        .filter(item => {
+          if (PatientAppointmentSearchSelected === '') {
+            return item;
+          } else {
+            return item.specialty
+              .toLowerCase()
+              .includes(PatientAppointmentSearchSelected);
+          }
+        })
+        .map(info => {
+          return {
+            id: info.id,
+            body: info.specialty,
+            card: {
+              specialty: (
+                <h4>
+                  <span>{info.specialty}</span>
+                </h4>
+              ),
+            },
+          };
+        })
     );
     const doctors = await response[1].json();
     setDoctorsList(
@@ -446,6 +460,7 @@ function Appointment() {
     PatientAppointmentDoctor,
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
+    PatientAppointmentSearchSelected,
     openWindow,
     billsPopUp,
   ]);
@@ -457,11 +472,7 @@ function Appointment() {
       days: daysList,
     });
   }, [specialtyList, doctorsList, daysList]);
-  //todo: search and filter unhandled
-  const [
-    PatientAppointmentSearchSelected,
-    setPatientAppointmentSearchSelected,
-  ] = useState();
+
   const [toggleFilter, setToggleFilter] = useState(false);
   //resets bookappointment page data
   const resetBookNewAppointment = () => {
@@ -472,7 +483,7 @@ function Appointment() {
     setPatientAppointmentDate(null);
     setPatientAppointmentTime(null);
     setOpenWindow(1);
-    setPatientAppointmentSearchSelected(null);
+    setPatientAppointmentSearchSelected('');
     setCurrentDate(new Date());
     setTimeSlots([]);
   };
