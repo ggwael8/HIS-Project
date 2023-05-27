@@ -1,12 +1,15 @@
 import classes from './ProfileNavBar.module.css';
-import photo from '../../Images/SVG/Photo.svg';
+import doctorPic from '../../Images/SVG/Doctor.svg';
 import DropDownMenu from './../DropDownMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { useState, useEffect, useRef } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-
+import { faChevronDown, faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { useState, useEffect, useRef, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import PictureContext from '../../context/picture-context';
+import UserContext from '../../context/user-context';
 function ProfileNavBar(props) {
+  const picturectx = useContext(PictureContext);
+  const userctx = useContext(UserContext);
   const [onDropDown, setOnDropDown] = useState(false);
 
   let dropDownRef = useRef();
@@ -62,7 +65,23 @@ function ProfileNavBar(props) {
           ref={profileContainer}
         >
           <div>
-            <img src={photo} alt='pic' />
+            {console.log(picturectx)}
+            {userctx.role === 'doctor' ? (
+              <img
+                src={picturectx}
+                alt='doctor'
+                onError={e => {
+                  e.target.onerror = null;
+                  e.target.src = doctorPic;
+                }}
+              />
+            ) : (
+              <FontAwesomeIcon
+                icon={faCircleUser}
+                size='2xl'
+                style={{ color: '#49a96e' }}
+              />
+            )}
           </div>
           <div className={classes.title}>
             <h3 className={classes.bold}>{props.firstname}</h3>

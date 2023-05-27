@@ -8,7 +8,10 @@
   cursor: pointer;
 }
 .profile img {
-  width: 2rem;
+  border-radius: 100%;
+  width: 2.5rem;
+  height: 2.5rem;
+  vertical-align: middle;
 }
 .title {
   height: 100%;
