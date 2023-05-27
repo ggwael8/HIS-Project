@@ -1,119 +1,134 @@
 .page {
-    width: 50%;
-    margin: 15px;
-    display: flex;
-    flex-direction: column;
+  width: 50%;
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
 }
 
 .allBox {
-    margin: 3px;
+  margin: 3px;
 }
 
 .title {
-    color: #49a96e;
-    font-weight: 700;
-    font-size: 15px;
+  color: #49a96e;
+  font-weight: 700;
+  font-size: 15px;
 }
 
 .paymentBox {
-    border: 1px solid gray;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 245px;
+  border: 1px solid gray;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 245px;
 }
 
 .searchBar {
-    margin-top: 20px;
-    margin-right: 20px;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-
+  margin-top: 20px;
+  margin-right: 20px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .search {
-    border: none;
-    border-bottom: 1px solid black;
-    padding-top: 10px;
-    font-size: 12px;
+  border: none;
+  border-bottom: 1px solid black;
+  padding-top: 10px;
+  font-size: 12px;
 }
 
 input::placeholder {
-    color: rgb(161, 161, 161);
-    font: 17px/3 sans-serif;
+  color: rgb(161, 161, 161);
+  font: 17px/3 sans-serif;
 }
 
 .cover {
-    border: 1px solid rgb(197, 193, 193);
-    border-radius: 10px;
-    height: 70px;
-    margin: 10px;
-    width: 95%;
-    display: flex;
-    align-items: center;
-    font-size: 12px;
+  border: 1px solid rgb(197, 193, 193);
+  border-radius: 10px;
+  height: 70px;
+  margin: 10px;
+  width: 95%;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
 }
 
 .billBox {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin: 5px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 5px;
 }
 
 .boxDetails {
-    width: 40%;
-    font-weight: 600;
-    color: rgb(59, 57, 57);
-    display: flex;
+  width: 40%;
+  font-weight: 600;
+  color: rgb(59, 57, 57);
+  display: flex;
 }
 
 .data {
-    color: gray;
-    margin-left: 5%;
+  color: gray;
+  margin-left: 5%;
 }
 
 .health {
-    color: #49a96e;
-    font-size: 30px;
-    font-weight: 600;
-    margin: 150px 300px;
-
+  color: #49a96e;
+  font-size: 30px;
+  font-weight: 600;
+  margin: 150px 300px;
 }
 
 .cover button {
-    border: none;
-    color: white;
-    background-color: #49a96e;
-    margin-right: 8px;
-    width: 20%;
-    height: 30px;
-    border-radius: 10px;
-    cursor: pointer;
+  border: none;
+  color: white;
+  background-color: #49a96e;
+  margin-right: 8px;
+  width: 20%;
+  height: 30px;
+  border-radius: 10px;
+  cursor: pointer;
 }
-
-
+.File {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  align-items: center;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.5rem;
+}
+.ButtonGreen {
+  color: #fff;
+  background-color: #49a96e;
+}
+.ButtonGreen:hover {
+  background-color: #4747473a;
+  color: #49a96e;
+  cursor: pointer;
+}
 @media (max-width: 680px) {
-    .cover {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+  .cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-    .billBox {
-        width: 95%;
-        display: flex;
-        align-items: center;
+  .billBox {
+    width: 95%;
+    display: flex;
+    align-items: center;
+  }
 
-    }
-
-    .cover button {
-        width: 50%;
-        margin-bottom: 5px;
-    }
+  .cover button {
+    width: 50%;
+    margin-bottom: 5px;
+  }
 }
