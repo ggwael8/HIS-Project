@@ -8,7 +8,7 @@ export default function Bills() {
   const [allResults, setAllResults] = useState([]);
   const [inputText, setInputText] = useState('');
   const [popUp, setPopUp] = useState(false);
-  const [popUpData, setPopUpData] = useState(null);
+  const [popUpData, setPopUpData] = useState([]);
   const [resultId, setResultId] = useState(null);
   const myHeaders = new Headers({
     'Content-Type': 'application/json',
@@ -59,62 +59,60 @@ export default function Bills() {
       });
       const data = await response.json();
       console.log(data);
-      setPopUpData(
-        data.results.map(info => {
-          return {
-            id: <span>{info.id}</span>,
-            appointmentId: <span>{info.appointment.id}</span>,
-            patient: (
-              <span>
-                {info.patient.first_name + ' ' + info.patient.last_name}
-              </span>
-            ),
-            doctor: (
-              <span>
-                {info.appointment.doctor.first_name +
-                  ' ' +
-                  info.appointment.doctor.last_name}
-              </span>
-            ),
-            schedulePrice: <span>{info.appointment.slot.schedule.price}</span>,
-            total: <span>{info.total}</span>,
-            card: [
-              info.insurance !== null && {
-                title: 'Insurance',
-              },
-              info.radiology_request !== null && {
-                title: 'Radiology Request',
-                card: info.radiology_request.exams.map(info => {
+      setPopUpData([
+        {
+          id: <span>{data.id}</span>,
+          appointmentId: <span>{data.appointment.id}</span>,
+          patient: (
+            <span>
+              {data.patient.first_name + ' ' + data.patient.last_name}
+            </span>
+          ),
+          doctor: (
+            <span>
+              {data.appointment.doctor.first_name +
+                ' ' +
+                data.appointment.doctor.last_name}
+            </span>
+          ),
+          schedulePrice: <span>{data.appointment.slot.schedule.price}</span>,
+          total: <span>{data.total}</span>,
+          card: [
+            data.insurance !== null && {
+              title: 'Insurance',
+            },
+            data.radiology_request !== null && {
+              title: 'Radiology Request',
+              card: data.radiology_request.exams.map(info => {
+                return {
+                  name: <span>{info.name}</span>,
+                  price: <span>{info.price}</span>,
+                };
+              }),
+            },
+            data.lab_request !== null && {
+              title: 'Lab Request',
+              card: data.lab_request.exams.map(info => {
+                return {
+                  name: <span>{info.name}</span>,
+                  price: <span>{info.price}</span>,
+                };
+              }),
+            },
+            data.prescription !== null && {
+              title: 'Prescription',
+              card: data.prescription.prescription
+                .filter(info => info.dispensed === true)
+                .map(info => {
                   return {
-                    name: <span>{info.name}</span>,
-                    price: <span>{info.price}</span>,
+                    name: <span>{info.drug.name}</span>,
+                    price: <span>{info.drug.price}</span>,
                   };
                 }),
-              },
-              info.lab_request !== null && {
-                title: 'Lab Request',
-                card: info.lab_request.exams.map(info => {
-                  return {
-                    name: <span>{info.name}</span>,
-                    price: <span>{info.price}</span>,
-                  };
-                }),
-              },
-              info.prescription !== null && {
-                title: 'Prescription',
-                card: info.prescription.prescription
-                  .filter(info => info.dispensed === true)
-                  .map(info => {
-                    return {
-                      name: <span>{info.drug.name}</span>,
-                      price: <span>{info.drug.price}</span>,
-                    };
-                  }),
-              },
-            ],
-          };
-        })
-      );
+            },
+          ],
+        },
+      ]);
     }
     if (popUp) {
       getAllResults();
@@ -203,6 +201,7 @@ export default function Bills() {
           )}
         </div>
       </div>
+      {console.log(popUpData)}
       {popUp && popUpData !== null && (
         <PopUp popUp={popUp} setPopUp={setPopUp} Cards={popUpData} />
       )}
