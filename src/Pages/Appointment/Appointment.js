@@ -17,6 +17,7 @@ import StepsCircle from '../../component/StepsCircle/StepsCircle';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import PopUp from '../../component/PopUp/PopUp';
 import { apiUrl } from '../../utils/api';
+import doctorPic from '../../Images/SVG/Doctor.svg';
 
 function Appointment() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ function Appointment() {
   const [patient, setPatient] = useState();
   const [appointmentType, setAppointmentType] = useState(1);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
-    useState(null);
+    useState('');
   const [PatientAppointmentDoctor, setPatientAppointmentDoctor] =
     useState(null);
   const [PatientAppointmentDayOfWeek, setPatientAppointmentDayOfWeek] =
@@ -68,19 +69,29 @@ function Appointment() {
   //fetching data from api
   async function fetchDataHandler() {
     setIsLoading(true);
+    console.log(PatientAppointmentSearchSelected);
     const response = await Promise.all([
-      fetch(apiUrl + 'hospital/specialty/', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`,
-        },
-      }),
-      fetch(apiUrl + 'hospital/doctor/', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`,
-        },
-      }),
+      fetch(
+        apiUrl +
+          `hospital/specialty/${`?search=${PatientAppointmentSearchSelected}`}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }
+      ),
+      PatientAppointmentSpecialist !== '' &&
+        fetch(
+          apiUrl +
+            `hospital/doctor/${`?department=&specialty=${PatientAppointmentSpecialist}&search=${PatientAppointmentSearchSelected}`}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       PatientAppointmentDoctor !== null &&
         fetch(apiUrl + 'appointments/doctor-schedule/', {
           headers: {
@@ -134,48 +145,53 @@ function Appointment() {
         ),
     ]);
     const specialty = await response[0].json();
+    console.log(specialty);
     setSpecialityList(
-      specialty.results
-        .filter(item => {
-          if (PatientAppointmentSearchSelected === '') {
-            return item;
-          } else {
-            return item.specialty
-              .toLowerCase()
-              .includes(PatientAppointmentSearchSelected);
-          }
-        })
-        .map(info => {
-          return {
-            id: info.id,
-            body: info.specialty,
-            card: {
-              specialty: (
-                <h4>
-                  <span>{info.specialty}</span>
-                </h4>
-              ),
-            },
-          };
-        })
-    );
-    const doctors = await response[1].json();
-    setDoctorsList(
-      doctors.results.map(info => {
+      specialty.results.map(info => {
         return {
           id: info.id,
+          body: info.specialty,
           card: {
-            name: (
+            specialty: (
               <h4>
-                {info.image !== null && <img src={info.image} alt='doctor' />}
-                name :
-                <span>{info.user.first_name + ' ' + info.user.last_name}</span>
+                <span>{info.specialty}</span>
               </h4>
             ),
           },
         };
       })
     );
+    if (PatientAppointmentSpecialist !== '') {
+      const doctors = await response[1].json();
+      setDoctorsList(
+        doctors.results.map(info => {
+          return {
+            id: info.id,
+            card: {
+              name: (
+                <h4>
+                  {console.log(info.image)}
+                  {info.image !== null && (
+                    <img
+                      src={info.image}
+                      alt='doctor'
+                      onError={e => {
+                        e.target.onerror = null;
+                        e.target.src = doctorPic;
+                      }}
+                    />
+                  )}
+                  name :
+                  <span>
+                    {info.user.first_name + ' ' + info.user.last_name}
+                  </span>
+                </h4>
+              ),
+            },
+          };
+        })
+      );
+    }
     if (PatientAppointmentDoctor !== null) {
       const Days = await response[2].json();
       setDaysList(
@@ -225,6 +241,7 @@ function Appointment() {
         PatientAppointmentDate !== null
       ) {
         const Slots = await response[3].json();
+
         setTimeSlots(
           Slots.results.map(info => {
             return {
@@ -461,6 +478,7 @@ function Appointment() {
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
     PatientAppointmentSearchSelected,
+    PatientAppointmentSpecialist,
     openWindow,
     billsPopUp,
   ]);
@@ -484,9 +502,13 @@ function Appointment() {
     setPatientAppointmentTime(null);
     setOpenWindow(1);
     setPatientAppointmentSearchSelected('');
+    setPatientAppointmentSpecialist('');
     setCurrentDate(new Date());
     setTimeSlots([]);
   };
+  useEffect(() => {
+    setPatientAppointmentSearchSelected('');
+  }, [PatientAppointmentSelectedStep]);
   //Book New Appointment Selection body content
   const selection = [
     //todo: using role isn't the best way
