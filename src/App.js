@@ -15,10 +15,14 @@ import MedicalSecretary from './Pages/MedicalSecretary/MedicalSecretary';
 import Pharmacy from './Pages/Pharmacy/Pharmacy';
 import { checkAuth, auth } from './utils/auth';
 import UserContext from './context/user-context';
+import ExtraContext from './context/extra-context';
+import PictureContext from './context/picture-context';
 import { apiUrl } from './utils/api';
 import Register from './Pages/Register';
 function App() {
   const [userInfo, setUserInfo] = useState(null);
+  const [extraInfo, setExtraInfo] = useState(null);
+  const [userPicture, setUserPicture] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   //todo: fetch organization
 
@@ -132,7 +136,6 @@ function App() {
       });
       if (response.status === 200) {
         const data = await response.json();
-        setIsLoading(false);
         const transformedInfo = {
           role: data.role,
           UserID: data.id,
@@ -162,7 +165,39 @@ function App() {
   useEffect(() => {
     fetchUserHandler();
   }, []);
-
+  async function fetchExtraInfo() {
+    if (checkAuth()) {
+      setIsLoading(true);
+      const response = await Promise.all([
+        userInfo.role === 'doctor' &&
+          fetch(
+            apiUrl +
+              `hospital/doctor/?user__id=${userInfo.UserID}&department=&specialty=&id=`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: auth,
+              },
+            }
+          ),
+      ]);
+      setIsLoading(false);
+      if (userInfo.role === 'doctor') {
+        const data = await response[0].json();
+        console.log(data);
+        setExtraInfo({
+          title: 'Doctor Information',
+          medical_license: data.results[0].medical_license,
+          specialty: data.results[0].specialty,
+          department: data.results[0].department,
+        });
+        setUserPicture(data.results[0].image);
+      }
+    } else setIsLoading(false);
+  }
+  useEffect(() => {
+    fetchExtraInfo();
+  }, [userInfo]);
   const ChooseRouterRole = () => {
     if (checkAuth()) {
       if (userInfo.role === 'admin') {
@@ -180,7 +215,11 @@ function App() {
       } else if (userInfo.role === 'doctor') {
         return (
           <UserContext.Provider value={userInfo}>
-            <RouterProvider router={doctorRouter} />
+            <ExtraContext.Provider value={extraInfo}>
+              <PictureContext.Provider value={userPicture}>
+                <RouterProvider router={doctorRouter} />
+              </PictureContext.Provider>
+            </ExtraContext.Provider>
           </UserContext.Provider>
         );
       } else if (userInfo.role === 'receptionist') {
