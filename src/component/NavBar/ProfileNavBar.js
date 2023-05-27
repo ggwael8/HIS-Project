@@ -43,10 +43,8 @@ function ProfileNavBar(props) {
       path: '/',
       func: () => {
         localStorage.removeItem('token');
-        setTimeout(() => {
-          navigate('/');
-          window.location.reload(true);
-        }, 1000);
+        navigate('/');
+        window.location.reload(true);
       },
       icon: <i class='fa-solid fa-right-from-bracket '></i>,
       body: 'logout',
