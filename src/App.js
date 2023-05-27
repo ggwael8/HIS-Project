@@ -153,6 +153,9 @@ function App() {
         };
         setUserInfo(transformedInfo);
         return;
+      } else if (response.status === 401) {
+        localStorage.removeItem('token');
+        window.location.reload(true);
       }
     } else setIsLoading(false);
   }
