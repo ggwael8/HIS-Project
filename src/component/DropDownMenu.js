@@ -14,8 +14,17 @@ function DropDownMenu(props) {
             type='text'
             id='search'
             placeholder='Search'
+            // onChange={e => {
+            //   if (props.searchstate) {
+            //     props.searchstate(e.target.value);
+            //   }
+            // }}
             onChange={e => {
-              props.searchstate(e.target.value);
+              if (props.searchstate) {
+                setTimeout(() => {
+                  props.searchstate(e.target.value);
+                }, 1000);
+              }
             }}
           />
         </div>
