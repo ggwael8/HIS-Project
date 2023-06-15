@@ -5,6 +5,8 @@ import UserContext from '../../context/user-context';
 import { checkAuth } from '../../utils/auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileMedical, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function RootLayout() {
   const userctx = useContext(UserContext);
   const links = {
@@ -199,6 +201,7 @@ function RootLayout() {
       >
         <Outlet />
       </div>
+      <ToastContainer autoClose={3000} />
     </>
   );
 }

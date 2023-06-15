@@ -1,24 +1,35 @@
 import { NavLink } from 'react-router-dom';
 import classes from './DropDownMenu.module.css';
-
+import { useState } from 'react';
 function DropDownMenu(props) {
+  const [scrollReachedEnd, setScrollReachedEnd] = useState(false);
   return (
     <div
       className={`${classes.DropDownMenu} ${
         props.scrollable && classes.scrollable
       }`}
+      onScroll={event => {
+        const container = event.target;
+        console.log(container.scrollTop + container.clientHeight);
+        console.log(container.scrollHeight);
+        if (
+          Math.abs(
+            container.scrollTop +
+              container.clientHeight -
+              container.scrollHeight
+          ) === 1
+        ) {
+          // Scroll has reached the end
+          props.pagescroll();
+        }
+      }}
     >
-      {props.search && (
+      {props.searchstate && (
         <div className={classes.search}>
           <input
             type='text'
             id='search'
             placeholder='Search'
-            // onChange={e => {
-            //   if (props.searchstate) {
-            //     props.searchstate(e.target.value);
-            //   }
-            // }}
             onChange={e => {
               if (props.searchstate) {
                 setTimeout(() => {

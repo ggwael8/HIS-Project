@@ -35,6 +35,7 @@ function Labs() {
   const [selectedRequestIdResult, setSelectedRequestIdResult] = useState(null);
   const [examsListResult, setExamsListResult] = useState([]);
 
+  const [pages, setPages] = useState(1);
   async function fetchDataHandler() {
     setIsLoading(true);
 
@@ -87,7 +88,8 @@ function Labs() {
               ),
               button: [
                 {
-                  title: 'View Exams',
+                  title:
+                    userctx.role === 'lab' ? 'View Lab test' : 'View Exams',
                   setStates: () => {
                     setSelectedExamsListId(info.id);
                     setSelectedStatus(info.status);

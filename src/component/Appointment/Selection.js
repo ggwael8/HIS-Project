@@ -6,7 +6,7 @@ import {
   faToggleOff,
 } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenu from '../DropDownMenu';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
@@ -14,9 +14,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TimePicker, DatePicker } from '@mui/x-date-pickers';
 function Selection(props) {
+  const containerRef = useRef(null);
   const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
-  const [patient, setPatient] = useState(props.patient);
   const [selectedDate, setSelectedDate] = useState(null);
+
   const handleDateChange = date => {
     setSelectedDate(date);
   };
@@ -39,9 +40,20 @@ function Selection(props) {
         : props.selectedDay === 'Friday'
         ? 5
         : null;
-    console.log(day, selectedDay, props.selectedDay);
     return day !== selectedDay;
   };
+  useEffect(() => {
+    const container = containerRef.current;
+    if (
+      props.justonce &&
+      container &&
+      container.clientHeight >= container.scrollHeight
+    ) {
+      // Container is shorter than its content
+      props.pagescroll();
+      props.setJustOnce(false);
+    }
+  }, [props]);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
@@ -81,6 +93,7 @@ function Selection(props) {
                 type={'card'}
                 search={true}
                 scrollable={true}
+                pagescroll={props.pagescroll}
               />
             </div>
           </>
@@ -93,7 +106,7 @@ function Selection(props) {
               onChange={e => {
                 props.selectstate(e.target.value);
               }}
-              value={patient}
+              value={props.patient}
             />
             <div className={classes.appointmentType}>
               <h2>Appointment Type</h2>
@@ -148,12 +161,61 @@ function Selection(props) {
                   )}
                   <h3>Follow Up</h3>
                 </div>
+                <div
+                  onClick={() => {
+                    props.setAppointmentType(3);
+                  }}
+                  className={classes.appointmentTypeButton}
+                >
+                  {props.currentAppointmentType === 3 ? (
+                    <FontAwesomeIcon
+                      icon={faToggleOn}
+                      style={{
+                        color: '#49A96E',
+                      }}
+                      size='2xl'
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faToggleOff}
+                      size='2xl'
+                      style={{
+                        color: '#474747',
+                      }}
+                    />
+                  )}
+                  <h3>Emergency</h3>
+                </div>
+                <div
+                  onClick={() => {
+                    props.setAppointmentType(4);
+                  }}
+                  className={classes.appointmentTypeButton}
+                >
+                  {props.currentAppointmentType === 4 ? (
+                    <FontAwesomeIcon
+                      icon={faToggleOn}
+                      style={{
+                        color: '#49A96E',
+                      }}
+                      size='2xl'
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faToggleOff}
+                      size='2xl'
+                      style={{
+                        color: '#474747',
+                      }}
+                    />
+                  )}
+                  <h3>Tele-Medicine</h3>
+                </div>
               </div>
               <button
                 className={classes.Button}
                 onClick={() => {
                   props.setSelectedStep(props.currentStep + 1);
-                  setPatient('');
                 }}
               >
                 Confirm
@@ -196,7 +258,7 @@ function Selection(props) {
                           });
                         }}
                       >
-                        {current.Work == 0 ? (
+                        {!current.Work ? (
                           <FontAwesomeIcon
                             icon={faToggleOff}
                             size='2xl'
@@ -215,12 +277,13 @@ function Selection(props) {
                         )}
                         <h2> {current.Day} </h2>
                       </div>
-                      {current.Work == 1 && (
+                      {current.Work ? (
                         <>
                           <div className={classes.Duration}>
                             <h2>Session Duration:</h2>
                             <input
                               className={classes.DurationInput}
+                              type='number'
                               placeholder='In Minutes'
                               onChange={e => {
                                 props.dayAndDurationSetState(prev => {
@@ -229,6 +292,28 @@ function Selection(props) {
                                       return {
                                         ...obj,
                                         slot_duration: e.target.value,
+                                      };
+                                    }
+                                    return obj;
+                                  });
+                                  return newState;
+                                });
+                              }}
+                            />
+                          </div>
+                          <div className={classes.Duration}>
+                            <h2>Price:</h2>
+                            <input
+                              className={classes.DurationInput}
+                              type='number'
+                              placeholder='In EGP'
+                              onChange={e => {
+                                props.dayAndDurationSetState(prev => {
+                                  const newState = prev.map(obj => {
+                                    if (obj.id === current.id) {
+                                      return {
+                                        ...obj,
+                                        price: e.target.value,
                                       };
                                     }
                                     return obj;
@@ -285,7 +370,7 @@ function Selection(props) {
                             />
                           </div>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   );
                 })}
@@ -312,7 +397,20 @@ function Selection(props) {
                 {props.TimeSlots.length > 0 && (
                   <div className={classes.TimeSlotsContainer}>
                     <h4 className={classes.title}>Pick Time</h4>
-                    <div className={classes.TimeSlots}>
+                    <div
+                      className={classes.TimeSlots}
+                      ref={containerRef}
+                      onScroll={event => {
+                        const container = event.target;
+                        if (
+                          container.scrollTop + container.clientHeight ===
+                          container.scrollHeight
+                        ) {
+                          // Scroll has reached the end
+                          props.pagescroll();
+                        }
+                      }}
+                    >
                       {props.TimeSlots.map(timeSlot => (
                         <div
                           className={`${classes.Slot} ${

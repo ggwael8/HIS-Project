@@ -20,9 +20,36 @@
   background: #ffffff;
 }
 html {
-  background-color: #dceedd;
   font-size: 16px;
   font-family: 'Noto Sans', sans-serif;
+  background-image: url('Images/SVG/61802.jpg');
+}
+
+html::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('Images/SVG/flat-lay-health-still-life-arrangement-with-copy-space.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+html::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #49a96e;
+  opacity: 0.5;
+  z-index: -1;
 }
 @media (max-width: 1150px) {
   html {

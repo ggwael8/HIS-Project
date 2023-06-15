@@ -78,6 +78,7 @@ function Prescription(props) {
                             Array(dropDownMenuActive.length).fill(false)
                           );
                         }}
+                        pagescroll={props.pagescroll}
                       />
                     </div>
                   )}

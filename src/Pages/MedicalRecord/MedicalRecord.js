@@ -14,17 +14,28 @@ import { apiUrl } from '../../utils/api';
 import { useLocation } from 'react-router-dom';
 import PopUp from '../../component/PopUp/PopUp';
 import UserContext from '../../context/user-context';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function MedicalRecord() {
+  const [pages, setPages] = useState(1);
+  const [popUpPages, setPopUpPages] = useState(1);
   const userctx = useContext(UserContext);
   const { state } = useLocation();
 
+  const [prev, setPrev] = useState(null);
   const [details, setDetails] = useState([]);
-
   //lab page
   const [selectedRequestIdResult, setSelectedRequestIdResult] = useState(null);
   const [examsListResult, setExamsListResult] = useState([]);
 
   const [openWindow, setOpenWindow] = useState(1);
+  useEffect(() => {
+    const storedOpenWindow = localStorage.getItem('openWindow');
+    if (storedOpenWindow) {
+      setOpenWindow(JSON.parse(storedOpenWindow));
+      localStorage.removeItem('openWindow');
+    }
+  }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [toggleFilter, setToggleFilter] = useState(false);
   //patient id
@@ -41,6 +52,7 @@ function MedicalRecord() {
     useState([]);
   const [tempSelected, setTempSelected] = useState([]); //for multiple selection in drop down menu
   const [search, setSearch] = useState('');
+  const [prevSearchQuery, setPrevSearchQuery] = useState('');
 
   //add new request
   const [requestType, setRequestType] = useState(null);
@@ -60,6 +72,9 @@ function MedicalRecord() {
     setSearch('');
     setContent([]);
     setRequestType(null);
+    setPages(1);
+    setNote(null);
+    setPrescriptionItems([]);
   }, [openWindow]);
   //get patient id from appointment page
   useEffect(() => {
@@ -117,11 +132,19 @@ function MedicalRecord() {
   const fetchMainDataHandler = async () => {
     const response = await Promise.all([
       openWindow === 1 &&
+        openPopUp === false &&
         fetch(
           userctx.role === 'doctor'
-            ? apiUrl + `lab-radiology/view-test-resutls/?patient=${patientId}`
-            : apiUrl +
-                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Laboratory&appointment=${appointmentId}`,
+            ? apiUrl +
+                `lab-radiology/view-test-resutls/?patient=${patientId}&search=${search}${
+                  search === '' ? `&page=${pages}` : ''
+                }`
+            : selectedRequestIdResult === null
+            ? apiUrl +
+              `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Laboratory&appointment=${appointmentId}&search=${search}${
+                search === '' ? `&page=${pages}` : ''
+              }`
+            : apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -130,12 +153,19 @@ function MedicalRecord() {
           }
         ),
       openWindow === 2 &&
+        openPopUp === false &&
         fetch(
           userctx.role === 'doctor'
             ? apiUrl +
-                `lab-radiology/view-radiology-request/?patient=${patientId}`
-            : apiUrl +
-                `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Radiology&appointment=${appointmentId}`,
+                `lab-radiology/view-radiology-request/?patient=${patientId}&search=${search}${
+                  search === '' ? `&page=${pages}` : ''
+                }`
+            : selectedRequestIdResult === null
+            ? apiUrl +
+              `lab-radiology/exam-request/?status=&patient=${patientId}&doctor=&type_of_request=Radiology&appointment=${appointmentId}&search=${search}${
+                search === '' ? `&page=${pages}` : ''
+              }`
+            : apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -144,6 +174,7 @@ function MedicalRecord() {
           }
         ),
       openWindow === 3 &&
+        openPopUp === false &&
         fetch(apiUrl + `records/all-records/${patientId}/`, {
           headers: {
             'Content-Type': 'application/json',
@@ -151,11 +182,20 @@ function MedicalRecord() {
           },
         }),
       openWindow === 4 &&
+        openPopUp === false &&
         fetch(
           userctx.role === 'doctor'
-            ? apiUrl + `pharmacy/doctor-prescription/?patient=${patientId}`
+            ? apiUrl +
+                `pharmacy/doctor-prescription/?patient=${patientId}&search=${search}${
+                  search === '' ? `&page=${pages}` : ''
+                }`
+            : selectedRequestIdResult === null
+            ? apiUrl +
+              `pharmacy/receptionist-prescription/?created_at=&updated_at=&doctor=&patient=&appointment=${appointmentId}&date=&notes=&dispensed_by=&dispensed_status=&search=${search}${
+                search === '' ? `&page=${pages}` : ''
+              }`
             : apiUrl +
-                `pharmacy/receptionist-prescription/?created_at=&updated_at=&doctor=&patient=&appointment=${appointmentId}&date=&notes=&dispensed_by=&dispensed_status=`,
+              `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -165,10 +205,10 @@ function MedicalRecord() {
         ),
     ]);
 
-    if (openWindow === 1) {
+    if (openWindow === 1 && openPopUp === false) {
       const data = await response[0].json();
-      setDetails(
-        data.results.map(info => {
+      if (selectedRequestIdResult === null) {
+        let temp = data.results.map(info => {
           return {
             id: <span>{info.id}</span>,
             patientName: (
@@ -190,8 +230,19 @@ function MedicalRecord() {
               },
             ],
           };
-        })
-      );
+        });
+        if (prev || search !== '') {
+          setDetails(temp);
+          setPrev(null);
+        } else {
+          if (prevSearchQuery === '') {
+            setDetails(prev => [...prev, ...temp]);
+          } else {
+            setDetails(temp);
+          }
+        }
+        setPrevSearchQuery(search);
+      }
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
@@ -212,7 +263,6 @@ function MedicalRecord() {
                   comment: <span>{info.comment}</span>,
                   button: {
                     title: 'Download Result',
-
                     setStates: () => {
                       /* //todo: add download function */
                       return info.pdf_result;
@@ -249,12 +299,13 @@ function MedicalRecord() {
               })
           );
         }
+        setPrev(selectedRequestIdResult);
       }
     }
-    if (openWindow === 2) {
+    if (openWindow === 2 && openPopUp === false) {
       const data = await response[1].json();
-      setDetails(
-        data.results.map(info => {
+      if (selectedRequestIdResult === null) {
+        let temp = data.results.map(info => {
           return {
             id: <span>{info.id}</span>,
             patientName: (
@@ -276,8 +327,20 @@ function MedicalRecord() {
               },
             ],
           };
-        })
-      );
+        });
+        if (prev || search !== '') {
+          setDetails(temp);
+          setPrev(null);
+        } else {
+          if(prevSearchQuery === '') {
+            setDetails(prev => [...prev, ...temp]);
+          }
+          else {
+            setDetails(temp);
+          }
+        };
+        setPrevSearchQuery(search);
+      }
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
@@ -337,9 +400,10 @@ function MedicalRecord() {
               })
           );
         }
+        setPrev(selectedRequestIdResult);
       }
     }
-    if (openWindow === 3) {
+    if (openWindow === 3 && openPopUp === false) {
       const data = await response[2].json();
       setDetails([
         {
@@ -404,10 +468,10 @@ function MedicalRecord() {
       ]);
       console.log(data);
     }
-    if (openWindow === 4) {
+    if (openWindow === 4 && openPopUp === false) {
       const data = await response[3].json();
-      setDetails(
-        data.results.map(info => {
+      if (selectedRequestIdResult === null) {
+        let temp = data.results.map(info => {
           return {
             id: <span>{info.id}</span>,
             patientName: (
@@ -429,8 +493,20 @@ function MedicalRecord() {
               },
             ],
           };
-        })
-      );
+        });
+        if (prev || search !== '') {
+          setDetails(temp);
+          setPrev(null);
+        } else {
+          if(prevSearchQuery === '') {
+            setDetails(prev => [...prev, ...temp]);
+          }
+          else {
+            setDetails(temp);
+          }
+        }
+        setPrevSearchQuery(search);
+      }
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
@@ -447,81 +523,79 @@ function MedicalRecord() {
               })
           );
         } else {
+          console.log(data);
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .prescription.map(info => {
-                return {
-                  id: info.id,
-                  card: {
-                    name: (
-                      <h4>
-                        name : <span>{info.drug.name}</span>
-                      </h4>
-                    ),
-                    price: (
-                      <h4>
-                        price : <span>{info.drug.price}</span>
-                      </h4>
-                    ),
-                  },
-                };
-              })
+            data.prescription.map(info => {
+              return {
+                id: info.id,
+                card: {
+                  name: (
+                    <h4>
+                      name : <span>{info.drug.name}</span>
+                    </h4>
+                  ),
+                  price: (
+                    <h4>
+                      price : <span>{info.drug.price}</span>
+                    </h4>
+                  ),
+                },
+              };
+            })
           );
           setPrescriptionItems({
-            id: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].id,
-            dispensed_status: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].dispensed_status,
-            doctor: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].doctor.id,
-            patient: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].patient.id,
-            date: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].date,
-            notes: data.results.filter(
-              info => info.id === selectedRequestIdResult
-            )[0].notes,
-            prescription: data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .prescription.map(p => {
-                return {
-                  id: p.id,
-                  drug: p.drug.id,
-                  amount: p.amount,
-                  dose: p.dose,
-                  duration: p.duration,
-                  dispensed: p.dispensed,
-                  prescription: p.prescription,
-                };
-              }),
+            id: data.id,
+            dispensed_status: data.dispensed_status,
+            doctor: data.doctor.id,
+            patient: data.patient.id,
+            date: data.date,
+            notes: data.notes,
+            prescription: data.prescription.map(p => {
+              return {
+                id: p.id,
+                drug: p.drug.id,
+                amount: p.amount,
+                dose: p.dose,
+                duration: p.duration,
+                dispensed: p.dispensed,
+                prescription: p.prescription,
+              };
+            }),
           });
+          console.log(prescriptionItems);
+          setPrev(selectedRequestIdResult);
         }
       }
     }
   };
   useEffect(() => {
     if (isPatientValid) fetchMainDataHandler();
-  }, [isPatientValid, openWindow, patientId, selectedRequestIdResult]);
+  }, [
+    isPatientValid,
+    openWindow,
+    patientId,
+    selectedRequestIdResult,
+    pages,
+    search,
+  ]);
 
   // get request data
   useEffect(() => {
     async function fetchHandler() {
       const response = await Promise.all([
         (requestType === 'Laboratory' || requestType === 'Radiology') &&
-          fetch(apiUrl + `lab-radiology/exams-list/?type=${requestType}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `JWT ${localStorage.getItem('token')}`,
-            },
-          }),
+          fetch(
+            apiUrl +
+              `lab-radiology/exams-list/?type=${requestType}&page=${popUpPages}`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+              },
+            }
+          ),
         requestType === 'prescription' &&
-          fetch(apiUrl + `pharmacy/drug/`, {
+          fetch(apiUrl + `pharmacy/drug/?page=${popUpPages}`, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `JWT ${localStorage.getItem('token')}`,
@@ -530,112 +604,120 @@ function MedicalRecord() {
       ]);
       if (requestType === 'Laboratory' || requestType === 'Radiology') {
         const data = await response[0].json();
-        setContent(
-          data.results.map(info => {
-            return {
-              id: info.id,
-              card: {
-                name: (
-                  <h4>
-                    name : <span>{info.name}</span>
-                  </h4>
-                ),
-                code: (
-                  <h4>
-                    code : <span>{info.code}</span>
-                  </h4>
-                ),
-                price: (
-                  <h4>
-                    price : <span>{info.price}</span>
-                  </h4>
-                ),
-              },
-            };
-          })
-        );
+        let temp = data.results.map(info => {
+          return {
+            id: info.id,
+            card: {
+              name: (
+                <h4>
+                  name : <span>{info.name}</span>
+                </h4>
+              ),
+              code: (
+                <h4>
+                  code : <span>{info.code}</span>
+                </h4>
+              ),
+              price: (
+                <h4>
+                  price : <span>{info.price}</span>
+                </h4>
+              ),
+            },
+          };
+        });
+        setContent(prev => [...prev, ...temp]);
       } else if (requestType === 'prescription') {
         const data = await response[1].json();
-        setContent(
-          data.results.map(info => {
-            return {
-              id: info.id,
-              card: {
-                name: (
-                  <h4>
-                    name : <span>{info.name}</span>
-                  </h4>
-                ),
-                form: (
-                  <h4>
-                    form : <span>{info.form}</span>
-                  </h4>
-                ),
-              },
-            };
-          })
-        );
+        let temp = data.results.map(info => {
+          return {
+            id: info.id,
+            card: {
+              name: (
+                <h4>
+                  name : <span>{info.name}</span>
+                </h4>
+              ),
+              form: (
+                <h4>
+                  form : <span>{info.form}</span>
+                </h4>
+              ),
+            },
+          };
+        });
+        setContent(prev => [...prev, ...temp]);
       }
       fetchMainDataHandler();
     }
 
     if (requestType !== null) fetchHandler();
-  }, [requestType]);
+  }, [requestType, popUpPages]);
 
+  //doctor role
   useEffect(() => {
     async function fetchHandler() {
-      if (requestType === 'Laboratory' || requestType === 'Radiology') {
-        const response = await fetch(apiUrl + 'lab-radiology/exam-request/', {
-          method: 'POST',
-          body: JSON.stringify({
-            type_of_request: requestType,
-            status: 'Requested',
-            patient: patientId,
-            appointment: appointmentDetails.id,
-            doctor: appointmentDetails.doctor,
-            exams: selectedForDoctorRole,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        });
-        console.log(
-          patientId,
-          ' ',
-          appointmentDetails.id,
-          ' ',
-          appointmentDetails.doctor,
-          ' ',
-          selectedForDoctorRole
-        );
-        console.log(await response.json());
-      } else if (requestType === 'prescription') {
-        const response = await fetch(apiUrl + 'pharmacy/doctor-prescription/', {
-          method: 'POST',
-          body: JSON.stringify({
-            patient: patientId,
-            appointment: appointmentDetails.id,
-            notes: note,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        });
-
-        const data = await response.json();
-        for (let i = 0; i < selectedForDoctorRole.length; i++) {
-          const response2 = await fetch(
-            apiUrl + 'pharmacy/prescriptionitems/',
+      try {
+        if (requestType === 'Laboratory' || requestType === 'Radiology') {
+          const id = toast.loading('Please wait...', {
+            position: 'bottom-right',
+          });
+          const response = await fetch(apiUrl + 'lab-radiology/exam-request/', {
+            method: 'POST',
+            body: JSON.stringify({
+              type_of_request: requestType,
+              status: 'Requested',
+              patient: patientId,
+              appointment: appointmentDetails.id,
+              doctor: appointmentDetails.doctor,
+              exams: selectedForDoctorRole,
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          });
+          if (response.ok) {
+            toast.update(id, {
+              render: 'Request sent successfully',
+              type: 'success',
+              isLoading: false,
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+              autoClose: true,
+            });
+          } else {
+            toast.update(id, {
+              render: 'Failed to send exam request',
+              type: 'error',
+              isLoading: false,
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+              autoClose: true,
+            });
+          }
+        } else if (requestType === 'prescription') {
+          const id = toast.loading('Please wait...', {
+            position: 'bottom-right',
+          });
+          const response = await fetch(
+            apiUrl + 'pharmacy/doctor-prescription/',
             {
               method: 'POST',
               body: JSON.stringify({
-                prescription: data.id,
-                drug: selectedForDoctorRole[i].drug,
-                amount: selectedForDoctorRole[i].amount,
-                dose: selectedForDoctorRole[i].dose,
-                duration: selectedForDoctorRole[i].duration,
+                patient: patientId,
+                appointment: appointmentDetails.id,
+                notes: note,
               }),
               headers: {
                 'Content-Type': 'application/json',
@@ -643,116 +725,242 @@ function MedicalRecord() {
               },
             }
           );
-          const data2 = await response2.json();
-          console.log('second response : ', data2);
+          if (response.ok) {
+            const data = await response.json();
+            for (let i = 0; i < selectedForDoctorRole.length; i++) {
+              const response2 = await fetch(
+                apiUrl + 'pharmacy/prescriptionitems/',
+                {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    prescription: data.id,
+                    drug: selectedForDoctorRole[i].drug,
+                    amount: selectedForDoctorRole[i].amount,
+                    dose: selectedForDoctorRole[i].dose,
+                    duration: selectedForDoctorRole[i].duration,
+                  }),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `JWT ${localStorage.getItem('token')}`,
+                  },
+                }
+              );
+              if (response2.ok) {
+                toast.update(id, {
+                  render: 'Prescription created successfully',
+                  type: 'success',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+              } else {
+                toast.update(id, {
+                  render: 'Failed to create prescription',
+                  type: 'error',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+              }
+            }
+          } else {
+            toast.update(id, {
+              render: 'Failed to create prescription',
+              type: 'error',
+              isLoading: false,
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+              autoClose: true,
+            });
+          }
         }
-        console.log('first response : ', data);
+      } catch (error) {
+        toast.error(error.message, {
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
       }
-      fetchMainDataHandler();
     }
     if (selectedForDoctorRole.length > 0) fetchHandler();
   }, [selectedForDoctorRole]);
 
+  //recepionist role
   useEffect(() => {
     async function fetchHandler() {
       if (selectedForReceptionistRole.length > 0) {
-        if (openWindow === 1 || openWindow === 2) {
-          const response = await fetch(
-            apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
-            {
-              method: 'PATCH',
-              body: JSON.stringify({
-                exams: selectedForReceptionistRole,
-              }),
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `JWT ${localStorage.getItem('token')}`,
-              },
-            }
-          );
-
-          const response2 = await fetch(
-            apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
-            {
-              method: 'PATCH',
-              body: JSON.stringify({
-                status: 'Pending',
-              }),
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `JWT ${localStorage.getItem('token')}`,
-              },
-            }
-          );
-          console.log('first res : ', await response.json());
-          console.log('sec res : ', await response2.json());
-        } else if (openWindow === 4) {
-          console.log(selectedForReceptionistRole);
-          if (selectedForReceptionistRole.length >= 1) {
-            const updatedPrescription = {
-              ...prescriptionItems,
-              prescription: prescriptionItems.prescription.map(p => {
-                if (selectedForReceptionistRole.includes(p.id)) {
-                  return { ...p, dispensed: true };
-                } else {
-                  return p;
-                }
-              }),
-            };
-            console.log(updatedPrescription);
-            const response = await fetch(
-              apiUrl +
-                `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+        try {
+          if (openWindow === 1 || openWindow === 2) {
+            const id = toast.loading('Please wait...', {
+              position: 'bottom-right',
+            });
+            const response1 = await fetch(
+              apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
               {
-                method: 'PUT',
-                body: JSON.stringify(updatedPrescription),
+                method: 'PATCH',
+                body: JSON.stringify({
+                  exams: selectedForReceptionistRole,
+                }),
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `JWT ${localStorage.getItem('token')}`,
                 },
               }
             );
-            const updatedPrescription2 = {
-              ...prescriptionItems,
-              dispensed_status: 'send_to_pharmacy',
-              prescription: prescriptionItems.prescription.map(p => {
-                if (selectedForReceptionistRole.includes(p.id)) {
-                  return { ...p, dispensed: true };
-                } else {
-                  return p;
-                }
-              }),
-            };
             const response2 = await fetch(
-              apiUrl +
-                `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+              apiUrl + `lab-radiology/exam-request/${selectedRequestIdResult}/`,
               {
-                method: 'PUT',
-                body: JSON.stringify(updatedPrescription2),
+                method: 'PATCH',
+                body: JSON.stringify({
+                  status: 'Pending',
+                }),
                 headers: {
                   'Content-Type': 'application/json',
                   Authorization: `JWT ${localStorage.getItem('token')}`,
                 },
               }
             );
-            console.log('first res : ', await response.json());
-            console.log('sec res : ', await response2.json());
+            if (response1.ok && response2.ok) {
+              toast.update(id, {
+                render: 'Request sent successfully',
+                type: 'success',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            } else {
+              toast.update(id, {
+                render: 'Failed to send request',
+                type: 'error',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            }
+          } else if (openWindow === 4) {
+            if (selectedForReceptionistRole.length >= 1) {
+              const updatedPrescription = {
+                ...prescriptionItems,
+                prescription: prescriptionItems.prescription.map(p => {
+                  if (selectedForReceptionistRole.includes(p.id)) {
+                    return { ...p, dispensed: true };
+                  } else {
+                    return p;
+                  }
+                }),
+              };
+              const id = toast.loading('Please wait...', {
+                position: 'bottom-right',
+              });
+              const response1 = await fetch(
+                apiUrl +
+                  `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+                {
+                  method: 'PUT',
+                  body: JSON.stringify(updatedPrescription),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `JWT ${localStorage.getItem('token')}`,
+                  },
+                }
+              );
+              const updatedPrescription2 = {
+                ...prescriptionItems,
+                dispensed_status: 'send_to_pharmacy',
+                prescription: prescriptionItems.prescription.map(p => {
+                  if (selectedForReceptionistRole.includes(p.id)) {
+                    return { ...p, dispensed: true };
+                  } else {
+                    return p;
+                  }
+                }),
+              };
+              const response2 = await fetch(
+                apiUrl +
+                  `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
+                {
+                  method: 'PUT',
+                  body: JSON.stringify(updatedPrescription2),
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `JWT ${localStorage.getItem('token')}`,
+                  },
+                }
+              );
+              if (response1.ok && response2.ok) {
+                toast.update(id, {
+                  render: 'Request sent successfully',
+                  type: 'success',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+              } else {
+                toast.update(id, {
+                  render: 'Failed to send request',
+                  type: 'error',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+              }
+            }
           }
-
-          // const response = await fetch(
-          //   apiUrl +
-          //     `pharmacy/receptionist-prescription/${selectedRequestIdResult}/`,
-          //   {
-          //     method: 'PATCH',
-          //     body: JSON.stringify({
-          //       dispensed_status: 'send_to_pharmacy',
-          //       prescription: prescriptionItems,
-          //     }),
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //     },
-          //   }
-          // );
+        } catch (error) {
+          toast.error(error.message, {
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+          });
         }
       }
       setSelectedForReceptionistRole(null);
@@ -762,6 +970,9 @@ function MedicalRecord() {
     }
     fetchHandler();
   }, [selectedForReceptionistRole]);
+  useEffect(() => {
+    setPopUpPages(1);
+  }, [openPopUp]);
 
   // useEffect(() => {
   //   console.log(prescriptionItems);
@@ -848,6 +1059,7 @@ function MedicalRecord() {
         <DetailsBody
           toggleFilter={toggleFilter}
           setToggleFilter={setToggleFilter}
+          {...(openWindow !== 3 && { searchstate: setSearch })}
           details={details}
           thereIsCard={openWindow === 3 ? true : false}
           title={
@@ -879,6 +1091,9 @@ function MedicalRecord() {
                 }
               : null
           }
+          pagescroll={() => {
+            setPages(prevPages => prevPages + 1);
+          }}
         />
       )}
       {selectedRequestIdResult !== null &&
@@ -910,21 +1125,27 @@ function MedicalRecord() {
       {openPopUp &&
         content !== null &&
         (requestType === 'prescription' ? (
-          <PopUp
-            popUp={openPopUp}
-            setPopUp={setOpenPopUp}
-            prescription={content}
-            isPrescription={true}
-            selected={tempSelected}
-            selectstate={setTempSelected}
-            searchstate={setSearch}
-            noteSet={setNote}
-            buttonFunction={() => {
-              setSelectedForDoctorRole(tempSelected);
-              setOpenPopUp(false);
-            }}
-            buttonText={'Confirm'}
-          />
+          <>
+            <PopUp
+              popUp={openPopUp}
+              setPopUp={setOpenPopUp}
+              prescription={content}
+              isPrescription={true}
+              selected={tempSelected}
+              selectstate={setTempSelected}
+              searchstate={setSearch}
+              noteSet={setNote}
+              buttonFunction={() => {
+                setSelectedForDoctorRole(tempSelected);
+                setOpenPopUp(false);
+              }}
+              buttonText={'Confirm'}
+              pagescroll={() => {
+                setPopUpPages(prevPages => prevPages + 1);
+              }}
+            />
+            {console.log('asdsadadas')}
+          </>
         ) : (
           <PopUp
             selection={content}
@@ -939,6 +1160,9 @@ function MedicalRecord() {
               setOpenPopUp(false);
             }}
             buttonText={'Confirm'}
+            pagescroll={() => {
+              setPopUpPages(prevPages => prevPages + 1);
+            }}
           />
         ))}
     </div>

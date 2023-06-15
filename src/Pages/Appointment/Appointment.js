@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import classes from './Appointment.module.css';
 import classesBody from '../Body.module.css';
@@ -18,21 +18,26 @@ import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import PopUp from '../../component/PopUp/PopUp';
 import { apiUrl } from '../../utils/api';
 import doctorPic from '../../Images/SVG/Doctor.svg';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Appointment() {
+  const isMountedRef = useRef(false);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [justOnce, setJustOnce] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   //context api to get user role
   const userctx = useContext(UserContext);
+  //pages count
+  const [pages, setPages] = useState(1);
   //lists got from api
-  const [specialtyList, setSpecialityList] = useState();
-  const [doctorsList, setDoctorsList] = useState();
-  const [daysList, setDaysList] = useState();
+  const [specialtyList, setSpecialityList] = useState([]);
+  const [doctorsList, setDoctorsList] = useState([]);
+  const [daysList, setDaysList] = useState([]);
   /*Appointment States */
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
-  const [patient, setPatient] = useState();
+  const [patient, setPatient] = useState('');
   const [appointmentType, setAppointmentType] = useState(1);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
     useState('');
@@ -44,14 +49,114 @@ function Appointment() {
   const [PatientAppointmentDate, setPatientAppointmentDate] = useState(null);
   const [PatientAppointmentTime, setPatientAppointmentTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
-  const [allAppointmentList, setAllAppointmentList] = useState(null);
+  const [allAppointmentList, setAllAppointmentList] = useState([]);
   const [
     PatientAppointmentSearchSelected,
     setPatientAppointmentSearchSelected,
   ] = useState('');
+  const [prevSearchQuery, setPrevSearchQuery] = useState('');
+  /*Doctor Schedule States*/
+  const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
+    useState(1);
+  //todo: connect specialist to doctor
+  const [doctorScheduleSpecialist, setDoctorScheduleSpecialist] = useState(0);
+  const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
+  const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
+    useState([
+      {
+        id: 1,
+        Work: 0,
+        Day: 'Saturday',
+      },
+      {
+        id: 2,
+        Work: 0,
+        Day: 'Sunday',
+      },
+      {
+        id: 3,
+        Work: 0,
+        Day: 'Monday',
+      },
+      {
+        id: 4,
+        Work: 0,
+        Day: 'Tuesday',
+      },
+      {
+        id: 5,
+        Work: 0,
+        Day: 'Wednesday',
+      },
+      {
+        id: 6,
+        Work: 0,
+        Day: 'Thursday',
+      },
+      {
+        id: 7,
+        Work: 0,
+        Day: 'Friday',
+      },
+    ]);
+  const [doctorSchedulesearchSelected, setDoctorScheduleSearchSelected] =
+    useState();
+
+  const resetDoctorSchedule = () => {
+    setDoctorScheduleSelectedStep(1);
+    setDoctorScheduleSpecialist(0);
+    setDoctorScheduleDoctor(null);
+    setDoctorScheduleDayAndDuration([
+      {
+        id: 1,
+        Work: 0,
+        Day: 'Saturday',
+      },
+      {
+        id: 2,
+        Work: 0,
+        Day: 'Sunday',
+      },
+      {
+        id: 3,
+        Work: 0,
+        Day: 'Monday',
+      },
+      {
+        id: 4,
+        Work: 0,
+        Day: 'Tuesday',
+      },
+      {
+        id: 5,
+        Work: 0,
+        Day: 'Wednesday',
+      },
+      {
+        id: 6,
+        Work: 0,
+        Day: 'Thursday',
+      },
+      {
+        id: 7,
+        Work: 0,
+        Day: 'Friday',
+      },
+    ]);
+    setOpenWindow(2);
+    setDoctorScheduleSearchSelected(null);
+  };
+
   const [openWindow, setOpenWindow] = useState(
     userctx.role === 'doctor' ? 3 : 1
   );
+  useEffect(() => {
+    const storedOpenWindow = localStorage.getItem('openWindow');
+    if (storedOpenWindow) {
+      setOpenWindow(JSON.parse(storedOpenWindow));
+      localStorage.removeItem('openWindow');
+    }
+  }, []);
   //bills pop up state
   const [billsPopUp, setBillsPopUp] = useState(false);
   const [bills, setBills] = useState(null);
@@ -65,26 +170,37 @@ function Appointment() {
   // //medical record states
   // const [popUp, setPopUp] = useState(false);
   // const [medicalRecord, setMedicalRecord] = useState(null);
+
   //todo: error handling & optimization
   //fetching data from api
+
+  useEffect(() => {
+    setPages(1);
+  }, [
+    PatientAppointmentDoctor,
+    PatientAppointmentDayOfWeek,
+    PatientAppointmentDate,
+    PatientAppointmentSearchSelected,
+    PatientAppointmentSpecialist,
+    billsPopUp,
+    openWindow,
+  ]);
+  useEffect(() => {
+    setTimeSlots([]);
+    setJustOnce(true);
+  }, [PatientAppointmentDate]);
+
   async function fetchDataHandler() {
+    console.log(pages);
     setIsLoading(true);
-    console.log(PatientAppointmentSearchSelected);
     const response = await Promise.all([
-      fetch(
-        apiUrl +
-          `hospital/specialty/${`?search=${PatientAppointmentSearchSelected}`}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }
-      ),
-      PatientAppointmentSpecialist !== '' &&
+      openWindow === 1 &&
+        PatientAppointmentSpecialist === '' &&
         fetch(
           apiUrl +
-            `hospital/doctor/${`?department=&specialty=${PatientAppointmentSpecialist}&search=${PatientAppointmentSearchSelected}`}`,
+            `hospital/specialty/${`?search=${PatientAppointmentSearchSelected} ${
+              PatientAppointmentSearchSelected === '' ? `&page=${pages} ` : ''
+            }`}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -92,18 +208,40 @@ function Appointment() {
             },
           }
         ),
-      PatientAppointmentDoctor !== null &&
-        fetch(apiUrl + 'appointments/doctor-schedule/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+      (openWindow === 2 || PatientAppointmentSpecialist !== '') &&
+        PatientAppointmentDoctor === null &&
+        fetch(
+          apiUrl +
+            `hospital/doctor/${`?department=&specialty=${PatientAppointmentSpecialist}&search=${PatientAppointmentSearchSelected}${
+              PatientAppointmentSearchSelected === '' ? `&page=${pages} ` : ''
+            }`}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
+      ((PatientAppointmentDoctor !== null &&
+        PatientAppointmentDayOfWeek === null) ||
+        (openWindow === 2 && doctorScheduleDoctor !== null)) &&
+        fetch(
+          apiUrl +
+            `appointments/doctor-schedule/?doctor=${PatientAppointmentDoctor}&day_of_week=&start_time=&end_time=&slot_duration=&schedule_status=&price=${
+              PatientAppointmentSearchSelected === '' ? `&page=${pages} ` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       PatientAppointmentDayOfWeek !== null &&
         PatientAppointmentDate !== null &&
         fetch(
           apiUrl +
-            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}`,
+            `appointments/doctor-slots/?date=${PatientAppointmentDate}&doctor=${PatientAppointmentDoctor}&schedule=${PatientAppointmentDayOfWeek}&page=${pages}`,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -119,19 +257,32 @@ function Appointment() {
           },
         }),
       openWindow === 3 &&
-        fetch(apiUrl + 'appointments/Booked-Appointments/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        billsPopUp === false &&
+        fetch(
+          apiUrl +
+            `appointments/Booked-Appointments/?search=${PatientAppointmentSearchSelected}${
+              PatientAppointmentSearchSelected === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       openWindow === 4 &&
-        fetch(apiUrl + 'appointments/Doctor-Appointments/', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        fetch(
+          apiUrl +
+            `appointments/Doctor-Appointments/?search=${PatientAppointmentSearchSelected}${
+              PatientAppointmentSearchSelected === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       billsPopUp &&
         fetch(
           apiUrl +
@@ -144,33 +295,45 @@ function Appointment() {
           }
         ),
     ]);
-    const specialty = await response[0].json();
-    console.log(specialty);
-    setSpecialityList(
-      specialty.results.map(info => {
-        return {
-          id: info.id,
-          body: info.specialty,
-          card: {
-            specialty: (
-              <h4>
-                <span>{info.specialty}</span>
-              </h4>
-            ),
-          },
-        };
-      })
-    );
-    if (PatientAppointmentSpecialist !== '') {
-      const doctors = await response[1].json();
-      setDoctorsList(
-        doctors.results.map(info => {
+    if (openWindow === 1 && PatientAppointmentSpecialist === '') {
+      if (response[0].status !== 404) {
+        const specialty = await response[0].json();
+        const specialtyList = specialty.results.map(info => {
           return {
             id: info.id,
+            body: info.specialty,
+            card: {
+              specialty: (
+                <h4>
+                  <span>{info.specialty}</span>
+                </h4>
+              ),
+            },
+          };
+        });
+        if (PatientAppointmentSearchSelected === '')
+          setSpecialityList(prevspecialtyList => [
+            ...prevspecialtyList,
+            ...specialtyList,
+          ]);
+        else setSpecialityList(specialtyList);
+      }
+    }
+    if (
+      (openWindow === 2 || PatientAppointmentSpecialist !== '') &&
+      PatientAppointmentDoctor === null
+    ) {
+      if (response[1].status !== 404) {
+        const doctors = await response[1].json();
+        const docotrsList = doctors.results.map(info => {
+          return {
+            id: info.id,
+            name: info.user.first_name + ' ' + info.user.last_name,
             card: {
               name: (
                 <h4>
-                  {console.log(info.image)}
+                  {/* ///todo: doctor image */}
+                  {/* {console.log(info.image)} */}
                   {info.image !== null && (
                     <img
                       src={info.image}
@@ -189,13 +352,23 @@ function Appointment() {
               ),
             },
           };
-        })
-      );
+        });
+        if (PatientAppointmentSearchSelected === '') {
+          setDoctorsList(prevdoctorsList => [
+            ...prevdoctorsList,
+            ...docotrsList,
+          ]);
+        } else setDoctorsList(docotrsList);
+      }
     }
-    if (PatientAppointmentDoctor !== null) {
-      const Days = await response[2].json();
-      setDaysList(
-        Days.results
+    if (
+      (PatientAppointmentDoctor !== null &&
+        PatientAppointmentDayOfWeek === null) ||
+      doctorScheduleDoctor !== null
+    ) {
+      if (response[2].status !== 404) {
+        let Days = await response[2].json();
+        let daysResult = Days.results
           .filter(
             info =>
               info.doctor === PatientAppointmentDoctor &&
@@ -207,11 +380,6 @@ function Appointment() {
               day: true,
               body: info.day_of_week,
               card: {
-                doctor: (
-                  <h4>
-                    Doctor : <span>{info.doctor}</span>
-                  </h4>
-                ),
                 day: (
                   <h4>
                     Day : <span>{info.day_of_week}</span>
@@ -234,87 +402,89 @@ function Appointment() {
                 ),
               },
             };
-          })
-      );
-      if (
-        PatientAppointmentDayOfWeek !== null &&
-        PatientAppointmentDate !== null
-      ) {
-        const Slots = await response[3].json();
-
-        setTimeSlots(
-          Slots.results.map(info => {
-            return {
-              id: info.id,
-              body:
-                info.start_time.toString().slice(0, 5) +
-                ' : ' +
-                info.end_time.toString().slice(0, 5),
-            };
-          })
-        );
-      }
-      if (userctx.role === 'patient') {
-        const patient = await response[4].json();
-        setPatient({
-          id: patient.id,
-          Name: patient.user.first_name + ' ' + patient.user.last_name,
-        });
+          });
+        setDaysList(prevdaysList => [...prevdaysList, ...daysResult]);
       }
     }
-    if (openWindow === 3) {
-      const allAppointments = await response[5].json();
-      setAllAppointmentList(
-        allAppointments.results.map(info => {
+    if (
+      PatientAppointmentDayOfWeek !== null &&
+      PatientAppointmentDate !== null
+    ) {
+      if (response[3].status !== 404) {
+        const Slots = await response[3].json();
+        let slotsResult = Slots.results.map(info => {
           return {
-            ...(userctx.role !== 'doctor' && {
-              doctor: (
-                <span>
-                  {info.doctor.first_name + ' ' + info.doctor.last_name}
-                </span>
-              ),
-            }),
-            ...(userctx.role !== 'patient' && {
-              patient: (
-                <span>
-                  {info.patient.first_name + ' ' + info.patient.last_name}
-                </span>
-              ),
-            }),
-            date: <span>{info.date}</span>,
-            StartTime: (
-              <span>{info.slot.start_time.toString().slice(0, 5)}</span>
+            id: info.id,
+            body:
+              info.start_time.toString().slice(0, 5) +
+              ' : ' +
+              info.end_time.toString().slice(0, 5),
+          };
+        });
+        setTimeSlots(prevtimeSlots => [...prevtimeSlots, ...slotsResult]);
+      }
+    }
+    if (userctx.role === 'patient') {
+      const patient = await response[4].json();
+      setPatient({
+        id: patient.id,
+        Name: patient.user.first_name + ' ' + patient.user.last_name,
+      });
+    }
+    if (openWindow === 3 && billsPopUp === false) {
+      const allAppointments = await response[5].json();
+      let allAppointmentsResult = allAppointments.results.map(info => {
+        return {
+          ...(userctx.role !== 'doctor' && {
+            doctor: (
+              <span>
+                {info.doctor.first_name + ' ' + info.doctor.last_name}
+              </span>
             ),
-            EndTime: <span>{info.slot.end_time}</span>,
-            status: <span>{info.status}</span>,
-            ...(userctx.role === 'receptionist' && {
-              button: [
-                info.status === 'waiting' && {
-                  title: 'View Bills',
-                  setStates: () => {
-                    setBillsPopUp(info.id);
-                  },
+          }),
+          ...(userctx.role !== 'patient' && {
+            patient: (
+              <span>
+                {info.patient.first_name + ' ' + info.patient.last_name}
+              </span>
+            ),
+          }),
+          date: <span>{info.date}</span>,
+          StartTime: <span>{info.slot.start_time.toString().slice(0, 5)}</span>,
+          EndTime: <span>{info.slot.end_time}</span>,
+          status: <span>{info.status}</span>,
+          ...(userctx.role === 'receptionist' && {
+            button: [
+              (info.status === 'waiting' || info.status === 'completed') && {
+                title: 'View Bills',
+                setStates: () => {
+                  setBillsPopUp(info.id);
                 },
-                info.status === 'waiting' && {
-                  title: 'View Requests',
-                  yellow: true,
-                  setStates: () => {
-                    navigate('/requests', {
-                      state: {
-                        patientId: info.patient.id,
-                        appointmentId: info.id,
-                      },
-                    });
-                  },
+              },
+              info.status === 'waiting' && {
+                title: 'View Requests',
+                yellow: true,
+                setStates: () => {
+                  navigate('/requests', {
+                    state: {
+                      patientId: info.patient.id,
+                      appointmentId: info.id,
+                    },
+                  });
                 },
-                info.status !== 'completed' && {
-                  title:
-                    info.status === 'pending'
-                      ? 'Set To Waiting'
-                      : info.status === 'waiting' && 'Set To Completed',
-                  setStates: () => {
-                    async function changeStatus() {
-                      await fetch(
+              },
+              info.status !== 'completed' && {
+                title:
+                  info.status === 'pending'
+                    ? 'Set To Waiting'
+                    : info.status === 'waiting' && 'Set To Completed',
+                setStates: () => {
+                  async function changeStatus() {
+                    try {
+                      const id = toast.loading('Please wait...', {
+                        position: 'bottom-right',
+                      });
+                      const response = await fetch(
                         apiUrl + `appointments/Booked-Appointments/${info.id}/`,
                         {
                           method: 'PATCH',
@@ -332,56 +502,118 @@ function Appointment() {
                           },
                         }
                       );
-                      fetchDataHandler();
+
+                      if (response.ok) {
+                        setAllAppointmentList([]);
+                        if (pages === 1) fetchDataHandler();
+                        else setPages(1);
+                        toast.update(id, {
+                          render: 'Status Changed Successfully',
+                          type: 'success',
+                          isLoading: false,
+                          position: 'bottom-right',
+                          hideProgressBar: true,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: 'light',
+                          autoClose: true,
+                        });
+                      } else {
+                        toast.update(id, {
+                          render: 'Something went wrong',
+                          type: 'error',
+                          isLoading: false,
+                          position: 'bottom-right',
+                          hideProgressBar: true,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: 'light',
+                          autoClose: true,
+                        });
+                      }
+                    } catch (error) {
+                      toast.error(error.message, {
+                        position: 'bottom-right',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'light',
+                      });
+                      // Handle the error here (e.g. show an error message to the user)
                     }
-                    changeStatus();
+                  }
+                  changeStatus();
+                },
+              },
+            ],
+          }),
+
+          ...(userctx.role === 'doctor' &&
+            info.status !== 'completed' &&
+            info.status !== 'pending' && {
+              button: [
+                {
+                  title: 'View Medical Record',
+                  setStates: () => {
+                    navigate('/medicalrecord', {
+                      state: {
+                        patientId: info.patient.id,
+                        appointmentId: info.id,
+                      },
+                    });
+                    window.location.reload();
                   },
                 },
               ],
             }),
+        };
+      });
+      if (PatientAppointmentSearchSelected === '') {
+        if (prevSearchQuery === '') {
+          // If both the current and previous search queries are empty, remove the previous results
+          setAllAppointmentList(prevAppointmentList => [
+            ...prevAppointmentList,
+            ...allAppointmentsResult,
+          ]);
+        } else {
+          // If only the current search query is empty, add the previous results to the new results
+          setAllAppointmentList(allAppointmentsResult);
+        }
+      } else {
+        // If the search query is not empty, replace the entire list with the new results
+        setAllAppointmentList(allAppointmentsResult);
+      }
 
-            ...(userctx.role === 'doctor' &&
-              info.status !== 'completed' &&
-              info.status !== 'pending' && {
-                button: [
-                  {
-                    title: 'View Medical Record',
-                    setStates: () => {
-                      console.log('view medical record');
-                      navigate('/medicalrecord', {
-                        state: {
-                          patientId: info.patient.id,
-                          appointmentId: info.id,
-                        },
-                      });
-                    },
-                  },
-                ],
-              }),
-          };
-        })
-      );
+      // Update the previous search query
+      setPrevSearchQuery(PatientAppointmentSearchSelected);
     }
     if (openWindow === 4) {
       const data = await response[6].json();
-      setAllAppointmentList(
-        data.results.map(info => {
-          return {
-            Doctor: (
-              <span>
-                {info.doctor.first_name + ' ' + info.doctor.last_name}
-              </span>
-            ),
-            Date: <span>{info.date}</span>,
-            ScheduleId: <span>{info.schedule}</span>,
-            TotalAppointment: <span>{info.total_appointments}</span>,
-            button: [
-              {
-                title: 'Cancel',
-                red: true,
-                setStates: () => {
-                  async function cancelAppointment() {
-                    await fetch(
+      let allAppointmentsResult = data.results.map(info => {
+        return {
+          Doctor: (
+            <span>{info.doctor.first_name + ' ' + info.doctor.last_name}</span>
+          ),
+          Date: <span>{info.date}</span>,
+          ScheduleId: <span>{info.schedule}</span>,
+          TotalAppointment: <span>{info.total_appointments}</span>,
+          button: [
+            {
+              title: 'Cancel',
+              red: true,
+              setStates: () => {
+                async function cancelAppointment() {
+                  try {
+                    const id = toast.loading('Please wait...', {
+                      position: 'bottom-right',
+                    });
+                    const response = await fetch(
                       apiUrl + `appointments/Doctor-Appointments/${info.id}/`,
                       {
                         method: 'DELETE',
@@ -391,19 +623,75 @@ function Appointment() {
                         },
                       }
                     );
-                    fetchDataHandler();
+
+                    if (response.ok) {
+                      // Appointment deleted successfully
+                      // Call the fetchDataHandler function to refresh the data
+                      setAllAppointmentList([]);
+                      fetchDataHandler();
+                      toast.update(id, {
+                        render: 'Appointment deleted successfully',
+                        type: 'success',
+                        isLoading: false,
+                        position: 'bottom-right',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'light',
+                        autoClose: true,
+                      });
+                    } else {
+                      // Handle the error if the response is not ok
+                      toast.update(id, {
+                        render: 'Something went wrong',
+                        type: 'error',
+                        isLoading: false,
+                        position: 'bottom-right',
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: 'light',
+                        autoClose: true,
+                      });
+                    }
+                  } catch (error) {
+                    // Handle any network or server error
+                    toast.error(error.message, {
+                      position: 'bottom-right',
+                      hideProgressBar: true,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      progress: undefined,
+                      theme: 'light',
+                    });
                   }
-                  cancelAppointment();
-                },
+                }
+                cancelAppointment();
               },
-            ],
-          };
-        })
-      );
+            },
+          ],
+        };
+      });
+      if (PatientAppointmentSearchSelected === '') {
+        if (prevSearchQuery === '') {
+          // If both the current and previous search queries are empty, remove the previous results
+          setAllAppointmentList(prevAppointmentList => [
+            ...prevAppointmentList,
+            ...allAppointmentsResult,
+          ]);
+        } else setAllAppointmentList(allAppointmentsResult);
+      } else setAllAppointmentList(allAppointmentsResult);
+
+      // Update the previous search query
+      setPrevSearchQuery(PatientAppointmentSearchSelected);
     }
     if (billsPopUp) {
       const data = await response[7].json();
-      console.log(data.results);
       setBills(
         data.results.map(info => {
           return {
@@ -472,16 +760,22 @@ function Appointment() {
   }
   //fetch data every change on these dependencies
   useEffect(() => {
-    fetchDataHandler();
+    if (isMountedRef.current) fetchDataHandler();
   }, [
     PatientAppointmentDoctor,
     PatientAppointmentDayOfWeek,
     PatientAppointmentDate,
     PatientAppointmentSearchSelected,
     PatientAppointmentSpecialist,
-    openWindow,
     billsPopUp,
+    pages,
   ]);
+  useEffect(() => {
+    if (pages === 1) {
+      fetchDataHandler();
+      isMountedRef.current = true;
+    }
+  }, [openWindow]);
   //update state that connected to api data
   useEffect(() => {
     setDropDownContent({
@@ -495,7 +789,7 @@ function Appointment() {
   //resets bookappointment page data
   const resetBookNewAppointment = () => {
     setPatientAppointmentSelectedStep(1);
-    setPatient(0);
+    setPatient('');
     setAppointmentType(1);
     setPatientAppointmentDoctor(null);
     setPatientAppointmentDate(null);
@@ -505,7 +799,27 @@ function Appointment() {
     setPatientAppointmentSpecialist('');
     setCurrentDate(new Date());
     setTimeSlots([]);
+    setJustOnce(true);
   };
+  useEffect(() => {
+    setPatientAppointmentSelectedStep(1);
+    setPatient('');
+    setAppointmentType(1);
+    setPatientAppointmentDoctor(null);
+    setPatientAppointmentDayOfWeek(null);
+    setDayOfWeekName(null);
+    setPatientAppointmentDate(null);
+    setPatientAppointmentTime(null);
+    setPatientAppointmentSearchSelected('');
+    setPatientAppointmentSpecialist('');
+    setCurrentDate(new Date());
+    setTimeSlots([]);
+    setJustOnce(true);
+    setSpecialityList([]);
+    setDoctorsList([]);
+    setDaysList([]);
+    setAllAppointmentList([]);
+  }, [openWindow]);
   useEffect(() => {
     setPatientAppointmentSearchSelected('');
   }, [PatientAppointmentSelectedStep]);
@@ -534,6 +848,9 @@ function Appointment() {
       title: 'Pick Specialization',
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
+      pagescroll: () => {
+        setPages(prevPages => prevPages + 1);
+      },
     },
     {
       type: 'dropDown',
@@ -544,6 +861,9 @@ function Appointment() {
       title: 'Pick Doctor',
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
+      pagescroll: () => {
+        setPages(prevPages => prevPages + 1);
+      },
     },
     {
       id: userctx.role === 'receptionist' ? 4 : 3,
@@ -554,6 +874,9 @@ function Appointment() {
       selectedDay: setDayOfWeekName,
       setSelectedStep: setPatientAppointmentSelectedStep,
       currentStep: PatientAppointmentSelectedStep,
+      pagescroll: () => {
+        setPages(prevPages => prevPages + 1);
+      },
     },
     {
       type: 'selection',
@@ -569,110 +892,13 @@ function Appointment() {
       currentStep: PatientAppointmentSelectedStep,
       currentDate: currentDate,
       setCurrentDate: setCurrentDate,
+      setJustOnce: setJustOnce,
+      justonce: justOnce,
+      pagescroll: () => {
+        setPages(prevPages => prevPages + 1);
+      },
     },
   ];
-
-  /*Doctor Schedule States*/
-  const [doctorScheduleSelectedStep, setDoctorScheduleSelectedStep] =
-    useState(1);
-  //todo: connect specialist to doctor
-  const [doctorScheduleSpecialist, setDoctorScheduleSpecialist] = useState(0);
-  const [doctorScheduleDoctor, setDoctorScheduleDoctor] = useState(null);
-  const [doctorScheduleDayAndDuration, setDoctorScheduleDayAndDuration] =
-    useState([
-      {
-        id: 1,
-        Work: 1,
-        Day: 'Saturday',
-      },
-      {
-        id: 2,
-        Work: 0,
-        Day: 'Sunday',
-      },
-      {
-        id: 3,
-        Work: 1,
-        Day: 'Monday',
-      },
-      {
-        id: 4,
-        Work: 0,
-        Day: 'Tuesday',
-      },
-      {
-        id: 5,
-        Work: 0,
-        Day: 'Wednesday',
-      },
-      {
-        id: 6,
-        Work: 0,
-        Day: 'Thursday',
-      },
-      {
-        id: 7,
-        Work: 0,
-        Day: 'Friday',
-      },
-    ]);
-  const [doctorSchedulesearchSelected, setDoctorScheduleSearchSelected] =
-    useState();
-
-  const resetDoctorSchedule = () => {
-    setDoctorScheduleSelectedStep(1);
-    setDoctorScheduleSpecialist(0);
-    setDoctorScheduleDoctor(null);
-    setDoctorScheduleDayAndDuration([
-      {
-        //Todo: Dummy
-        id: 1,
-        Work: 1,
-        Day: 'Saturday',
-        StartTime: '11:00',
-        EndTime: '12:00',
-        Duration: 0,
-      },
-      {
-        id: 2,
-        Work: 0,
-        Day: 'Sunday',
-        Duration: 0,
-      },
-      {
-        id: 3,
-        Work: 1,
-        Day: 'Monday',
-        Duration: 0,
-      },
-      {
-        id: 4,
-        Work: 0,
-        Day: 'Tuesday',
-        Duration: 0,
-      },
-      {
-        id: 5,
-        Work: 0,
-        Day: 'Wednesday',
-        Duration: 0,
-      },
-      {
-        id: 6,
-        Work: 0,
-        Day: 'Thursday',
-        Duration: 0,
-      },
-      {
-        id: 7,
-        Work: 0,
-        Day: 'Friday',
-        Duration: 0,
-      },
-    ]);
-    setOpenWindow(2);
-    setDoctorScheduleSearchSelected(null);
-  };
 
   /*Booking Information */
   //todo: need optimization
@@ -685,15 +911,15 @@ function Appointment() {
       .map(doctor => {
         return doctor.id;
       })[0],
-    docotrName: doctorsList
+    doctorName: doctorsList
       ?.filter(doctor => doctor.id === PatientAppointmentDoctor)
       .map(doctor => {
-        return doctor.body;
+        return doctor.name;
       })[0],
     date: PatientAppointmentDate,
     slot: PatientAppointmentTime,
 
-    type: userctx.role === 'patient' ? 'new' : appointmentType,
+    type: userctx.role === 'patient' ? 1 : appointmentType,
     //todo: dummy
     status: 'pending',
   };
@@ -705,10 +931,13 @@ function Appointment() {
       id: 1,
       dropDownContent: dropDownContent.doctor,
       selectstate: setDoctorScheduleDoctor,
-      searchstate: setDoctorScheduleSearchSelected,
+      searchstate: setPatientAppointmentSearchSelected,
       title: 'Pick Doctor',
       setSelectedStep: setDoctorScheduleSelectedStep,
       currentStep: doctorScheduleSelectedStep,
+      pagescroll: () => {
+        setPages(prevPages => prevPages + 1);
+      },
     },
     {
       type: 'selection',
@@ -716,9 +945,6 @@ function Appointment() {
       dayAndDuration: true,
       dayAndDurationSetState: setDoctorScheduleDayAndDuration,
       currentDayAndDuration: doctorScheduleDayAndDuration,
-      // startTimeSetState: setDoctorScheduleStartTime,
-      // endTimeSetState: setDoctorScheduleEndTime,
-      searchstate: setPatientAppointmentSearchSelected,
       title: 'Set Day & Duration',
       setSelectedStep: setDoctorScheduleSelectedStep,
       currentStep: doctorScheduleSelectedStep,
@@ -726,69 +952,339 @@ function Appointment() {
   ];
   //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
-    await fetch(apiUrl + 'appointments/Booked-Appointments/', {
-      method: 'POST',
-      body: JSON.stringify({
-        patient:
-          userctx.role === 'receptionist'
-            ? AppointmentDetailsPendingConfirmation.patient
-            : AppointmentDetailsPendingConfirmation.patient.id,
-        doctor: AppointmentDetailsPendingConfirmation.doctorId,
-        date: AppointmentDetailsPendingConfirmation.date,
-        slot: AppointmentDetailsPendingConfirmation.slot,
-        type:
-          AppointmentDetailsPendingConfirmation.type === 1
-            ? 'new'
-            : AppointmentDetailsPendingConfirmation.type === 2
-            ? 'followup'
-            : AppointmentDetailsPendingConfirmation.type,
-        status: 'pending',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `JWT ${localStorage.getItem('token')}`,
-      },
-    });
-    // const data = await response.json();
-    // console.log(
-    //   'response : ',
-    //   data,
-    //   'type : ',
-    //   AppointmentDetailsPendingConfirmation.type,
-    //   'patient : ' + AppointmentDetailsPendingConfirmation.patient
-    // );
-  };
-  const AddDoctorSchedule = async () => {
-    for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
-      if (doctorScheduleDayAndDuration[i].Work === true) {
-        await fetch(apiUrl + 'appointments/doctor-schedule/', {
+    try {
+      const id = toast.loading('Please wait...', {
+        position: 'bottom-right',
+      });
+      const response = await fetch(
+        apiUrl + 'appointments/Booked-Appointments/',
+        {
           method: 'POST',
           body: JSON.stringify({
-            day_of_week: doctorScheduleDayAndDuration[i].Day,
-            start_time: doctorScheduleDayAndDuration[i].start_time,
-            end_time: doctorScheduleDayAndDuration[i].end_time,
-            slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
-            doctor: doctorScheduleDoctor,
-            //todo: dummy
-            schedule_status: 'active',
-            price: '250',
+            patient:
+              userctx.role === 'receptionist'
+                ? AppointmentDetailsPendingConfirmation.patient
+                : AppointmentDetailsPendingConfirmation.patient.id,
+            doctor: AppointmentDetailsPendingConfirmation.doctorId,
+            date: AppointmentDetailsPendingConfirmation.date,
+            slot: AppointmentDetailsPendingConfirmation.slot,
+            type:
+              AppointmentDetailsPendingConfirmation.type === 1
+                ? 'new'
+                : AppointmentDetailsPendingConfirmation.type === 2
+                ? 'followup'
+                : AppointmentDetailsPendingConfirmation.type === 3
+                ? 'emergency'
+                : 'telemedicine',
+            status: 'pending',
           }),
           headers: {
             'Content-Type': 'application/json',
             Authorization: `JWT ${localStorage.getItem('token')}`,
           },
+        }
+      );
+
+      if (response.ok) {
+        toast.update(id, {
+          render: 'Appointment Booked Successfully',
+          type: 'success',
+          isLoading: false,
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+          autoClose: true,
         });
 
-        // const data = await response.json();
-        // console.log(
-        //   'response : ' + data,
-        //   'day : ' +
-        //     doctorScheduleDayAndDuration[i].Day +
-        //     '      end_time : ' +
-        //     doctorScheduleDayAndDuration[i].end_time +
-        //     +' slot_duration : ' +
-        //     doctorScheduleDayAndDuration[i].slot_duration
-        // );
+        localStorage.setItem('openWindow', JSON.stringify(3));
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+        // Appointment booking successful
+        // Proceed with next steps
+      } else {
+        toast.update(id, {
+          render: 'Something went wrong',
+          type: 'error',
+          isLoading: false,
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+          autoClose: true,
+        });
+      }
+    } catch (error) {
+      toast.error('Something went wrong', {
+        position: 'bottom-right',
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+    }
+  };
+  const AddDoctorSchedule = async () => {
+    let count = 1;
+    let currentSchedule = [];
+    while (count !== null) {
+      const response = await fetch(
+        apiUrl +
+          `appointments/doctor-schedule/?doctor=${doctorScheduleDoctor}&day_of_week=&start_time=&end_time=&slot_duration=&schedule_status=&price=&page=${count}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      const data = await response.json();
+      currentSchedule = [
+        ...currentSchedule,
+        ...data.results.map(info => ({
+          id: info.id,
+          day_of_week: info.day_of_week,
+        })),
+      ];
+      count++;
+      if (data.next === null) {
+        count = null;
+      }
+    }
+    console.log(currentSchedule);
+    for (let i = 0; i < doctorScheduleDayAndDuration.length; i++) {
+      let currentScheduleId = null;
+      if (doctorScheduleDayAndDuration[i].Work === true) {
+        if (
+          !currentSchedule.some(
+            schedule =>
+              schedule.day_of_week === doctorScheduleDayAndDuration[i].Day
+          )
+        ) {
+          try {
+            const id = toast.loading('Please wait...', {
+              position: 'bottom-right',
+            });
+            const response = await fetch(
+              apiUrl + 'appointments/doctor-schedule/',
+              {
+                method: 'POST',
+                body: JSON.stringify({
+                  day_of_week: doctorScheduleDayAndDuration[i].Day,
+                  start_time: doctorScheduleDayAndDuration[i].start_time,
+                  end_time: doctorScheduleDayAndDuration[i].end_time,
+                  slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+                  doctor: doctorScheduleDoctor,
+                  schedule_status: 'active',
+                  price: doctorScheduleDayAndDuration[i].price,
+                }),
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `JWT ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              // Schedule created successfully
+              // Proceed with next steps
+              toast.update(id, {
+                render: `${doctorScheduleDayAndDuration[i].Day} Added To Schedule Successfully`,
+                type: 'success',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            } else {
+              toast.update(id, {
+                render: 'Something went wrong',
+                type: 'error',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            }
+          } catch (error) {
+            toast.error(error.message, {
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+            });
+            // Handle the error here (e.g. show an error message to the user)
+          }
+        } else if (
+          currentSchedule.some(schedule => {
+            if (schedule.day_of_week === doctorScheduleDayAndDuration[i].Day) {
+              currentScheduleId = schedule.id;
+              return true;
+            } else {
+              return false;
+            }
+          })
+        ) {
+          try {
+            const id = toast.loading('Please wait...', {
+              position: 'bottom-right',
+            });
+
+            const response = await fetch(
+              apiUrl + `appointments/doctor-schedule/${currentScheduleId}/`,
+              {
+                method: 'PUT',
+                body: JSON.stringify({
+                  day_of_week: doctorScheduleDayAndDuration[i].Day,
+                  start_time: doctorScheduleDayAndDuration[i].start_time,
+                  end_time: doctorScheduleDayAndDuration[i].end_time,
+                  slot_duration: doctorScheduleDayAndDuration[i].slot_duration,
+                  doctor: doctorScheduleDoctor,
+                  schedule_status: 'active',
+                  price: doctorScheduleDayAndDuration[i].price,
+                }),
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `JWT ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+            if (response.ok) {
+              // Schedule created successfully
+              // Proceed with next steps
+              toast.update(id, {
+                render: `${doctorScheduleDayAndDuration[i].Day} Updated To Schedule Successfully`,
+                type: 'success',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            } else {
+              toast.update(id, {
+                render: 'Something went wrong',
+                type: 'error',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            }
+          } catch (error) {
+            toast.error(error.message, {
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+            });
+          }
+        }
+      } else {
+        if (
+          currentSchedule.some(schedule => {
+            if (schedule.day_of_week === doctorScheduleDayAndDuration[i].Day) {
+              currentScheduleId = schedule.id;
+              return true;
+            } else {
+              return false;
+            }
+          })
+        ) {
+          try {
+            const id = toast.loading('Please wait...', {
+              position: 'bottom-right',
+            });
+
+            const response = await fetch(
+              apiUrl + `appointments/doctor-schedule/${currentScheduleId}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `JWT ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+            if (response.ok) {
+              // Schedule created successfully
+              // Proceed with next steps
+              toast.update(id, {
+                render: `${doctorScheduleDayAndDuration[i].Day} Deleted From Schedule Successfully`,
+                type: 'success',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            } else {
+              toast.update(id, {
+                render: 'Something went wrong',
+                type: 'error',
+                isLoading: false,
+                position: 'bottom-right',
+                hideProgressBar: true,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light',
+                autoClose: true,
+              });
+            }
+          } catch (error) {
+            toast.error(error.message, {
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+            });
+          }
+        }
       }
     }
   };
@@ -932,8 +1428,21 @@ function Appointment() {
                           a !== 'doctorId' &&
                           a !== 'slot' && (
                             <h4>
-                              {a + ' : '}
-                              {AppointmentDetailsPendingConfirmation[a]}
+                              {a === 'doctorName'
+                                ? 'doctor name : '
+                                : a + ' : '}
+                              {a === 'type'
+                                ? AppointmentDetailsPendingConfirmation[a] === 1
+                                  ? 'new'
+                                  : AppointmentDetailsPendingConfirmation[a] ===
+                                    2
+                                  ? 'follow up'
+                                  : AppointmentDetailsPendingConfirmation[a] ===
+                                    3
+                                  ? 'emergency'
+                                  : AppointmentDetailsPendingConfirmation[a] ===
+                                      4 && 'telemedicine'
+                                : AppointmentDetailsPendingConfirmation[a]}
                             </h4>
                           )
                         );
@@ -947,7 +1456,6 @@ function Appointment() {
                         className={classes.confirm}
                         onClick={() => {
                           AddAppointmentList();
-                          resetBookNewAppointment();
                         }}
                       >
                         Confirm
@@ -956,6 +1464,7 @@ function Appointment() {
                         className={classes.cancel}
                         onClick={() => {
                           resetBookNewAppointment();
+                          window.location.reload();
                         }}
                       >
                         Cancel
@@ -1001,9 +1510,15 @@ function Appointment() {
           <DetailsBody
             toggleFilter={toggleFilter}
             setToggleFilter={setToggleFilter}
+            searchstate={setPatientAppointmentSearchSelected}
             details={allAppointmentList}
             title={'All Appointments'}
             style={{ display: openWindow === 3 ? 'flex' : 'none' }}
+            pagescroll={() => {
+              setPages(prevPages => prevPages + 1);
+            }}
+            justonce={justOnce}
+            setJustOnce={setJustOnce}
           />
         </>
       )}
@@ -1012,8 +1527,15 @@ function Appointment() {
           <DetailsBody
             toggleFilter={toggleFilter}
             setToggleFilter={setToggleFilter}
+            searchstate={setPatientAppointmentSearchSelected}
             details={allAppointmentList}
             title={'Cancel Doctor Appointment'}
+            style={{ display: openWindow === 4 ? 'flex' : 'none' }}
+            pagescroll={() => {
+              setPages(prevPages => prevPages + 1);
+            }}
+            justonce={justOnce}
+            setJustOnce={setJustOnce}
           />
         </>
       )}

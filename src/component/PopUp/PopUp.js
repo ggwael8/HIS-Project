@@ -56,6 +56,7 @@ function PopUp(props) {
                 multiple={props.multiple}
                 content={props.selection}
                 selected={props.selected}
+                pagescroll={props.pagescroll}
               />
             </>
           )}
@@ -68,6 +69,7 @@ function PopUp(props) {
                 selected={props.selected}
                 isDrug={props.isDrug}
                 isPrescription={props.isPrescription}
+                pagescroll={props.pagescroll}
               />
               {props.noteSet && (
                 <div className={classes.input}>

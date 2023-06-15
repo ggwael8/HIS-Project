@@ -1,7 +1,7 @@
 import classes from './MedicalSecretary.module.css';
 import bodyClasses from '../Body.module.css';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import { apiUrl } from '../../utils/api';
 import PopUp from '../../component/PopUp/PopUp';
@@ -12,8 +12,13 @@ import {
   faNotesMedical,
   faUserCheck,
 } from '@fortawesome/free-solid-svg-icons';
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function MedicalSecretary() {
+  const isMountedRef = useRef(false);
+  const [pages, setPages] = useState(1);
+  const [search, setSearch] = useState('');
+  const [prevSearchQuery, setPrevSearchQuery] = useState('');
   const [openWindow, setOpenWindow] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [toggleFilter, setToggleFilter] = useState(false);
@@ -27,64 +32,98 @@ function MedicalSecretary() {
     setIsLoading(true);
     const response = await Promise.all([
       openWindow === 1 &&
-        fetch(apiUrl + `records/surgery/`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        fetch(
+          apiUrl +
+            `records/surgery/?&search=${search}${
+              search === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       openWindow === 2 &&
-        fetch(apiUrl + `records/vitals/`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        fetch(
+          apiUrl +
+            `records/vitals/?&search=${search}${
+              search === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       openWindow === 3 &&
-        fetch(apiUrl + `records/medical-record/`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        fetch(
+          apiUrl +
+            `records/medical-record/?&search=${search}${
+              search === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
       openWindow === 4 &&
-        fetch(apiUrl + `records/visits/`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${localStorage.getItem('token')}`,
-          },
-        }),
+        fetch(
+          apiUrl +
+            `records/visits/?&search=${search}${
+              search === '' ? `&page=${pages}` : ''
+            }`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        ),
     ]);
     if (openWindow === 1) {
       const data = await response[0].json();
-      setDetails(
-        data.results.map(info => {
-          return {
-            patient: (
-              <span>
-                {info.patient.first_name + ' ' + info.patient.last_name}
-              </span>
-            ),
-            doctor: (
-              <span>
-                {info.doctor.first_name + ' ' + info.doctor.last_name}
-              </span>
-            ),
-            surgery_type: <span>{info.surgery_type}</span>,
-            date: <span>{info.date}</span>,
-            time: <span>{info.time}</span>,
-            button: [
-              {
-                type: 'pdf',
-                title: 'View Surgery',
-                setStates: () => {
-                  return info.documentation;
-                },
+      let temp = data.results.map(info => {
+        return {
+          patient: (
+            <span>
+              {info.patient.first_name + ' ' + info.patient.last_name}
+            </span>
+          ),
+          doctor: (
+            <span>{info.doctor.first_name + ' ' + info.doctor.last_name}</span>
+          ),
+          surgery_type: <span>{info.surgery_type}</span>,
+          date: <span>{info.date}</span>,
+          time: <span>{info.time}</span>,
+          button: [
+            {
+              type: 'pdf',
+              title: 'View Surgery',
+              setStates: () => {
+                return info.documentation;
               },
-            ],
-          };
-        })
-      );
+            },
+          ],
+        };
+      });
+      if (search === '') {
+        if (prevSearchQuery === '') {
+          setDetails(prevPages => [...prevPages, ...temp]);
+        } else {
+          if (pages === 1) setDetails(temp);
+          else {
+            setPages(1);
+            setDetails([]);
+          }
+        }
+      } else {
+        setDetails(temp);
+      }
+      setPrevSearchQuery(search);
       setRawData({
         patient: null,
         doctor: null,
@@ -95,24 +134,36 @@ function MedicalSecretary() {
       });
     } else if (openWindow === 2) {
       const data = await response[1].json();
-      setDetails(
-        data.results.map(info => {
-          return {
-            patient: (
-              <span>
-                {info.patient.first_name + ' ' + info.patient.last_name}
-              </span>
-            ),
-            date: <span>{info.date}</span>,
-            time: <span>{info.time}</span>,
-            height: <span>{info.height}</span>,
-            weight: <span>{info.weight}</span>,
-            temperature: <span>{info.temperature}</span>,
-            blood_pressure: <span>{info.blood_pressure}</span>,
-            heart_rate: <span>{info.heart_rate}</span>,
-          };
-        })
-      );
+      let temp = data.results.map(info => {
+        return {
+          patient: (
+            <span>
+              {info.patient.first_name + ' ' + info.patient.last_name}
+            </span>
+          ),
+          date: <span>{info.date}</span>,
+          time: <span>{info.time}</span>,
+          height: <span>{info.height}</span>,
+          weight: <span>{info.weight}</span>,
+          temperature: <span>{info.temperature}</span>,
+          blood_pressure: <span>{info.blood_pressure}</span>,
+          heart_rate: <span>{info.heart_rate}</span>,
+        };
+      });
+      if (search === '') {
+        if (prevSearchQuery === '') {
+          setDetails(prevPages => [...prevPages, ...temp]);
+        } else {
+          if (pages === 1) setDetails(temp);
+          else {
+            setPages(1);
+            setDetails([]);
+          }
+        }
+      } else {
+        setDetails(temp);
+      }
+      setPrevSearchQuery(search);
       setRawData({
         patient: null,
         date: null,
@@ -125,20 +176,32 @@ function MedicalSecretary() {
       });
     } else if (openWindow === 3) {
       const data = await response[2].json();
-      setDetails(
-        data.results.map(info => {
-          return {
-            patient: (
-              <span>
-                {info.patient.first_name + ' ' + info.patient.last_name}
-              </span>
-            ),
-            diagnosis: <span>{info.diagnosis}</span>,
-            allergies: <span>{info.allergies}</span>,
-            family_history: <span>{info.family_history}</span>,
-          };
-        })
-      );
+      let temp = data.results.map(info => {
+        return {
+          patient: (
+            <span>
+              {info.patient.first_name + ' ' + info.patient.last_name}
+            </span>
+          ),
+          diagnosis: <span>{info.diagnosis}</span>,
+          allergies: <span>{info.allergies}</span>,
+          family_history: <span>{info.family_history}</span>,
+        };
+      });
+      if (search === '') {
+        if (prevSearchQuery === '') {
+          setDetails(prevPages => [...prevPages, ...temp]);
+        } else {
+          if (pages === 1) setDetails(temp);
+          else {
+            setPages(1);
+            setDetails([]);
+          }
+        }
+      } else {
+        setDetails(temp);
+      }
+      setPrevSearchQuery(search);
       setRawData({
         patient: null,
         diagnosis: null,
@@ -147,25 +210,35 @@ function MedicalSecretary() {
       });
     } else if (openWindow === 4) {
       const data = await response[3].json();
-      setDetails(
-        data.results.map(info => {
-          return {
-            patient: (
-              <span>
-                {info.patient.first_name + ' ' + info.patient.last_name}
-              </span>
-            ),
-            doctor: (
-              <span>
-                {info.doctor.first_name + ' ' + info.doctor.last_name}
-              </span>
-            ),
-            diagnosis: <span>{info.diagnosis}</span>,
-            admission_date: <span>{info.admission_date}</span>,
-            discharge_date: <span>{info.discharge_date}</span>,
-          };
-        })
-      );
+      let temp = data.results.map(info => {
+        return {
+          patient: (
+            <span>
+              {info.patient.first_name + ' ' + info.patient.last_name}
+            </span>
+          ),
+          doctor: (
+            <span>{info.doctor.first_name + ' ' + info.doctor.last_name}</span>
+          ),
+          diagnosis: <span>{info.diagnosis}</span>,
+          admission_date: <span>{info.admission_date}</span>,
+          discharge_date: <span>{info.discharge_date}</span>,
+        };
+      });
+      if (search === '') {
+        if (prevSearchQuery === '') {
+          setDetails(prevPages => [...prevPages, ...temp]);
+        } else {
+          if (pages === 1) setDetails(temp);
+          else {
+            setPages(1);
+            setDetails([]);
+          }
+        }
+      } else {
+        setDetails(temp);
+      }
+      setPrevSearchQuery(search);
       setRawData({
         patient: null,
         doctor: null,
@@ -180,6 +253,11 @@ function MedicalSecretary() {
     setIsLoading(false);
   }
   useEffect(() => {
+    if (isMountedRef.current) {
+      fetchMainDataHandler();
+    }
+  }, [pages, search]);
+  useEffect(() => {
     setIsLoading(false);
     setToggleFilter(false);
     setDetails([]);
@@ -187,52 +265,103 @@ function MedicalSecretary() {
     setPopUp();
     setTempSelected([]);
     setReportFile(null);
-    fetchMainDataHandler();
+    setPages(1);
+    setPrevSearchQuery('');
+    setSearch('');
+    setData(null);
+
+    if (pages === 1) {
+      fetchMainDataHandler();
+      isMountedRef.current = true;
+    }
   }, [openWindow]);
 
   useEffect(() => {
     async function fetchHandler() {
-      if (openWindow !== 1) {
-        const response = await fetch(
-          apiUrl +
-            `${
-              openWindow === 2
-                ? 'records/vitals/'
-                : openWindow === 3
-                ? 'records/medical-record/'
-                : openWindow === 4 && 'records/visits/'
-            }`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `JWT ${localStorage.getItem('token')}`,
-            },
-            body: JSON.stringify(data[0]),
-          }
-        );
-        console.log(await response.json());
-        setData(null);
-        setPopUp(null);
-      } else if (openWindow === 1) {
-        const formData = new FormData();
-        formData.append('patient', data[0].patient);
-        formData.append('doctor', data[0].doctor);
-        formData.append('surgery_type', data[0].surgery_type);
-        formData.append('date', data[0].date);
-        formData.append('time', data[0].time);
-        formData.append('documentation', reportFile[0]);
-        const response = await fetch(apiUrl + 'records/surgery/', {
+      try {
+        let endpoint;
+        switch (openWindow) {
+          case 2:
+            endpoint = 'records/vitals/';
+            break;
+          case 3:
+            endpoint = 'records/medical-record/';
+            break;
+          case 4:
+            endpoint = 'records/visits/';
+            break;
+          case 1:
+            console.log(data[0]);
+            const formData = new FormData();
+            formData.append('patient', data[0].patient);
+            formData.append('doctor', data[0].doctor);
+            formData.append('surgery_type', data[0].surgery_type);
+            formData.append('date', data[0].date);
+            formData.append('time', data[0].time);
+            formData.append('documentation', reportFile[0]);
+            const id = toast.loading('Please wait...', {
+              position: 'bottom-right',
+            });
+            const responseSurgery = await fetch(apiUrl + 'records/surgery/', {
+              method: 'POST',
+              body: formData,
+              headers: {
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+              },
+            });
+            if (responseSurgery.ok) {
+              setData(null);
+              setPopUp(null);
+
+              toast.update(id, {
+                render: 'Successfully added!',
+                type: 'success',
+                isLoading: false,
+                autoClose: 2000,
+              });
+            } else {
+              toast.update(id, {
+                render: 'Failed to add!',
+                type: 'error',
+                isLoading: false,
+                autoClose: 2000,
+              });
+            }
+            return;
+          default:
+            throw new Error('Invalid window ID');
+        }
+        const id = toast.loading('Please wait...', {
+          position: 'bottom-right',
+        });
+        const response = await fetch(apiUrl + endpoint, {
           method: 'POST',
-          body: formData,
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `JWT ${localStorage.getItem('token')}`,
           },
+          body: JSON.stringify(data[0]),
         });
-        console.log(await response.json());
-
-        setData(null);
-        setPopUp(null);
+        if (response.ok) {
+          setData(null);
+          setPopUp(null);
+          toast.update(id, {
+            render: 'Successfully added!',
+            type: 'success',
+            isLoading: false,
+            autoClose: 2000,
+          });
+        } else {
+          toast.update(id, {
+            render: 'Failed to add!',
+            type: 'error',
+            isLoading: false,
+            autoClose: 2000,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        // Handle the error here (e.g. show an error message to the user)
       }
     }
 
@@ -284,6 +413,7 @@ function MedicalSecretary() {
     <div className={bodyClasses.container}>
       <SideNavBar sideNav={sideNav} setOpenWindow={setOpenWindow} />
       <DetailsBody
+        searchstate={setSearch}
         title={
           openWindow === 1
             ? 'Surgery'
@@ -306,6 +436,9 @@ function MedicalSecretary() {
           setStates: () => {
             setPopUp(true);
           },
+        }}
+        pagescroll={() => {
+          setPages(prevPages => prevPages + 1);
         }}
       />
       {popUp && (

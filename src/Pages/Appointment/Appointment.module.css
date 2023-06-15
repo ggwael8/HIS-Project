@@ -121,13 +121,13 @@
   color: #49a96e;
   cursor: pointer;
 }
-.confirm {
+.appointmentDetailsBodyButtons .confirm {
   background-color: #49a96e;
 }
-.cancel:hover {
+.appointmentDetailsBodyButtons .cancel:hover {
   color: #df5c5c;
 }
-.cancel {
+.appointmentDetailsBodyButtons .cancel {
   background-color: #df5c5c;
 }
 /* .allAppointment {

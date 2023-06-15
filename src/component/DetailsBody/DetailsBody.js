@@ -1,7 +1,22 @@
 import classes from './DetailsBody.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { useRef, useEffect } from 'react';
 function DetailsBody(props) {
+  const containerRef = useRef(null);
+  // useEffect(() => {
+  //   const container = containerRef.current;
+  //   console.log(container);
+  //   if (
+  //     props.justonce &&
+  //     container &&
+  //     container.clientHeight >= container.scrollHeight
+  //   ) {
+  //     // Container is shorter than its content
+  //     props.pagescroll();
+  //     props.setJustOnce(false);
+  //   }
+  // }, [props]);
   return (
     <div className={classes.details} style={props.style}>
       <h2 className={classes.title}>{props.title}</h2>
@@ -17,8 +32,21 @@ function DetailsBody(props) {
               {props.additionalFunction.title}
             </button>
           )}
-          <input type='text' id='search' placeholder='search' />
-          <span></span>
+          {props.searchstate && (
+            <input
+              type='text'
+              id='search'
+              placeholder='Search'
+              onChange={e => {
+                if (props.searchstate) {
+                  setTimeout(() => {
+                    props.searchstate(e.target.value);
+                  }, 1000);
+                }
+              }}
+            />
+          )}
+          {/* <span></span>
           <div
             className={props.toggleFilter && classes.toggleFilter}
             onClick={() => {
@@ -30,9 +58,22 @@ function DetailsBody(props) {
               style={{ color: props.toggleFilter ? '#49a96e' : '#979797' }}
             />
             <h2>filter</h2>
-          </div>
+          </div> */}
         </div>
-        <div className={classes.detailsBody}>
+        <div
+          className={classes.detailsBody}
+          ref={containerRef}
+          onScroll={event => {
+            const container = event.target;
+            if (
+              container.scrollTop + container.clientHeight ===
+              container.scrollHeight
+            ) {
+              // Scroll has reached the end
+              props.pagescroll();
+            }
+          }}
+        >
           {props.details.map(details => {
             return (
               <div className={classes.detailsBodyContent}>
@@ -145,7 +186,9 @@ function DetailsBody(props) {
                                       ? classes.ButtonYellow
                                       : classes.ButtonGreen
                                   }`}
-                                onClick={info.setStates}
+                                onClick={e => {
+                                  info.setStates();
+                                }}
                               >
                                 {info.title}
                               </button>
