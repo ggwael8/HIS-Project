@@ -19,6 +19,8 @@ import ExtraContext from './context/extra-context';
 import PictureContext from './context/picture-context';
 import { apiUrl } from './utils/api';
 import Register from './Pages/Register';
+import Loader from './component/Loader/Loader';
+import classes from './Pages/Body.module.css';
 function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [extraInfo, setExtraInfo] = useState(null);
@@ -258,7 +260,20 @@ function App() {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+        }}
+      >
+        <Loader cl={'#fff'} />
+      </div>
+    );
 
   return ChooseRouterRole();
 }

@@ -1,7 +1,7 @@
 import classes from './Pharmacy.module.css';
 import bodyClasses from '../Body.module.css';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import { apiUrl } from '../../utils/api';
 import PopUp from '../../component/PopUp/PopUp';
@@ -10,6 +10,7 @@ import { faPills, faClipboard } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 function Pharmacy() {
+  const isMountedRef = useRef(false);
   const [pages, setPages] = useState(1);
   const [openWindow, setOpenWindow] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -265,10 +266,13 @@ function Pharmacy() {
     setIsLoading(false);
   }
   useEffect(() => {
-    fetchMainDataHandler();
+    if (isMountedRef.current) fetchMainDataHandler();
   }, [prescriptionId, pages, search]);
   useEffect(() => {
-    if (pages === 1) fetchMainDataHandler();
+    if (pages === 1) {
+      fetchMainDataHandler();
+      isMountedRef.current = true;
+    }
   }, [openWindow]);
 
   useEffect(() => {

@@ -505,8 +505,13 @@ function Appointment() {
 
                       if (response.ok) {
                         setAllAppointmentList([]);
-                        if (pages === 1) fetchDataHandler();
-                        else setPages(1);
+                        // if (pages === 1) fetchDataHandler();
+                        // else setPages(1);
+                        localStorage.setItem('openWindow', JSON.stringify(3));
+
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 1000);
                         toast.update(id, {
                           render: 'Status Changed Successfully',
                           type: 'success',

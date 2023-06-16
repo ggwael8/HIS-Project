@@ -16,6 +16,7 @@ import PopUp from '../../component/PopUp/PopUp';
 import UserContext from '../../context/user-context';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Loader from '../../component/Loader/Loader';
 function MedicalRecord() {
   const [pages, setPages] = useState(1);
   const [popUpPages, setPopUpPages] = useState(1);
@@ -62,6 +63,7 @@ function MedicalRecord() {
 
   //prescription items
   const [prescriptionItems, setPrescriptionItems] = useState([]);
+
   //reset details when open window change
   useEffect(() => {
     setDetails([]);
@@ -246,57 +248,50 @@ function MedicalRecord() {
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .Lab_request.map(info => {
-                return {
-                  id: <span>{info.exam.id}</span>,
-                  name: <span>{info.exam.name}</span>,
-                  code: <span>{info.exam.code}</span>,
-                  price: <span>{info.exam.price}</span>,
-                  date: (
-                    <span>{info.dateTime.toString().substring(0, 10)}</span>
-                  ),
-                  time: (
-                    <span>{info.dateTime.toString().substring(11, 16)}</span>
-                  ),
-                  comment: <span>{info.comment}</span>,
-                  button: {
-                    title: 'Download Result',
-                    setStates: () => {
-                      /* //todo: add download function */
-                      return info.pdf_result;
-                    },
+            data.Lab_request.map(info => {
+              return {
+                id: <span>{info.exam.id}</span>,
+                name: <span>{info.exam.name}</span>,
+                code: <span>{info.exam.code}</span>,
+                price: <span>{info.exam.price}</span>,
+                date: <span>{info.dateTime.toString().substring(0, 10)}</span>,
+                time: <span>{info.dateTime.toString().substring(11, 16)}</span>,
+                comment: <span>{info.comment}</span>,
+                button: {
+                  title: 'Download Result',
+                  setStates: () => {
+                    /* //todo: add download function */
+                    return info.pdf_result;
                   },
-                };
-              })
+                },
+              };
+            })
           );
         } else {
+          console.log(data);
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .exams.map(info => {
-                return {
-                  id: info.id,
-                  card: {
-                    name: (
-                      <h4>
-                        name : <span>{info.name}</span>
-                      </h4>
-                    ),
-                    code: (
-                      <h4>
-                        code : <span>{info.code}</span>
-                      </h4>
-                    ),
-                    price: (
-                      <h4>
-                        price : <span>{info.price}</span>
-                      </h4>
-                    ),
-                  },
-                };
-              })
+            data.exams.map(info => {
+              return {
+                id: info.id,
+                card: {
+                  name: (
+                    <h4>
+                      name : <span>{info.name}</span>
+                    </h4>
+                  ),
+                  code: (
+                    <h4>
+                      code : <span>{info.code}</span>
+                    </h4>
+                  ),
+                  price: (
+                    <h4>
+                      price : <span>{info.price}</span>
+                    </h4>
+                  ),
+                },
+              };
+            })
           );
         }
         setPrev(selectedRequestIdResult);
@@ -332,72 +327,67 @@ function MedicalRecord() {
           setDetails(temp);
           setPrev(null);
         } else {
-          if(prevSearchQuery === '') {
+          if (prevSearchQuery === '') {
             setDetails(prev => [...prev, ...temp]);
-          }
-          else {
+          } else {
             setDetails(temp);
           }
-        };
+        }
         setPrevSearchQuery(search);
       }
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .radiolgy_request.map(info => {
-                return {
-                  id: <span>{info.exam.id}</span>,
-                  name: <span>{info.exam.name}</span>,
-                  code: <span>{info.exam.code}</span>,
-                  price: <span>{info.exam.price}</span>,
-                  image: info.radiology_result.map(info => {
-                    return {
-                      comment: <span>{info.comment}</span>,
-                      button: {
-                        title: 'View Image',
-                        setStates: () => {
-                          return info.image;
-                        },
+            data.radiolgy_request.map(info => {
+              return {
+                id: <span>{info.exam.id}</span>,
+                name: <span>{info.exam.name}</span>,
+                code: <span>{info.exam.code}</span>,
+                price: <span>{info.exam.price}</span>,
+                image: info.radiology_result.map(info => {
+                  return {
+                    comment: <span>{info.comment}</span>,
+                    button: {
+                      title: 'View Image',
+                      setStates: () => {
+                        return info.image;
                       },
-                    };
-                  }),
-                  button: {
-                    title: 'View Report',
-                    setStates: () => {
-                      return info.report_file;
                     },
+                  };
+                }),
+                button: {
+                  title: 'View Report',
+                  setStates: () => {
+                    return info.report_file;
                   },
-                };
-              })
+                },
+              };
+            })
           );
         } else {
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .exams.map(info => {
-                return {
-                  id: info.id,
-                  card: {
-                    name: (
-                      <h4>
-                        name : <span>{info.name}</span>
-                      </h4>
-                    ),
-                    code: (
-                      <h4>
-                        code : <span>{info.code}</span>
-                      </h4>
-                    ),
-                    price: (
-                      <h4>
-                        price : <span>{info.price}</span>
-                      </h4>
-                    ),
-                  },
-                };
-              })
+            data.exams.map(info => {
+              return {
+                id: info.id,
+                card: {
+                  name: (
+                    <h4>
+                      name : <span>{info.name}</span>
+                    </h4>
+                  ),
+                  code: (
+                    <h4>
+                      code : <span>{info.code}</span>
+                    </h4>
+                  ),
+                  price: (
+                    <h4>
+                      price : <span>{info.price}</span>
+                    </h4>
+                  ),
+                },
+              };
+            })
           );
         }
         setPrev(selectedRequestIdResult);
@@ -466,7 +456,6 @@ function MedicalRecord() {
           },
         },
       ]);
-      console.log(data);
     }
     if (openWindow === 4 && openPopUp === false) {
       const data = await response[3].json();
@@ -498,10 +487,9 @@ function MedicalRecord() {
           setDetails(temp);
           setPrev(null);
         } else {
-          if(prevSearchQuery === '') {
+          if (prevSearchQuery === '') {
             setDetails(prev => [...prev, ...temp]);
-          }
-          else {
+          } else {
             setDetails(temp);
           }
         }
@@ -510,20 +498,17 @@ function MedicalRecord() {
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'doctor') {
           setExamsListResult(
-            data.results
-              .filter(info => info.id === selectedRequestIdResult)[0]
-              .prescription.map(info => {
-                return {
-                  id: <span>{info.id}</span>,
-                  drug: <span>{info.drug}</span>,
-                  amount: <span>{info.amount}</span>,
-                  dose: <span>{info.dose}</span>,
-                  duration: <span>{info.duration}</span>,
-                };
-              })
+            data.prescription.map(info => {
+              return {
+                id: <span>{info.id}</span>,
+                drug: <span>{info.drug}</span>,
+                amount: <span>{info.amount}</span>,
+                dose: <span>{info.dose}</span>,
+                duration: <span>{info.duration}</span>,
+              };
+            })
           );
         } else {
-          console.log(data);
           setExamsListResult(
             data.prescription.map(info => {
               return {
@@ -562,7 +547,6 @@ function MedicalRecord() {
               };
             }),
           });
-          console.log(prescriptionItems);
           setPrev(selectedRequestIdResult);
         }
       }
@@ -579,14 +563,16 @@ function MedicalRecord() {
     search,
   ]);
 
-  // get request data
+  // get request data for drug list and exam list
   useEffect(() => {
     async function fetchHandler() {
       const response = await Promise.all([
         (requestType === 'Laboratory' || requestType === 'Radiology') &&
           fetch(
             apiUrl +
-              `lab-radiology/exams-list/?type=${requestType}&page=${popUpPages}`,
+              `lab-radiology/exams-list/?type=${requestType}&search=${search}${
+                search === '' ? `&page=${popUpPages}` : ''
+              }`,
             {
               headers: {
                 'Content-Type': 'application/json',
@@ -595,12 +581,18 @@ function MedicalRecord() {
             }
           ),
         requestType === 'prescription' &&
-          fetch(apiUrl + `pharmacy/drug/?page=${popUpPages}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `JWT ${localStorage.getItem('token')}`,
-            },
-          }),
+          fetch(
+            apiUrl +
+              `pharmacy/drug/?search=${search}${
+                search === '' ? `&page=${popUpPages}` : ''
+              }`,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `JWT ${localStorage.getItem('token')}`,
+              },
+            }
+          ),
       ]);
       if (requestType === 'Laboratory' || requestType === 'Radiology') {
         const data = await response[0].json();
@@ -626,7 +618,12 @@ function MedicalRecord() {
             },
           };
         });
-        setContent(prev => [...prev, ...temp]);
+        if (prev || search !== '') setContent(temp);
+        else {
+          if (prevSearchQuery === '') setContent(prev => [...prev, ...temp]);
+          else setContent(temp);
+        }
+        setPrevSearchQuery(search);
       } else if (requestType === 'prescription') {
         const data = await response[1].json();
         let temp = data.results.map(info => {
@@ -646,13 +643,18 @@ function MedicalRecord() {
             },
           };
         });
-        setContent(prev => [...prev, ...temp]);
+        if (prev || search !== '') setContent(temp);
+        else {
+          if (prevSearchQuery === '') setContent(prev => [...prev, ...temp]);
+          else setContent(temp);
+        }
+        setPrevSearchQuery(search);
       }
       fetchMainDataHandler();
     }
 
     if (requestType !== null) fetchHandler();
-  }, [requestType, popUpPages]);
+  }, [requestType, popUpPages, search]);
 
   //doctor role
   useEffect(() => {
@@ -972,11 +974,8 @@ function MedicalRecord() {
   }, [selectedForReceptionistRole]);
   useEffect(() => {
     setPopUpPages(1);
-  }, [openPopUp]);
+  }, [openPopUp, requestType, search]);
 
-  // useEffect(() => {
-  //   console.log(prescriptionItems);
-  // }, [prescriptionItems]);
   const sideNav = [
     {
       id: 1,
@@ -1053,7 +1052,9 @@ function MedicalRecord() {
             )}
           </div>
         ) : (
-          <h2>Loading</h2>
+          <div className={classes.patientIdContainer}>
+            <Loader cl={'#49a96e'} />
+          </div>
         )
       ) : (
         <DetailsBody
@@ -1119,7 +1120,6 @@ function MedicalRecord() {
               }}
               buttonText={'Confirm'}
             />
-            {console.log(selectedForReceptionistRole)}
           </>
         ))}
       {openPopUp &&
@@ -1144,7 +1144,6 @@ function MedicalRecord() {
                 setPopUpPages(prevPages => prevPages + 1);
               }}
             />
-            {console.log('asdsadadas')}
           </>
         ) : (
           <PopUp
@@ -1158,6 +1157,9 @@ function MedicalRecord() {
             buttonFunction={() => {
               setSelectedForDoctorRole(tempSelected);
               setOpenPopUp(false);
+              setTempSelected([]);
+              setPopUpPages(1);
+              setContent([]);
             }}
             buttonText={'Confirm'}
             pagescroll={() => {

@@ -10,8 +10,6 @@ function DropDownMenu(props) {
       }`}
       onScroll={event => {
         const container = event.target;
-        console.log(container.scrollTop + container.clientHeight);
-        console.log(container.scrollHeight);
         if (
           Math.abs(
             container.scrollTop +
