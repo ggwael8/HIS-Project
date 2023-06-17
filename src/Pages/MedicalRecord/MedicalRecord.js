@@ -449,7 +449,9 @@ function MedicalRecord() {
                 time: <span>{info.time}</span>,
                 button: {
                   title: 'View Documentation',
-                  setStates: info.documentation,
+                  setStates: () => {
+                    return info.documentation;
+                  },
                 },
               };
             }),
