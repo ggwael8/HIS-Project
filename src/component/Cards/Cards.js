@@ -5,6 +5,7 @@ function Cards(props) {
   return (
     <div className={classes.Cards}>
       {props.Cards.map((card, cardIndex) => {
+        console.log(card);
         if (card !== null && card !== undefined && card !== false)
           return (
             <div className={classes.Card}>
@@ -57,6 +58,7 @@ function Cards(props) {
                       </>
                     ) : (
                       <h3>
+                        {console.log(card[info])}
                         {info} : {card[info]}
                       </h3>
                     )

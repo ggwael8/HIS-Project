@@ -485,12 +485,14 @@ function MedicalRecord() {
             ],
           };
         });
+        console.log(prev);
         if (prev || search !== '') {
           setDetails(temp);
           setPrev(null);
         } else {
           if (prevSearchQuery === '') {
             setDetails(prev => [...prev, ...temp]);
+            console.log('asdasdasd');
           } else {
             setDetails(temp);
           }
@@ -498,17 +500,20 @@ function MedicalRecord() {
         setPrevSearchQuery(search);
       }
       if (selectedRequestIdResult !== null) {
+        setPrev(selectedRequestIdResult);
         if (userctx.role === 'doctor') {
           setExamsListResult(
-            data.prescription.map(info => {
-              return {
-                id: <span>{info.id}</span>,
-                drug: <span>{info.drug}</span>,
-                amount: <span>{info.amount}</span>,
-                dose: <span>{info.dose}</span>,
-                duration: <span>{info.duration}</span>,
-              };
-            })
+            data.results
+              .filter(info => info.id === selectedRequestIdResult)[0]
+              .prescription.map(info => {
+                return {
+                  id: <span>{info.id}</span>,
+                  drug: <span>{info.drug}</span>,
+                  amount: <span>{info.amount}</span>,
+                  dose: <span>{info.dose}</span>,
+                  duration: <span>{info.duration}</span>,
+                };
+              })
           );
         } else {
           setExamsListResult(
@@ -549,7 +554,6 @@ function MedicalRecord() {
               };
             }),
           });
-          setPrev(selectedRequestIdResult);
         }
       }
     }

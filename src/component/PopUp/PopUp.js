@@ -26,6 +26,7 @@ function PopUp(props) {
   return (
     <div className={classes.popUp} ref={containerRef}>
       <div className={classes.popUpGreyBox} ref={popUpRef}>
+        
         <div className={classes.popUpContent}>
           {props.text && <h3>{props.text}</h3>}
           {props.Cards && (
