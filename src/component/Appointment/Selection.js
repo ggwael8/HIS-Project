@@ -7,8 +7,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import DropDownMenu from '../DropDownMenu';
 import { useState, useRef, useEffect } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import dateFormat from 'dateformat';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -54,6 +52,7 @@ function Selection(props) {
       props.setJustOnce(false);
     }
   }, [props]);
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div
@@ -103,10 +102,9 @@ function Selection(props) {
             <input
               className={classes.Input}
               placeholder={props.title}
-              onChange={e => {
+              onBlur={e => {
                 props.selectstate(e.target.value);
               }}
-              value={props.patient}
             />
             <div className={classes.appointmentType}>
               <h2>Appointment Type</h2>

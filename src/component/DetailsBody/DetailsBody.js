@@ -66,8 +66,9 @@ function DetailsBody(props) {
           onScroll={event => {
             const container = event.target;
             if (
+              container.scrollTop > 0 &&
               container.scrollTop + container.clientHeight ===
-              container.scrollHeight
+                container.scrollHeight
             ) {
               // Scroll has reached the end
               props.pagescroll();

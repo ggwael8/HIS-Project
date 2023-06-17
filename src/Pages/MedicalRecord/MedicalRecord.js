@@ -1119,6 +1119,9 @@ function MedicalRecord() {
                 setSelectedForReceptionistRole(tempSelected);
               }}
               buttonText={'Confirm'}
+              pagescroll={() => {
+                setPopUpPages(prevPages => prevPages + 1);
+              }}
             />
           </>
         ))}

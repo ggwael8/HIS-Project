@@ -95,9 +95,9 @@ function DropDownMenu(props) {
                 >
                   <div
                     className={`${classes.card} ${classes.hoverEffect} ${
-                      Array.isArray(props.selected) &&
-                      props.selected.includes(p.id) &&
-                      classes.selected
+                      Array.isArray(props.selected)
+                        ? props.selected.includes(p.id) && classes.selected
+                        : props.selected === p.id && classes.selected
                     }`}
                   >
                     {Object.keys(p.card).map(key => {

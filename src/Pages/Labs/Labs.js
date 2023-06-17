@@ -2,7 +2,7 @@ import classes from './Labs.module.css';
 import SideNavBar from '../../component/SideNavBar/SideNavBar';
 import DetailsBody from '../../component/DetailsBody/DetailsBody';
 import PopUp from '../../component/PopUp/PopUp';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import UserContext from '../../context/user-context';
 import { apiUrl } from '../../utils/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,9 +10,12 @@ import {
   faFileLines,
   faFileCircleQuestion,
 } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function Labs() {
   const userctx = useContext(UserContext);
 
+  const isMountedRef = useRef(false);
   const [openWindow, setOpenWindow] = useState(1);
   const [toggleFilter, setToggleFilter] = useState(false);
   const [requestData, setRequestData] = useState([]);
@@ -36,12 +39,18 @@ function Labs() {
   const [examsListResult, setExamsListResult] = useState([]);
 
   const [pages, setPages] = useState(1);
+
+  const [prev, setPrev] = useState(null);
+
+  useEffect(() => {
+    setPages(1);
+  }, [openWindow, selectedExamsListId, selectedRequestIdResult]);
   async function fetchDataHandler() {
     setIsLoading(true);
 
     const response = await Promise.all([
       openWindow === 1 &&
-        fetch(apiUrl + `lab-radiology/exam-request/`, {
+        fetch(apiUrl + `lab-radiology/exam-request/?page=${pages}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `JWT ${localStorage.getItem('token')}`,
@@ -52,8 +61,8 @@ function Labs() {
           apiUrl +
             `${
               userctx.role === 'lab'
-                ? 'lab-radiology/view-test-resutls/'
-                : 'lab-radiology/view-radiology-request/'
+                ? `lab-radiology/view-test-resutls/?page=${pages}`
+                : `lab-radiology/view-radiology-request/?page=${pages}`
             }`,
           {
             headers: {
@@ -65,8 +74,8 @@ function Labs() {
     ]);
     if (openWindow === 1) {
       const requestList = await response[0].json();
-      setRequestData(
-        requestList.results
+      if (selectedExamsListId === null) {
+        let temp = requestList.results
           .filter(
             info =>
               info.status === 'Waiting for result' || info.status === 'Pending'
@@ -89,7 +98,9 @@ function Labs() {
               button: [
                 {
                   title:
-                    userctx.role === 'lab' ? 'View Lab test' : 'View Exams',
+                    userctx.role === 'lab'
+                      ? 'View Lab test'
+                      : 'View Radiology test',
                   setStates: () => {
                     setSelectedExamsListId(info.id);
                     setSelectedStatus(info.status);
@@ -97,8 +108,12 @@ function Labs() {
                 },
               ],
             };
-          })
-      );
+          });
+        if (prev) {
+          setRequestData(temp);
+          setPrev(null);
+        } else setRequestData(prevData => [...prevData, ...temp]);
+      }
       if (selectedExamsListId !== null) {
         setExamsList(
           requestList.results
@@ -110,11 +125,12 @@ function Labs() {
         setDefaultExamList(
           requestList.results.filter(info => info.id === selectedExamsListId)[0]
         );
+        setPrev(true);
       }
     } else {
       const resultList = await response[1].json();
-      setAllResultData(
-        resultList.results.map(info => {
+      if (selectedRequestIdResult === null) {
+        let temp = resultList.results.map(info => {
           return {
             id: <span>{info.id}</span>,
             patientName: (
@@ -136,8 +152,12 @@ function Labs() {
               },
             ],
           };
-        })
-      );
+        });
+        if (prev) {
+          setAllResultData(temp);
+          setPrev(null);
+        } else setAllResultData(prevData => [...prevData, ...temp]);
+      }
       if (selectedRequestIdResult !== null) {
         if (userctx.role === 'lab') {
           setExamsListResult(
@@ -197,15 +217,41 @@ function Labs() {
               })
           );
         }
+        setPrev(true);
       }
     }
     setIsLoading(false);
   }
 
   useEffect(() => {
-    fetchDataHandler();
-  }, [selectedExamsListId, selectedRequestIdResult, openWindow]);
+    setAllResultData([]);
+    setRequestData([]);
+    setSelectedExamsListId(null);
+    setSelectedRequestIdResult(null);
+    setSelectedStatus(null);
+    setExamsList([]);
+    setExamsListResult([]);
+    setDefaultExamList(null);
+    setFiles(examsList.map(() => []));
+    setComments(examsList.map(() => []));
+    userctx.role !== 'lab' && setReportFile(examsList.map(() => null));
+    setFilesCount(examsList.map(() => 1));
+    setPrev(null);
+  }, [openWindow]);
 
+  useEffect(() => {
+    if (isMountedRef.current) {
+      console.log('fetching');
+      fetchDataHandler();
+    }
+  }, [pages, selectedExamsListId, selectedRequestIdResult]);
+  useEffect(() => {
+    if (pages === 1) {
+      console.log('fetching22');
+      fetchDataHandler();
+      isMountedRef.current = true;
+    }
+  }, [openWindow]);
   const sideNav = [
     {
       id: 1,
@@ -237,89 +283,234 @@ function Labs() {
   }, [examsList]);
 
   const EditExamStatus = async () => {
-    const response = await fetch(
-      apiUrl + `lab-radiology/exam-request/${selectedExamsListId}/`,
-      {
-        method: 'PUT',
-        body: JSON.stringify({
-          ...defaultExamList,
-          status:
-            selectedStatus === 'Pending'
-              ? 'Waiting for result'
-              : selectedStatus === 'Waiting for result' && 'Completed',
-          appointment: defaultExamList.appointment.id,
-          doctor: defaultExamList.doctor.id,
-          patient: defaultExamList.patient.id,
-          exams: defaultExamList.exams.map(info => {
-            return info.id;
-          }),
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${localStorage.getItem('token')}`,
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-    setSelectedExamsListId(null);
-    setSelectedStatus(null);
-    fetchDataHandler();
-  };
-  const AddTestResult = async () => {
-    for (let i = 0; i < examsList.length; i++) {
-      const formData = new FormData();
-      formData.append('DateTime', defaultExamList.appointment);
-      userctx.role === 'lab'
-        ? formData.append('pdf_result', files[i][0])
-        : formData.append('report_file', reportFile[i]);
-      userctx.role === 'lab' && formData.append('comment', comments[i][0]);
-      formData.append('Request', defaultExamList.id);
-      formData.append('exam', examsList[i].id);
-      console.log(formData);
+    try {
+      const id = toast.loading('Please wait...', {
+        position: 'bottom-right',
+      });
       const response = await fetch(
-        apiUrl +
-          `${
-            userctx.role === 'lab'
-              ? 'lab-radiology/test-result/'
-              : 'lab-radiology/radiology-results/'
-          }`,
+        apiUrl + `lab-radiology/exam-request/${selectedExamsListId}/`,
         {
-          method: 'POST',
-          body: formData,
+          method: 'PUT',
+          body: JSON.stringify({
+            ...defaultExamList,
+            status:
+              selectedStatus === 'Pending'
+                ? 'Waiting for result'
+                : selectedStatus === 'Waiting for result' && 'Completed',
+            appointment: defaultExamList.appointment.id,
+            doctor: defaultExamList.doctor.id,
+            patient: defaultExamList.patient.id,
+            exams: defaultExamList.exams.map(info => {
+              return info.id;
+            }),
+          }),
           headers: {
+            'Content-Type': 'application/json',
             Authorization: `JWT ${localStorage.getItem('token')}`,
           },
         }
       );
-      if (userctx.role !== 'lab') {
+
+      if (response.ok) {
         const data = await response.json();
-        for (let j = 0; j < files[i].length; j++) {
-          const formData = new FormData();
-          formData.append('result', data.id);
-          formData.append('image', files[i][j]);
-          formData.append('comment', comments[i][j]);
-          const response = await fetch(
-            apiUrl + 'lab-radiology/radiology-result-details/',
-            {
-              method: 'POST',
-              body: formData,
-              headers: {
-                Authorization: `JWT ${localStorage.getItem('token')}`,
-              },
+        console.log(data);
+        setSelectedExamsListId(null);
+        setSelectedStatus(null);
+        // Update toast
+        toast.update(id, {
+          render: 'Test status updated successfully!',
+          type: 'success',
+          isLoading: false,
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+          autoClose: true,
+        });
+      } else {
+        // Update toast with error message
+        toast.update(id, {
+          render: 'Failed to update test status.',
+          type: 'error',
+          isLoading: false,
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+          autoClose: true,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+
+      // Update toast with error message
+      toast.error(error.message);
+    }
+  };
+  const AddTestResult = async () => {
+    try {
+      for (let i = 0; i < examsList.length; i++) {
+        const formData = new FormData();
+        formData.append('DateTime', defaultExamList.appointment);
+        userctx.role === 'lab'
+          ? formData.append('pdf_result', files[i][0])
+          : formData.append('report_file', reportFile[i]);
+        userctx.role === 'lab' && formData.append('comment', comments[i][0]);
+        formData.append('Request', defaultExamList.id);
+        formData.append('exam', examsList[i].id);
+        console.log(formData);
+        const id = toast.loading('Please wait...', {
+          position: 'bottom-right',
+        });
+        const response = await fetch(
+          apiUrl +
+            `${
+              userctx.role === 'lab'
+                ? 'lab-radiology/test-result/'
+                : 'lab-radiology/radiology-results/'
+            }`,
+          {
+            method: 'POST',
+            body: formData,
+            headers: {
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+
+        if (userctx.role !== 'lab') {
+          if (response.ok) {
+            const data = await response.json();
+            for (let j = 0; j < files[i].length; j++) {
+              const formData = new FormData();
+              formData.append('result', data.id);
+              formData.append('image', files[i][j]);
+              formData.append('comment', comments[i][j]);
+              const id2 = toast.loading('Please wait...', {
+                position: 'bottom-right',
+              });
+              const response = await fetch(
+                apiUrl + 'lab-radiology/radiology-result-details/',
+                {
+                  method: 'POST',
+                  body: formData,
+                  headers: {
+                    Authorization: `JWT ${localStorage.getItem('token')}`,
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                // Update toast with error message
+                toast.update(id2, {
+                  render:
+                    'Failed to upload image ' + (j + 1) + ' of test ' + (i + 1),
+                  type: 'error',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+                return;
+              } else {
+                // Update toast
+                toast.update(id2, {
+                  render:
+                    'Image ' +
+                    (j + 1) +
+                    ' of test ' +
+                    (i + 1) +
+                    ' uploaded successfully!',
+                  type: 'success',
+                  isLoading: false,
+                  position: 'bottom-right',
+                  hideProgressBar: true,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: 'light',
+                  autoClose: true,
+                });
+              }
             }
-          );
+          } else {
+            // Update toast with error message
+            toast.update(id, {
+              render: 'Failed to upload radiology result ' + (i + 1),
+              type: 'error',
+              isLoading: false,
+              position: 'bottom-right',
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+              autoClose: true,
+            });
+            return;
+          }
+        }
+        if (response.ok) {
+          toast.update(id, {
+            render: 'Result uploaded successfully!',
+            type: 'success',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+        } else {
+          // Update toast with error message
+          toast.update(id, {
+            render: 'Failed to upload result.',
+            type: 'error',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+          return;
         }
       }
 
-      // console.log(files[i]);
-      // const data = await response.json();
-      // console.log(data);
+      EditExamStatus();
+      setSelectedExamsListId(null);
+      setSelectedStatus(null);
+
+      // localStorage.setItem('openWindow', JSON.stringify(1));
+
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 2000);
+    } catch (error) {
+      console.error(error);
+
+      // Update toast with error message
+      toast.error(error.message);
     }
-    EditExamStatus();
-    setSelectedExamsListId(null);
-    setSelectedStatus(null);
-    fetchDataHandler();
   };
 
   return (
@@ -334,6 +525,10 @@ function Labs() {
         title={
           openWindow === 1 ? 'Requests' : openWindow === 2 && 'All Results'
         }
+        pagescroll={() => {
+          setPages(prevPages => prevPages + 1);
+          console.log('scroll');
+        }}
       />
       {selectedExamsListId !== null &&
         (selectedStatus === 'Pending' ? (
