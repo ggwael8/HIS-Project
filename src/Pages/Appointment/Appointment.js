@@ -26,6 +26,12 @@ function Appointment() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [justOnce, setJustOnce] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [insurancePopUp, setInsurancePopUp] = useState(false);
+  const [insuranceData, setInsuranceData] = useState(null);
+  const [insuranceList, setInsuranceList] = useState([]);
+  const [insuranceID, setInsuranceID] = useState(null);
+  const [tempSelected, setTempSelected] = useState(null);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   //context api to get user role
   const userctx = useContext(UserContext);
   //pages count
@@ -38,6 +44,7 @@ function Appointment() {
   const [PatientAppointmentSelectedStep, setPatientAppointmentSelectedStep] =
     useState(1);
   const [patient, setPatient] = useState('');
+  const [patientSearchId, setPatientSearchId] = useState('');
   const [appointmentType, setAppointmentType] = useState(1);
   const [PatientAppointmentSpecialist, setPatientAppointmentSpecialist] =
     useState('');
@@ -191,7 +198,6 @@ function Appointment() {
   }, [PatientAppointmentDate]);
 
   async function fetchDataHandler() {
-    console.log(pages);
     setIsLoading(true);
     const response = await Promise.all([
       openWindow === 1 &&
@@ -433,6 +439,7 @@ function Appointment() {
     }
     if (openWindow === 3 && billsPopUp === false) {
       const allAppointments = await response[5].json();
+      console.log(allAppointments);
       let allAppointmentsResult = allAppointments.results.map(info => {
         return {
           ...(userctx.role !== 'doctor' && {
@@ -471,6 +478,13 @@ function Appointment() {
                       appointmentId: info.id,
                     },
                   });
+                },
+              },
+              info.status === 'waiting' && {
+                title: 'Set Insurance',
+                setStates: () => {
+                  setInsurancePopUp(info.patient.id);
+                  setSelectedAppointment(info.id);
                 },
               },
               info.status !== 'completed' && {
@@ -836,9 +850,9 @@ function Appointment() {
       //this shows only on receptionist
       type: 'input',
       id: userctx.role === 'receptionist' ? 1 : 0,
-      selectstate: setPatient,
-      patient: patient,
-      title: 'Enter Patient ID',
+      selectstate: setPatientSearchId,
+      patient: patientSearchId,
+      title: 'Enter Patient National ID or Phone Number',
       setAppointmentType: setAppointmentType,
       currentAppointmentType: appointmentType,
       setSelectedStep: setPatientAppointmentSelectedStep,
@@ -955,6 +969,69 @@ function Appointment() {
       currentStep: doctorScheduleSelectedStep,
     },
   ];
+  useEffect(() => {
+    async function SearchForPatient() {
+      try {
+        const id = toast.loading('Please wait...', {
+          position: 'bottom-right',
+        });
+
+        const response = await fetch(
+          apiUrl + `hospital/patient/?search=${patientSearchId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.results.length === 0) {
+          toast.update(id, {
+            render: 'Patient Not Found',
+            type: 'error',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+        } else {
+          setPatient(data.results[0].id);
+          toast.update(id, {
+            render: 'Patient ID is "' + data.results[0].id + '" Found',
+            type: 'success',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+        }
+      } catch (error) {
+        toast.error(error.message, {
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+    }
+    if (patientSearchId !== '') {
+      SearchForPatient();
+    }
+  }, [patientSearchId]);
   //Posting Pending Booking Appointment
   const AddAppointmentList = async () => {
     try {
@@ -1369,7 +1446,152 @@ function Appointment() {
       ),
     },
   ];
+  useEffect(() => {
+    async function GetInsuranceList() {
+      try {
+        const response = await fetch(
+          apiUrl +
+            `bills/insurancedetails/?patient=${insurancePopUp}&patient__user__username=&company=&number=`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setInsuranceList(
+          data.results.map(info => {
+            return {
+              id: info.id,
+              card: {
+                company: (
+                  <h2>
+                    company : <span>{info.company}</span>
+                  </h2>
+                ),
+                expairy_date: (
+                  <h2>
+                    expairy date : <span>{info.expairy_date}</span>
+                  </h2>
+                ),
+                coverage: (
+                  <h2>
+                    coverage : <span>{info.coverage}</span>
+                  </h2>
+                ),
+                coverage_percentage: (
+                  <h2>
+                    coverage percentage :{' '}
+                    <span>{info.coverage_percentage}</span>
+                  </h2>
+                ),
+                card: (
+                  <a
+                    className={`${classes.Button} ${classes.ButtonYellow}`}
+                    href={info.card}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    card
+                  </a>
+                ),
+              },
+            };
+          })
+        );
+      } catch (error) {
+        toast.error(error.message, {
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+    }
+    if (insurancePopUp) {
+      GetInsuranceList();
+    }
+  }, [insurancePopUp]);
+  useEffect(() => {
+    async function SetInsurance() {
+      try {
+        const id = toast.loading('Please wait...', {
+          position: 'bottom-right',
+        });
+        const resopnse1 = await fetch(
+          apiUrl +
+            `bills/bill/?patient=&patient__user__username=&appointment=${selectedAppointment}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        const data1 = await resopnse1.json();
 
+        const response = await fetch(
+          apiUrl + `bills/bill/${data1.results[0].id}/`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({
+              insurance: insuranceID,
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `JWT ${localStorage.getItem('token')}`,
+            },
+          }
+        );
+        if (response.ok) {
+          toast.update(id, {
+            render: 'Insurance Added Successfully',
+            type: 'success',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+        } else {
+          toast.update(id, {
+            render: 'Something went wrong',
+            type: 'error',
+            isLoading: false,
+            position: 'bottom-right',
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: 'light',
+            autoClose: true,
+          });
+        }
+      } catch (error) {
+        toast.error(error.message, {
+          position: 'bottom-right',
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: 'light',
+        });
+      }
+    }
+    if (insuranceID !== null) {
+      SetInsurance();
+    }
+  }, [insuranceID]);
   return (
     <div className={classesBody.container}>
       {/* appointment NavBar */}
@@ -1550,6 +1772,21 @@ function Appointment() {
           setPopUp={setBillsPopUp}
           Cards={bills}
           title={'Bills'}
+        />
+      )}
+      {console.log(tempSelected)}
+      {insurancePopUp && (
+        <PopUp
+          popUp={insurancePopUp}
+          setPopUp={setInsurancePopUp}
+          selectstate={setTempSelected}
+          selected={tempSelected}
+          selection={insuranceList}
+          buttonFunction={() => {
+            setInsuranceID(tempSelected);
+          }}
+          multiple={false}
+          buttonText={'Confirm'}
         />
       )}
     </div>

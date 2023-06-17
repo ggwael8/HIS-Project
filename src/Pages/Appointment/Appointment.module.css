@@ -213,6 +213,29 @@
   margin: 1rem auto;
   padding: 1rem;
 } */
+.Button {
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  align-items: center;
+  width: 100%;
+  margin: auto;
+  height: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0.2rem 0.5rem;
+}
+.ButtonYellow {
+  color: #fff;
+  background-color: #c59e33;
+}
+.ButtonYellow:hover {
+  background-color: #fff;
+  color: #c59e33;
+  cursor: pointer;
+}
 @media (max-width: 680px) {
   .body {
     gap: 2rem;

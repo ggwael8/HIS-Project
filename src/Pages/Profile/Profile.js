@@ -4,6 +4,7 @@ import { useEffect, useState, useContext } from 'react';
 import UserContext from '../../context/user-context';
 import ExtraContext from '../../context/extra-context';
 import { apiUrl } from '../../utils/api';
+import Loader from '../../component/Loader/Loader';
 
 function Profile(props) {
   const [isLoading, setIsLoading] = useState();
@@ -11,7 +12,9 @@ function Profile(props) {
   const extraCtx = useContext(ExtraContext);
   const [patientAddress, setPatientAddress] = useState({});
   const [patientEmergencyInfo, setPatientEmergencyInfo] = useState([]);
+  const [patientInsuranceInfo, setPatientInsuranceInfo] = useState([]);
   const [profileContent, setProfileContent] = useState({});
+
   //todo: fetch organization
   async function fetchDataHandler() {
     setIsLoading(true);
@@ -29,8 +32,13 @@ function Profile(props) {
             Authorization: `JWT ${localStorage.getItem('token')}`,
           },
         }),
+        fetch(apiUrl + 'bills/insurancedetails/', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `JWT ${localStorage.getItem('token')}`,
+          },
+        }),
       ]);
-      console.log(response);
       const patientAddressData = await response[0].json();
       setPatientAddress({
         title: 'Address Information',
@@ -57,6 +65,20 @@ function Profile(props) {
           };
         })
       );
+      console.log(patientEmergencyInfo);
+      const patientInsuranceData = await response[2].json();
+      setPatientInsuranceInfo(
+        patientInsuranceData.results.map((info, index) => {
+          return {
+            title: info.company,
+            InsuranceNumber: info.number,
+            InsuranceExpireDate: info.expairy_date,
+            InsuranceCoverage: info.coverage,
+            InsuranceCoveragePercentage: info.coverage_percentage,
+          };
+        })
+      );
+      console.log(patientInsuranceInfo);
     }
     setIsLoading(false);
   }
@@ -67,6 +89,7 @@ function Profile(props) {
     setProfileContent({
       PersonalInformationID: 1,
       EmergencyInformationID: 2,
+      InsuranceID: 3,
       Personalcards: [
         userctx.PersonalInformation,
         userctx.ContactInformation,
@@ -79,17 +102,33 @@ function Profile(props) {
         patientEmergencyInfo?.map(info => {
           return info;
         }),
+      InsuranceCards:
+        userctx.role === 'patient' &&
+        patientInsuranceInfo?.map(info => {
+          return info;
+        }),
     });
-  }, [patientAddress, patientEmergencyInfo]);
+  }, [patientAddress, patientEmergencyInfo, patientInsuranceInfo]);
 
   const [selectedHeader, SetSelectedHeader] = useState(1);
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100vw',
+        }}
+      >
+        <Loader cl={'#fff'} />
+      </div>
+    );
   }
   return (
     isLoading === false && (
       <div className={classes.profile}>
-        {console.log(userctx.role)}
         {
           <>
             <div className={classes.header}>
@@ -122,6 +161,22 @@ function Profile(props) {
               >
                 Emergency Information
               </h2>
+              <span
+                style={{ display: userctx.role !== 'patient' && 'none' }}
+              ></span>
+              <h2
+                className={
+                  profileContent.InsuranceID === selectedHeader
+                    ? classes.active
+                    : undefined
+                }
+                style={{ display: userctx.role !== 'patient' && 'none' }}
+                onClick={() => {
+                  SetSelectedHeader(profileContent.InsuranceID);
+                }}
+              >
+                Insurance Information
+              </h2>
             </div>
             <hr></hr>
             <div className={classes.content}>
@@ -129,7 +184,12 @@ function Profile(props) {
                 ? profileContent.Personalcards.map((card, index) => (
                     <InformationCard card={card} key={index} />
                   ))
-                : profileContent.EmergencyCards.map((card, index) => (
+                : selectedHeader === profileContent.EmergencyInformationID
+                ? profileContent.EmergencyCards.map((card, index) => (
+                    <InformationCard card={card} key={index} />
+                  ))
+                : selectedHeader === profileContent.InsuranceID &&
+                  profileContent.InsuranceCards.map((card, index) => (
                     <InformationCard card={card} key={index} />
                   ))}
             </div>
