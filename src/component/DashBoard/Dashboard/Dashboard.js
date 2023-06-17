@@ -72,68 +72,72 @@ export default function AppointmentDashboard() {
       <div className={classes.allUpBox}>
         <h1 className={classes.upcomingTitle}>Upcoming Appointments</h1>
         <div className={classes.upcomingBox}>
-          {numberOfWaitingRequests < 1 ? (
-            <div className={classes.health}>
-              <h1>We hope you are always in good health</h1>
-            </div>
-          ) : (
-            upComingData.map(result => (
-              <div className={classes.upcover} key={result.id}>
-                <div className={classes.time}>
-                  <div className={classes.rightside}>
-                    <CiClock2 className={classes.clock} />
-                    {`${result.slot.start_time.slice(
-                      0,
-                      5
-                    )} pm - ${result.slot.end_time.slice(0, 5)}`}{' '}
-                    pm, Sunday
-                  </div>
-                  <div className={classes.leftside}>
-                    <BiCalendarMinus className={classes.calendarIcon} />
-                    {getMonthName(new Date(result.date).getMonth() + 1)}{' '}
-                    {new Date(result.date).getDate()},{' '}
-                    {new Date(result.date).getFullYear()}
-                  </div>
-                </div>
-                <div className={classes.upDitails}>
-                  <div className={classes.response}>
-                    <div className={classes.split}>
-                      <div className={classes.upBoxDetails}>
-                        <div className={classes.dataTitle}>Doctor</div>
-                        <div className={classes.upData}>
-                          {result.doctor.first_name} {result.doctor.last_name}
-                        </div>
-                      </div>
-                      <div className={classes.upBoxDetails}>
-                        <div className={classes.dataTitle}>Specialization</div>
-                        <div className={classes.upData}>
-                          {result.doctor.specialty}
-                        </div>
-                      </div>
+          <div className={classes.container}>
+            {numberOfWaitingRequests < 1 ? (
+              <div className={classes.health}>
+                <h1>We hope you are always in good health</h1>
+              </div>
+            ) : (
+              upComingData.map(result => (
+                <div className={classes.upcover} key={result.id}>
+                  <div className={classes.time}>
+                    <div className={classes.rightside}>
+                      <CiClock2 className={classes.clock} />
+                      {`${result.slot.start_time.slice(
+                        0,
+                        5
+                      )} pm - ${result.slot.end_time.slice(0, 5)}`}{' '}
+                      pm, Sunday
                     </div>
+                    <div className={classes.leftside}>
+                      <BiCalendarMinus className={classes.calendarIcon} />
+                      {getMonthName(new Date(result.date).getMonth() + 1)}{' '}
+                      {new Date(result.date).getDate()},{' '}
+                      {new Date(result.date).getFullYear()}
+                    </div>
+                  </div>
+                  <div className={classes.upDitails}>
+                    <div className={classes.response}>
+                      <div className={classes.split}>
+                        <div className={classes.upBoxDetails}>
+                          <div className={classes.dataTitle}>Doctor</div>
+                          <div className={classes.upData}>
+                            {result.doctor.first_name} {result.doctor.last_name}
+                          </div>
+                        </div>
+                        <div className={classes.upBoxDetails}>
+                          <div className={classes.dataTitle}>
+                            Specialization
+                          </div>
+                          <div className={classes.upData}>
+                            {result.doctor.specialty}
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className={classes.split}>
-                      <div className={classes.upBoxDetails}>
-                        <div className={classes.dataTitle}>Type</div>
-                        <div className={classes.upData}>
-                          {type(result.type)} {/* Follow up */}
+                      <div className={classes.split}>
+                        <div className={classes.upBoxDetails}>
+                          <div className={classes.dataTitle}>Type</div>
+                          <div className={classes.upData}>
+                            {type(result.type)} {/* Follow up */}
+                          </div>
                         </div>
-                      </div>
-                      <div className={classes.upBoxDetails}>
-                        <div className={classes.dataTitle}>Price</div>
-                        <div className={classes.upData}>
-                          {result.slot.schedule.price} L.E
+                        <div className={classes.upBoxDetails}>
+                          <div className={classes.dataTitle}>Price</div>
+                          <div className={classes.upData}>
+                            {result.slot.schedule.price} L.E
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  {/* <div className={classes.edit}>
+                    {/* <div className={classes.edit}>
                                             <FaRegEdit />
                                         </div> */}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
 

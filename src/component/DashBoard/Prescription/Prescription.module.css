@@ -33,7 +33,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-
 }
 
 .search {
@@ -72,7 +71,17 @@ input::placeholder {
   color: rgb(59, 57, 57);
   display: flex;
 }
-
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 75%;
+  width: 95%;
+  margin: auto;
+}
 .data {
   color: #49a96e;
   margin-left: 5%;
@@ -83,7 +92,6 @@ input::placeholder {
   font-size: 20px;
   font-weight: 600;
   margin: 60px 120px;
-
 }
 
 .cover button {
@@ -92,11 +100,15 @@ input::placeholder {
   background-color: #49a96e;
   margin-right: 5%;
   width: 40%;
-  height: 40px;
+  height: 30px;
   border-radius: 10px;
   cursor: pointer;
 }
-
+.cover button:hover {
+  background-color: #4747473a;
+  color: #49a96e;
+  cursor: pointer;
+}
 
 @media (max-width: 680px) {
   .cover {
@@ -109,7 +121,6 @@ input::placeholder {
     width: 95%;
     display: flex;
     align-items: center;
-
   }
 
   .cover button {

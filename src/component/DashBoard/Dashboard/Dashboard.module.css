@@ -1,11 +1,15 @@
 .page {
   width: 100%;
+  height: 80%;
   margin: 3%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
 }
 
 .allUpBox {
+  height: 60%;
   margin: 3px;
 }
 
@@ -18,13 +22,23 @@
 .upcomingBox {
   border: 1px solid gray;
   border-radius: 15px;
-  height: 105px;
+  height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
   flex-direction: column;
+  justify-content: space-between;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
+  height: 75%;
+  width: 95%;
+  margin: auto;
 }
 
 .split {

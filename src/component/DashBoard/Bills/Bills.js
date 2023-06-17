@@ -136,69 +136,71 @@ export default function Bills() {
             <CiFilter />
             Filter
           </div>
-          {numberOfBills < 1 ? (
-            <div className={classes.health}>
-              <h1>We hope you are always in good health</h1>
-            </div>
-          ) : (
-            allResults
-              .filter(item => {
-                if (inputText === '') {
-                  return item;
-                } else {
-                  const formattedDate = new Date(item.time_date)
-                    .toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })
-                    .toLowerCase();
-                  return (
-                    item.appointment.doctor.first_name
-                      .toLowerCase()
-                      .includes(inputText) ||
-                    formattedDate.includes(inputText) ||
-                    item.total.toString().includes(inputText)
-                  );
-                }
-              })
-              .map(result => (
-                <div className={classes.cover}>
-                  <diV className={classes.billBox}>
-                    <div className={classes.boxDetails}>
-                      <div className={classes.dataTitle}>Doctor</div>
-                      <div className={classes.data}>
-                        {result.appointment.doctor.first_name}{' '}
-                        {result.appointment.doctor.last_name}
+          <div className={classes.container}>
+            {numberOfBills < 1 ? (
+              <div className={classes.health}>
+                <h1>We hope you are always in good health</h1>
+              </div>
+            ) : (
+              allResults
+                .filter(item => {
+                  if (inputText === '') {
+                    return item;
+                  } else {
+                    const formattedDate = new Date(item.time_date)
+                      .toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                      .toLowerCase();
+                    return (
+                      item.appointment.doctor.first_name
+                        .toLowerCase()
+                        .includes(inputText) ||
+                      formattedDate.includes(inputText) ||
+                      item.total.toString().includes(inputText)
+                    );
+                  }
+                })
+                .map(result => (
+                  <div className={classes.cover}>
+                    <diV className={classes.billBox}>
+                      <div className={classes.boxDetails}>
+                        <div className={classes.dataTitle}>Doctor</div>
+                        <div className={classes.data}>
+                          {result.appointment.doctor.first_name}{' '}
+                          {result.appointment.doctor.last_name}
+                        </div>
                       </div>
-                    </div>
-                    <div className={classes.boxDetails}>
-                      <div className={classes.dataTitle}>Date</div>
-                      <div className={classes.data}>
-                        {getMonthName(
-                          new Date(result.time_date).getMonth() + 1
-                        )}{' '}
-                        {new Date(result.time_date).getDate()},{' '}
-                        {new Date(result.time_date).getFullYear()}
+                      <div className={classes.boxDetails}>
+                        <div className={classes.dataTitle}>Date</div>
+                        <div className={classes.data}>
+                          {getMonthName(
+                            new Date(result.time_date).getMonth() + 1
+                          )}{' '}
+                          {new Date(result.time_date).getDate()},{' '}
+                          {new Date(result.time_date).getFullYear()}
+                        </div>
                       </div>
-                    </div>
-                    <div className={classes.boxDetails}>
-                      <div className={classes.dataTitle}>Total</div>
-                      <div className={classes.data}>{result.total} L.E</div>
-                    </div>
-                  </diV>
-                  <button
-                    onClick={() => {
-                      setPopUp(true);
-                      console.log(result);
-                      setResultId(result.id);
-                    }}
-                  >
-                    View Detials
-                  </button>
-                </div>
-              ))
-          )}
+                      <div className={classes.boxDetails}>
+                        <div className={classes.dataTitle}>Total</div>
+                        <div className={classes.data}>{result.total} L.E</div>
+                      </div>
+                    </diV>
+                    <button
+                      onClick={() => {
+                        setPopUp(true);
+                        console.log(result);
+                        setResultId(result.id);
+                      }}
+                    >
+                      View Detials
+                    </button>
+                  </div>
+                ))
+            )}
+          </div>
         </div>
       </div>
       {console.log(popUpData)}

@@ -711,6 +711,7 @@ function Appointment() {
     }
     if (billsPopUp) {
       const data = await response[7].json();
+      console.log(data);
       setBills(
         data.results.map(info => {
           return {
@@ -733,6 +734,17 @@ function Appointment() {
             card: [
               info.insurance !== null && {
                 title: 'Insurance',
+                card: [
+                  {
+                    company: <span>{info.insurance.company}</span>,
+                    number: <span>{info.insurance.number}</span>,
+                    expairy_date: <span>{info.insurance.expairy_date}</span>,
+                    coverage: <span>{info.insurance.coverage}</span>,
+                    coverage_percentage: (
+                      <span>{info.insurance.coverage_percentage}</span>
+                    ),
+                  },
+                ],
               },
               info.radiology_request !== null && {
                 title: 'Radiology Request',
@@ -1590,6 +1602,7 @@ function Appointment() {
     }
     if (insuranceID !== null) {
       SetInsurance();
+      setInsurancePopUp(null);
     }
   }, [insuranceID]);
   return (

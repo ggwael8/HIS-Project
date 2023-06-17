@@ -33,7 +33,6 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
-
 }
 
 .search {
@@ -87,7 +86,6 @@ input::placeholder {
   margin: 10px;
 }
 
-
 .data {
   color: #49a96e;
   margin-left: 5%;
@@ -110,7 +108,11 @@ input::placeholder {
   border-radius: 10px;
   cursor: pointer;
 }
-
+.cover button:hover {
+  background-color: #4747473a;
+  color: #49a96e;
+  cursor: pointer;
+}
 
 @media (max-width: 680px) {
   .cover {
@@ -123,7 +125,6 @@ input::placeholder {
     width: 95%;
     display: flex;
     align-items: center;
-
   }
 
   .cover button {

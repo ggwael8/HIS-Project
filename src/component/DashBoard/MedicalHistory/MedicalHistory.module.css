@@ -20,11 +20,22 @@
   border-radius: 15px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* overflow-y: auto;
+  overflow-x: hidden; */
   height: 245px;
   justify-content: center;
-  text-overflow: ellipsis;
+  /* text-overflow: ellipsis; */
+}
+.BoxContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin: auto;
+  margin: 1rem auto;
+  width: 90%;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .boxDetails {
@@ -45,7 +56,6 @@
   font-size: 30px;
   font-weight: 600;
   margin: 150px 300px;
-
 }
 
 .cover button {
@@ -59,7 +69,6 @@
   cursor: pointer;
 }
 
-
 @media (max-width: 680px) {
   .cover {
     display: flex;
@@ -71,7 +80,6 @@
     width: 95%;
     display: flex;
     align-items: center;
-
   }
 
   .cover button {
