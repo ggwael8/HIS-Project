@@ -122,7 +122,7 @@ function DetailsBody(props) {
                                                   className={
                                                     classes.openNewLink
                                                   }
-                                                  href={info[key].setStates}
+                                                  href={info[key].setStates()}
                                                   target='_blank'
                                                   rel='noreferrer'
                                                 >

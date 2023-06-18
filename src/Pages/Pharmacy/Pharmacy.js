@@ -25,6 +25,8 @@ function Pharmacy() {
   const [popUpData, setPopUpData] = useState([]);
   const [tempSelected, setTempSelected] = useState([]);
   const [search, setSearch] = useState('');
+  const [prev, setPrev] = useState(null);
+  const [prevSearchQuery, setPrevSearchQuery] = useState('');
   const [data, setData] = useState([]);
   //fetching main data
   async function fetchMainDataHandler() {
@@ -213,35 +215,51 @@ function Pharmacy() {
       }
     } else if (openWindow === 2) {
       const data = await response[1].json();
-      let temp = data.results.map(info => {
-        return {
-          id: <span>{info.id}</span>,
-          doctor: (
-            <span>{info.doctor.first_name + ' ' + info.doctor.last_name}</span>
-          ),
-          patient: (
-            <span>
-              {info.patient.first_name + ' ' + info.patient.last_name}
-            </span>
-          ),
-          date: <span>{info.date}</span>,
-          notes: <span>{info.notes}</span>,
-          button: [
-            {
-              title: 'View Prescription',
-              setStates: () => {
-                setPrescriptionId(info.id);
+      if (!prescriptionId) {
+        let temp = data.results.map(info => {
+          return {
+            id: <span>{info.id}</span>,
+            doctor: (
+              <span>
+                {info.doctor.first_name + ' ' + info.doctor.last_name}
+              </span>
+            ),
+            patient: (
+              <span>
+                {info.patient.first_name + ' ' + info.patient.last_name}
+              </span>
+            ),
+            date: <span>{info.date}</span>,
+            notes: <span>{info.notes}</span>,
+            button: [
+              {
+                title: 'View Prescription',
+                setStates: () => {
+                  setPrescriptionId(info.id);
+                },
               },
-            },
-          ],
-        };
-      });
-      if (search === '') {
-        setDetails(prevDetails => [...prevDetails, ...temp]);
-      } else {
-        setDetails(temp);
+            ],
+          };
+        });
+        if (prev || search !== '') {
+          setDetails(temp);
+          setPrev(null);
+        } else {
+          if (prevSearchQuery === '') {
+            setDetails(prev => [...prev, ...temp]);
+          } else {
+            setDetails(temp);
+          }
+        }
       }
+      setPrevSearchQuery(search);
+      // if (search === '') {
+      //   setDetails(prevDetails => [...prevDetails, ...temp]);
+      // } else {
+      //   setDetails(temp);
+      // }
       if (prescriptionId) {
+        setPrev(prescriptionId);
         setPopUpData(
           data.results
             .filter(info => info.id === prescriptionId)[0]
@@ -435,6 +453,11 @@ function Pharmacy() {
                     autoClose: 1000,
                     position: 'bottom-right',
                   });
+                  localStorage.setItem('openWindow', JSON.stringify(2));
+
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 1000);
                 } else {
                   toast.update(id, {
                     render: `Error!`,
