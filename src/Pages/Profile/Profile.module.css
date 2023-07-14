@@ -1,72 +1,55 @@
-.profile {
-  background-color: #fff;
-  border-radius: 1rem;
-  margin: 0 auto;
-  margin-top: 1rem;
-  width: 50%;
-  height: 90vh;
-}
-/* horizontal line */
-.profile hr {
-  background-color: black;
-  width: 50%;
-}
 /* Header Titles */
 .header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   height: 5rem;
-  width: 100%;
+  width: 90%;
   gap: 2rem;
-  cursor: pointer;
+  border-bottom: #c4c4c4 solid 2px;
 }
-
-.header h2 {
-  width: 30%;
-  height: 50%;
-  align-items: center;
-  display: flex;
-  justify-content: center;
-}
-.active {
-  color: #49a96e;
-  border-radius: 2rem;
+.header h1 {
+  color: #474747;
   font-weight: 700;
-  transition: 200ms all ease-in-out;
+  font-size: 2rem;
 }
-.header h2:not(.active):hover {
-  background-color: #f3f3f3;
-  border-radius: 2rem;
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
 }
-/* line */
-.header span {
-  display: inline-block;
-  background-color: black;
-  width: 1px;
-  height: 2rem;
-}
-
 /* information cards */
 .content {
   overflow-y: scroll;
-  width: 95%;
+  width: 90%;
   margin: auto;
   height: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 5rem;
+  gap: 2rem;
 }
-
-@media (max-width: 1200px) {
-  .header h2 {
-    width: 15%;
-  }
+.buttonsContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  align-items: center;
 }
-@media (max-width: 680px) {
-  .profile {
-    width: 90%;
-  }
+.buttonStyle {
+  background-color: #49a96e;
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 200ms all ease-in-out;
+}
+.buttonStyle:hover {
+  color: #49a96e;
+  background-color: white;
 }

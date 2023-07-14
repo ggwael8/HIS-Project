@@ -186,12 +186,11 @@ function App() {
       setIsLoading(false);
       if (userInfo.role === 'doctor') {
         const data = await response[0].json();
-        console.log(data);
         setExtraInfo({
           title: 'Doctor Information',
           medical_license: data.results[0].medical_license,
-          specialty: data.results[0].specialty,
-          department: data.results[0].department,
+          specialty: data.results[0].specialty.specialty,
+          department: data.results[0].department.dapartment_name,
         });
         setUserPicture(data.results[0].image);
       }

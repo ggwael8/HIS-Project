@@ -7,8 +7,6 @@ import FormInput from '../FormInput/FormInput';
 function PopUp(props) {
   const containerRef = useRef();
   const popUpRef = useRef();
-  const [drugsNumber, setDrugsNumber] = useState(1);
-  const [dropDownMenuActive, setDropDownMenuActive] = useState(false);
   useEffect(() => {
     let SetPopUpFalse = e => {
       if (

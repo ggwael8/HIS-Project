@@ -19,7 +19,8 @@ function FormInput(props) {
             <div className={classes.formInputContent}>
               <>
                 {Object.keys(inputDetail[0]).map(info => {
-                  return info === 'documentation' ? (
+                  return info === 'documentation' ||
+                    info === 'InsuranceCard' ? (
                     <Dropzone
                       onDrop={acceptedFiles => {
                         props.setReportFile(acceptedFiles);
@@ -36,7 +37,7 @@ function FormInput(props) {
                           {props.reportFile ? (
                             <p>{props.reportFile[0].name}</p>
                           ) : (
-                            <p>Drag Or Click To Add Documentation</p>
+                            <p>{info}</p>
                           )}
                         </div>
                       )}
@@ -49,7 +50,8 @@ function FormInput(props) {
                           type={
                             info === 'date' ||
                             info === 'admission_date' ||
-                            info === 'discharge_date'
+                            info === 'discharge_date' ||
+                            info === 'InsuranceExpireDate'
                               ? 'date'
                               : info === 'time'
                               ? 'time'
