@@ -16,13 +16,27 @@
   margin: 1rem 0;
 }
 .CardTitle {
-  width: 50%;
+  width: 100%;
   font-weight: 700;
   font-size: 1.1rem;
   color: #474747;
   border-bottom: 1px solid #979797;
   padding-bottom: 1rem;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.AdditionalButton {
+  border: none;
+  color: #49a96e;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 1rem;
+}
+.AdditionalButton:hover {
+  color: white;
+  background-color: #49a96e;
 }
 .CardContent {
   display: flex;

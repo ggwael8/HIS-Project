@@ -12,6 +12,15 @@ function Cards(props) {
               {props.title && (
                 <div className={classes.CardTitle}>
                   <h2>{props.title + ' ' + (cardIndex + 1)}</h2>
+                  {console.log(props.additionalButton)}
+                  {props.additionalButton && (
+                    <button
+                      className={classes.AdditionalButton}
+                      onClick={props.additionalButton}
+                    >
+                      {props.additionalButtonText}
+                    </button>
+                  )}
                 </div>
               )}
               {Object.keys(card)

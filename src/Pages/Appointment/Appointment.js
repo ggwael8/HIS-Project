@@ -23,13 +23,33 @@ import 'react-toastify/dist/ReactToastify.css';
 function Appointment() {
   const isMountedRef = useRef(false);
   const navigate = useNavigate();
+  const toastPlaceHolder = {
+    position: 'bottom-right',
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: 'light',
+  };
   const [currentDate, setCurrentDate] = useState(new Date());
   const [justOnce, setJustOnce] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [insurancePopUp, setInsurancePopUp] = useState(false);
-  const [insuranceData, setInsuranceData] = useState(null);
+  const [newInsurancePopUp, setNewInsurancePopUp] = useState(false);
+  const insuranceRawData = {
+    InsuranceNumber: '',
+    InsuranceExpireDate: '',
+    InsuranceCoverage: '',
+    InsuranceCoveragePercentage: '',
+    InsuranceCompany: '',
+    InsuranceCard: '',
+  };
+  const [insuranceCard, setInsuranceCard] = useState(null);
+  const [insurancePostData, setInsurancePostData] = useState(null);
   const [insuranceList, setInsuranceList] = useState([]);
   const [insuranceID, setInsuranceID] = useState(null);
+  const [patientID, setPatientID] = useState(null);
   const [tempSelected, setTempSelected] = useState(null);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   //context api to get user role
@@ -711,6 +731,7 @@ function Appointment() {
     }
     if (billsPopUp) {
       const data = await response[7].json();
+      setPatientID(data.results[0].patient.id);
       console.log(data);
       setBills(
         data.results.map(info => {
@@ -1605,6 +1626,40 @@ function Appointment() {
       setInsurancePopUp(null);
     }
   }, [insuranceID]);
+  useEffect(() => {
+    async function PostNewInsuarance() {
+      const formData = new FormData();
+      formData.append('card', insuranceCard[0]);
+      formData.append('number', insurancePostData[0].InsuranceNumber);
+      formData.append('expairy_date', insurancePostData[0].InsuranceExpireDate);
+      formData.append('coverage', insurancePostData[0].InsuranceCoverage);
+      formData.append(
+        'coverage_percentage',
+        insurancePostData[0].InsuranceCoveragePercentage
+      );
+      formData.append('company', insurancePostData[0].InsuranceCompany);
+      formData.append('patient', patientID);
+      const response = await fetch(apiUrl + 'bills/insurancedetails/', {
+        method: 'POST',
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
+      if (response.ok) {
+        toast.success(
+          'Insurance information added successfully',
+          toastPlaceHolder
+        );
+        setNewInsurancePopUp(false);
+        setInsurancePostData(null);
+        setInsuranceCard(null);
+      } else {
+        toast.error('Something went wrong, please try again');
+      }
+    }
+    PostNewInsuarance();
+  }, [insurancePostData]);
   return (
     <div className={classesBody.container}>
       {/* appointment NavBar */}
@@ -1785,9 +1840,30 @@ function Appointment() {
           setPopUp={setBillsPopUp}
           Cards={bills}
           title={'Bills'}
+          additionalButton={() => {
+            setNewInsurancePopUp(true);
+          }}
+          additionalButtonText={'+ Add New Insurance'}
         />
       )}
       {console.log(tempSelected)}
+      {newInsurancePopUp && (
+        <PopUp
+          popUp={newInsurancePopUp}
+          setPopUp={setNewInsurancePopUp}
+          formInput={true}
+          rawData={insuranceRawData}
+          title={'Add New Insurance Information'}
+          selected={tempSelected}
+          selectstate={setTempSelected}
+          buttonFunction={() => {
+            setInsurancePostData(tempSelected);
+          }}
+          buttonText={'Confirm'}
+          reportFile={insuranceCard}
+          setReportFile={setInsuranceCard}
+        />
+      )}
       {insurancePopUp && (
         <PopUp
           popUp={insurancePopUp}
@@ -1800,6 +1876,9 @@ function Appointment() {
           }}
           multiple={false}
           buttonText={'Confirm'}
+          pagescroll={() => {
+            setPages(prevPages => prevPages + 1);
+          }}
         />
       )}
     </div>

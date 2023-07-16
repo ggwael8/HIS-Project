@@ -42,6 +42,8 @@ function PopUp(props) {
               fileTitle={props.fileTitle}
               filesCount={props.filesCount}
               setFilesCount={props.setFilesCount}
+              additionalButton={props.additionalButton}
+              additionalButtonText={props.additionalButtonText}
             />
           )}
           {props.selection && (
