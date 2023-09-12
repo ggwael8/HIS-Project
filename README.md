@@ -66,7 +66,7 @@ npm start
 ```
 
 ### 🔗 Backend Repository
-For backend functionalities, database operations, and other server-side logic related to the Educational Administration Tracker System, please navigate to the <a href="https://github.com/wael-gamil/Hospital-Information-System">backend repository<a/>.
+For backend functionalities, database operations, and other server-side logic related to the Educational Administration Tracker System, please navigate to the <a href="https://github.com/MohabAyoub10/Hospital-Information-System">backend repository<a/>.
 
 ### 👥 Contributing
 We welcome contributions to enhance the functionalities of the HIS. If you wish to contribute, kindly fork the repository, create a new branch, and submit your pull request.
