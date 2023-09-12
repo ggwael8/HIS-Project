@@ -1,70 +1,78 @@
-# Getting Started with Create React App
+# 🏥 Hospital Information System (HIS) (Front-End)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🎯 Problem Definition
 
-## Available Scripts
+In healthcare facilities, the management of patient data, clinical workflows, and administrative tasks often involves cumbersome paperwork and manual processes. These methods are prone to errors, inefficient, and can lead to delays in patient care. Furthermore, traditional systems may lack integrative features that allow for seamless communication and data retrieval among various departments. Our graduation project, the Hospital Information System (HIS), aims to address these issues by providing a centralized platform where healthcare facilities can efficiently manage all the relevant processes and ensure the delivery of timely and accurate healthcare services.
 
-In the project directory, you can run:
+## 📋 Description
 
-### `npm start`
+Developed as our graduation project, the Hospital Information System (HIS) is designed to streamline operations in healthcare facilities. The system integrates various modules, enabling different stakeholders including patients, doctors, receptionists, and others to efficiently manage clinical workflows and administrative tasks. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 🚀 Key Modules and Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The system is structured around several key roles, each facilitated by a dedicated module designed to carry out specific functions:
 
-### `npm test`
+- **Patient Module** 🤒:
+  - **Book Appointments**: Allows patients to book, view, and manage their appointments.
+  - **Medical History**: Enables patients to view their medical histories.
+  - **Billing**: Lets patients view their billing details and track financial transactions.
+   
+- **Doctor Module** 🩺:
+  - **View Appointments**: Helps doctors track their schedules.
+  - **Test Requests**: Allows doctors to request tests from the laboratory and radiology departments.
+  - **Prescription Requests**: Enables doctors to send prescription requests directly to the pharmacy.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Receptionist Module** 🛎️:
+  - **Patient Registration**: Assists in the registration of new patients.
+  - **Manage Appointments**: Grants the ability to view, book, and manage appointments.
+  - **Test Request Confirmation**: Facilitates the confirmation or declination of test requests before they are sent to the relevant departments.
 
-### `npm run build`
+- **Pharmacy Module** 💊: 
+  - A simple yet effective system to manage prescriptions sent by doctors and dispense medications accordingly.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Laboratory and Radiology Module** 🔬: 
+  - **Handle Requests**: Processes test requests sent by doctors and uploads the results to be viewed by the necessary parties.
+  
+- **Medical Secretary Module** 🗃️: 
+  - Takes charge of managing and organizing medical data efficiently to ensure seamless healthcare operations.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 💻 Technologies Used
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Frontend
+- **HTML**: Structured the website's content.
+- **CSS**: Styled the website for a better user experience.
+- **JavaScript**: Added interactivity and dynamic content to the site.
+- **React**: Utilized to build the user interface and manage the frontend logic, offering a responsive and dynamic user experience.
 
-### `npm run eject`
+### UI/UX Design
+- **Adobe XD**: Utilized for crafting intuitive and user-friendly interfaces.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 🛠️ Installation and Setup
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+To get started with the Hospital Information System, follow the instructions below to set up the environment and run the system on your local machine.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+# Clone the repository
+git clone https://github.com/wael-gamil/HIS-Project.git
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# Navigate to the project directory
+cd HospitalInformationSystem
 
-## Learn More
+# Install frontend dependencies
+npm install
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Start the development server
+npm start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 🔗 Backend Repository
+For backend functionalities, database operations, and other server-side logic related to the Educational Administration Tracker System, please navigate to the <a href="https://github.com/wael-gamil/Hospital-Information-System">backend repository<a/>.
 
-### Code Splitting
+### 👥 Contributing
+We welcome contributions to enhance the functionalities of the HIS. If you wish to contribute, kindly fork the repository, create a new branch, and submit your pull request.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 📜 License
+Include information about the project's license, if applicable.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 📞 Contact
+If you have any queries or suggestions, feel free to reach out to us at <a href="https://www.linkedin.com/in/wael-gamil/">LinkedIn<a/>
